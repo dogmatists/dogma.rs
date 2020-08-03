@@ -9,3 +9,7 @@
 
 # Pandoc outputs
 *.html
+
+# Rust artifacts
+Cargo.lock
+target/
