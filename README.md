@@ -28,6 +28,12 @@ use dogma::*;
 
 ## 📚 Reference
 
+### Traits
+
+- [`Countable`], [`MaybeCountable`]
+- [`Named`], [`MaybeNamed`]
+- [`Labeled`], [`MaybeLabeled`]
+
 ## 👨‍💻 Development
 
 ```bash
@@ -40,3 +46,10 @@ git clone https://github.com/dogmatists/dogma.rs.git
 [![Share on Reddit](https://img.shields.io/badge/share%20on-reddit-red?logo=reddit)](https://reddit.com/submit?url=https://github.com/dogmatists/dogma.rs&title=Dogma.rs)
 [![Share on Hacker News](https://img.shields.io/badge/share%20on-hacker%20news-orange?logo=ycombinator)](https://news.ycombinator.com/submitlink?u=https://github.com/dogmatists/dogma.rs&t=Dogma.rs)
 [![Share on Facebook](https://img.shields.io/badge/share%20on-facebook-1976D2?logo=facebook)](https://www.facebook.com/sharer/sharer.php?u=https://github.com/dogmatists/dogma.rs)
+
+[`Countable`]: https://docs.rs/dogma/latest/dogma/traits/trait.Countable.html
+[`Labeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.Labeled.html
+[`MaybeCountable`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeCountable.html
+[`MaybeLabeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeLabeled.html
+[`MaybeNamed`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeNamed.html
+[`Named`]: https://docs.rs/dogma/latest/dogma/traits/trait.Named.html
