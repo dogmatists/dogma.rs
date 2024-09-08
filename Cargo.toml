@@ -6,7 +6,7 @@ default-members = ["lib/*"]
 resolver = "2"
 
 [workspace.package]
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Arto Bendiken"]
 edition = "2021"
 rust-version = "1.70"
@@ -17,7 +17,7 @@ homepage = "https://github.com/dogmatists/dogma.rs"
 repository = "https://github.com/dogmatists/dogma.rs"
 license = "Unlicense"
 keywords = []
-categories = ["no-std"]
+categories = ["data-structures", "rust-patterns", "no-std"]
 publish = true
 
 [workspace.dependencies]
