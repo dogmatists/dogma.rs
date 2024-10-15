@@ -3,7 +3,9 @@
 /// A trait for collections that may be countable.
 pub trait MaybeCountable {
     /// Returns the number of elements in the collection, if known.
-    fn count(&self) -> Option<usize>;
+    fn count(&self) -> Option<usize> {
+        None // the default
+    }
 
     /// Checks whether the collection is countable.
     fn is_countable(&self) -> bool {
