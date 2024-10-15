@@ -14,3 +14,16 @@ pub trait MaybeLabeled {
         self.label().is_some()
     }
 }
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for dyn MaybeLabeled {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self.label() {
+            Some(ref value) => serializer.serialize_some(value.as_ref()),
+            None => serializer.serialize_none(),
+        }
+    }
+}

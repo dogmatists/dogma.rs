@@ -22,3 +22,13 @@ pub trait MaybeCountable {
         self.is_empty().map(|result| !result)
     }
 }
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for dyn MaybeCountable {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.count().serialize(serializer)
+    }
+}

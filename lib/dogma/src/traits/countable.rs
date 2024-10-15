@@ -15,3 +15,13 @@ pub trait Countable {
         !self.is_empty()
     }
 }
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for dyn Countable {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.count().serialize(serializer)
+    }
+}

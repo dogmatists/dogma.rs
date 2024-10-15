@@ -14,3 +14,16 @@ pub trait MaybeNamed {
         self.name().is_some()
     }
 }
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for dyn MaybeNamed {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self.name() {
+            Some(ref value) => serializer.serialize_some(value.as_ref()),
+            None => serializer.serialize_none(),
+        }
+    }
+}
