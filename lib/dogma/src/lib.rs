@@ -11,29 +11,11 @@
 #[doc(hidden)]
 mod prelude;
 
-mod feature;
-pub use feature::*;
+mod features;
+pub use features::*;
 
 /// Common traits for objects.
-pub mod traits {
-    mod countable;
-    pub use countable::*;
-
-    mod labeled;
-    pub use labeled::*;
-
-    mod maybe_countable;
-    pub use maybe_countable::*;
-
-    mod maybe_labeled;
-    pub use maybe_labeled::*;
-
-    mod maybe_named;
-    pub use maybe_named::*;
-
-    mod named;
-    pub use named::*;
-}
+pub mod traits;
 
 #[doc = include_str!("../../../README.md")]
 #[cfg(doctest)]
