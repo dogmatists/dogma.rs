@@ -47,6 +47,42 @@ dogma = { version = "0.1", default-features = false, features = [] }
 use dogma::*;
 ```
 
+### Using the `Named` trait
+
+```rust
+use dogma::traits::Named;
+use std::borrow::Cow;
+
+struct Person {
+    pub first_name: String,
+    pub last_name: String,
+}
+
+impl Named for Person {
+    fn name(&self) -> Cow<str> {
+        format!("{} {}", self.first_name, self.last_name).into()
+    }
+}
+```
+
+### Using the `MaybeNamed` trait
+
+```rust
+use dogma::traits::MaybeNamed;
+use std::borrow::Cow;
+
+struct UserProfile {
+    pub id: u64,
+    pub display_name: Option<String>,
+}
+
+impl MaybeNamed for UserProfile {
+    fn name(&self) -> Option<Cow<str>> {
+        self.display_name.as_ref().map(Cow::from)
+    }
+}
+```
+
 ## 📚 Reference
 
 https://docs.rs/dogma/
