@@ -6,10 +6,9 @@
 
 #![no_std]
 #![deny(unsafe_code)]
-#![allow(unused)]
 
 #[doc(hidden)]
-mod prelude;
+pub mod prelude;
 
 mod features;
 pub use features::*;
