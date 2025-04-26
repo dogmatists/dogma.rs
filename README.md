@@ -5,7 +5,8 @@
 [![Package](https://img.shields.io/crates/v/dogma)](https://crates.io/crates/dogma)
 [![Documentation](https://docs.rs/dogma/badge.svg)](https://docs.rs/dogma/)
 
-🚧 _This is presently under heavy construction._
+Provides the `Named`, `MaybeNamed`, `Labeled`, `MaybeLabeled`, `Countable`,
+and `MaybeCountable` traits for Rust.
 
 ## ✨ Features
 
