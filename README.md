@@ -5,8 +5,8 @@
 [![Package](https://img.shields.io/crates/v/dogma)](https://crates.io/crates/dogma)
 [![Documentation](https://docs.rs/dogma/badge.svg)](https://docs.rs/dogma/)
 
-Provides the `Named`, `MaybeNamed`, `Labeled`, `MaybeLabeled`, `Countable`,
-`MaybeCountable`, `Collection`, `CollectionMut` traits for Rust.
+Provides the `Named`, `MaybeNamed`, `Labeled`, `MaybeLabeled`, `Collection`,
+and `CollectionMut` traits for Rust.
 
 ## ✨ Features
 
@@ -37,7 +37,7 @@ dogma = "0.1"
 
 ```toml
 [dependencies]
-dogma = { version = "0.1", default-features = false, features = [] }
+dogma = { version = "0.1", default-features = false, features = ["traits"] }
 ```
 
 ## 👉 Examples

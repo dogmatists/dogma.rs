@@ -16,10 +16,12 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["serde", "traits"]
-serde = ["dep:serde"]
+all = ["enums", "serde", "traits"]
 std = []
 unstable = []
+
+# Enums:
+enums = []
 
 # Traits:
 traits = ["collection", "countable", "labeled", "named"]
@@ -27,6 +29,9 @@ collection = []
 countable = []
 labeled = []
 named = []
+
+# Integrations:
+serde = ["dep:serde"]
 
 [dependencies]
 serde = { version = "1.0", default-features = false, optional = true }

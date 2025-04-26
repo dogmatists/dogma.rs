@@ -12,11 +12,13 @@ extern crate alloc;
 use std as alloc;
 
 pub use alloc::{
-    borrow::{Cow, ToOwned},
-    collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque},
-    hash::{Hash, Hasher},
-    string::{String, ToString},
-    vec::{IntoIter, Vec},
+    borrow::{self, Cow, ToOwned},
+    collections::{self, BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque},
+    fmt,
+    hash::{self, Hash, Hasher},
+    str::{self, FromStr},
+    string::{self, String, ToString},
+    vec::{self, IntoIter, Vec},
 };
 
 pub use core::result::Result;
