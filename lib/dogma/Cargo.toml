@@ -16,10 +16,17 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["serde"]
+all = ["serde", "traits"]
 serde = ["dep:serde"]
 std = []
 unstable = []
+
+# Traits:
+traits = ["collection", "countable", "labeled", "named"]
+collection = []
+countable = []
+labeled = []
+named = []
 
 [dependencies]
 serde = { version = "1.0", default-features = false, optional = true }
