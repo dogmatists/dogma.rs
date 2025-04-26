@@ -3,7 +3,7 @@
 /// A trait for collections that are countable.
 pub trait Countable {
     /// Returns the number of elements in the collection.
-    fn count(&self) -> usize;
+    fn count(&self) -> usize; // FIXME: change to `len()`?
 
     /// Checks whether the collection is empty.
     fn is_empty(&self) -> bool {

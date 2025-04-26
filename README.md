@@ -6,7 +6,7 @@
 [![Documentation](https://docs.rs/dogma/badge.svg)](https://docs.rs/dogma/)
 
 Provides the `Named`, `MaybeNamed`, `Labeled`, `MaybeLabeled`, `Countable`,
-and `MaybeCountable` traits for Rust.
+`MaybeCountable`, `Collection`, `CollectionMut` traits for Rust.
 
 ## ✨ Features
 
@@ -90,6 +90,7 @@ https://docs.rs/dogma/
 
 ### Traits
 
+- [`Collection`], [`CollectionMut`]
 - [`Countable`], [`MaybeCountable`]
 - [`Named`], [`MaybeNamed`]
 - [`Labeled`], [`MaybeLabeled`]
@@ -113,6 +114,8 @@ git clone https://github.com/dogmatists/dogma.rs.git
 [feature flags]: https://github.com/dogmatists/dogma.rs/blob/master/lib/dogma/Cargo.toml
 [naming conventions]: https://rust-lang.github.io/api-guidelines/naming.html
 
+[`Collection`]: https://docs.rs/dogma/latest/dogma/traits/trait.Collection.html
+[`CollectionMut`]: https://docs.rs/dogma/latest/dogma/traits/trait.CollectionMut.html
 [`Countable`]: https://docs.rs/dogma/latest/dogma/traits/trait.Countable.html
 [`Labeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.Labeled.html
 [`MaybeCountable`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeCountable.html
