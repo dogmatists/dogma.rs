@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.3 - 2025-04-26
+### Added
+- [`Collection`], [`CollectionMut`] traits
+- Feature flags for traits
+
 ## 0.1.2 - 2025-04-26
 
 ## 0.1.1 - 2024-10-16
@@ -19,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`Named`], [`MaybeNamed`] traits
 - [`Labeled`], [`MaybeLabeled`] traits
 
+[`Collection`]: https://docs.rs/dogma/latest/dogma/traits/trait.Collection.html
+[`CollectionMut`]: https://docs.rs/dogma/latest/dogma/traits/trait.CollectionMut.html
 [`Countable`]: https://docs.rs/dogma/latest/dogma/traits/trait.Countable.html
 [`Labeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.Labeled.html
 [`MaybeCountable`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeCountable.html
