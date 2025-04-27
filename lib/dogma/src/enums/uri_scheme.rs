@@ -34,6 +34,19 @@ impl UriScheme {
             Other(scheme) => scheme.as_str(),
         }
     }
+
+    pub fn to_port(&self) -> Option<u16> {
+        use UriScheme::*;
+        Some(match self {
+            Ftp => 21,
+            Ftps => 990,
+            Git => 9418,
+            Http => 80,
+            Https => 443,
+            Scp => 22,
+            Data | File | Stdin | Other(_) => return None,
+        })
+    }
 }
 
 #[cfg(feature = "named")]

@@ -8,7 +8,10 @@ use crate::{
     prelude::{fmt, str::Split, FromStr, String},
     structs::IriAuthority,
 };
-use iri_string::types::{IriStr, IriString};
+use iri_string::{
+    components::AuthorityComponents,
+    types::{IriStr, IriString},
+};
 
 #[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
 pub enum Iri<'a> {
@@ -104,11 +107,14 @@ impl Iri<'_> {
     }
 
     pub fn authority(&self) -> Option<IriAuthority> {
+        IriAuthority::try_from(self).ok()
+    }
+
+    pub(crate) fn authority_components(&self) -> Option<AuthorityComponents> {
         match self {
             Iri::Borrowed(iri) => iri.authority_components(),
             Iri::Owned(iri) => iri.authority_components(),
         }
-        .map(IriAuthority::from)
     }
 
     pub fn authority_str(&self) -> Option<&str> {
