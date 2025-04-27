@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.4 - 2025-04-27
+### Added
+- [`Iri`], [`IriScheme`] enums
+- Feature flags for enums
+
 ## 0.1.3 - 2025-04-26
 ### Added
 - [`Collection`], [`CollectionMut`] traits
@@ -32,3 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [`MaybeLabeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeLabeled.html
 [`MaybeNamed`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeNamed.html
 [`Named`]: https://docs.rs/dogma/latest/dogma/traits/trait.Named.html
+
+[`Iri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Iri.html
+[`IriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.IriScheme.html
+[`Uri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Uri.html
+[`UriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.UriScheme.html
