@@ -4,14 +4,11 @@
 extern crate std;
 
 use crate::{
-    enums::{IriScheme, Uri},
-    prelude::{str::Split, FromStr, String, ToString},
+    enums::{IriError, IriScheme, Uri},
+    prelude::{fmt, str::Split, FromStr, String},
     structs::IriAuthority,
 };
-use iri_string::{
-    types::{CreationError, IriStr, IriString},
-    validate::Error,
-};
+use iri_string::types::{IriStr, IriString};
 
 #[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
 pub enum Iri<'a> {
@@ -20,10 +17,12 @@ pub enum Iri<'a> {
 }
 
 impl<'a> FromStr for Iri<'a> {
-    type Err = Error;
+    type Err = IriError;
 
     fn from_str(iri_str: &str) -> Result<Self, Self::Err> {
-        IriStr::new(iri_str).map(|iri_str| Iri::Owned(iri_str.into()))
+        IriStr::new(iri_str)
+            .map(|iri_str| Iri::Owned(iri_str.into()))
+            .map_err(|error| error.into())
     }
 }
 
@@ -46,31 +45,38 @@ impl From<IriString> for Iri<'static> {
 }
 
 impl<'a> TryFrom<&'a str> for Iri<'a> {
-    type Error = Error;
+    type Error = IriError;
 
     fn try_from(iri_str: &'a str) -> Result<Self, Self::Error> {
-        IriStr::new(iri_str).map(|iri_str| Iri::Borrowed(iri_str))
+        IriStr::new(iri_str)
+            .map(|iri_str| Iri::Borrowed(iri_str))
+            .map_err(|error| error.into())
     }
 }
 
 impl TryFrom<String> for Iri<'static> {
-    type Error = CreationError<String>;
+    type Error = IriError;
 
     fn try_from(iri_string: String) -> Result<Self, Self::Error> {
-        IriString::try_from(iri_string).map(|iri_string| Iri::Owned(iri_string))
+        IriString::try_from(iri_string)
+            .map(|iri_string| Iri::Owned(iri_string))
+            .map_err(|error| error.into())
     }
 }
 
 #[cfg(feature = "std")]
 impl TryFrom<&std::path::Path> for Iri<'static> {
-    type Error = ();
+    type Error = IriError;
 
     fn try_from(path: &std::path::Path) -> Result<Self, Self::Error> {
         if !path.is_absolute() {
-            return Err(()); // relative paths not supported
+            return Err(IriError::PathIsRelative(Some(path.into())));
         }
-        let iri_string = std::format!("file:{}", path.to_str().ok_or(())?);
-        Ok(Self::try_from(iri_string).map_err(|_| ())?)
+        let Some(path) = path.to_str() else {
+            return Err(IriError::PathNotUnicode(Some(path.into())));
+        };
+        let iri_string = std::format!("file:{}", path);
+        Ok(Self::try_from(iri_string)?)
     }
 }
 
@@ -159,11 +165,11 @@ impl Iri<'_> {
     }
 }
 
-impl ToString for Iri<'_> {
-    fn to_string(&self) -> String {
+impl fmt::Display for Iri<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Iri::Borrowed(iri) => iri.to_string(),
-            Iri::Owned(iri) => iri.to_string(),
+            Iri::Borrowed(iri) => iri.fmt(f),
+            Iri::Owned(iri) => iri.fmt(f),
         }
     }
 }
