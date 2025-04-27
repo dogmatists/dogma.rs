@@ -18,10 +18,10 @@ pub use enums::*;
 mod features;
 pub use features::*;
 
-#[cfg(feature = "structs")]
+#[cfg(any(feature = "structs", any(feature = "iri", feature = "uri")))]
 pub mod structs;
-//#[cfg(feature = "structs")]
-//pub use structs::*;
+#[cfg(any(feature = "structs", any(feature = "iri", feature = "uri")))]
+pub use structs::*;
 
 /// Common traits for objects.
 #[cfg(any(

@@ -5,10 +5,10 @@ extern crate std;
 
 use crate::{
     enums::{IriScheme, Uri},
-    prelude::{str::Split, String, ToString},
+    prelude::{str::Split, FromStr, String, ToString},
+    structs::IriAuthority,
 };
 use iri_string::{
-    components::AuthorityComponents,
     types::{CreationError, IriStr, IriString},
     validate::Error,
 };
@@ -17,6 +17,14 @@ use iri_string::{
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
     Owned(IriString),
+}
+
+impl<'a> FromStr for Iri<'a> {
+    type Err = Error;
+
+    fn from_str(iri_str: &str) -> Result<Self, Self::Err> {
+        IriStr::new(iri_str).map(|iri_str| Iri::Owned(iri_str.into()))
+    }
 }
 
 impl<'a> From<&'a IriStr> for Iri<'a> {
@@ -66,7 +74,7 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
     }
 }
 
-impl<'a> Iri<'a> {
+impl Iri<'_> {
     pub fn as_str(&self) -> &str {
         match self {
             Iri::Borrowed(iri) => iri.as_str(),
@@ -89,11 +97,12 @@ impl<'a> Iri<'a> {
         self.authority_str().is_some()
     }
 
-    pub fn authority(&self) -> Option<AuthorityComponents> {
+    pub fn authority(&self) -> Option<IriAuthority> {
         match self {
             Iri::Borrowed(iri) => iri.authority_components(),
             Iri::Owned(iri) => iri.authority_components(),
         }
+        .map(IriAuthority::from)
     }
 
     pub fn authority_str(&self) -> Option<&str> {

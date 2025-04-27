@@ -1,5 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
+#![allow(unused)]
 use crate::prelude::{fmt, Cow, FromStr, String};
 
 /// An enumerated URI scheme.
