@@ -21,7 +21,9 @@ std = ["iri-string/std"]
 unstable = []
 
 # Enums:
-enums = []
+enums = ["iri", "uri"]
+iri = []
+uri = ["iri"]
 
 # Structs:
 structs = []

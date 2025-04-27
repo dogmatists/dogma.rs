@@ -10,14 +10,18 @@
 #[doc(hidden)]
 pub mod prelude;
 
-#[cfg(feature = "enums")]
+#[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
 pub mod enums;
+#[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
+pub use enums::*;
 
 mod features;
 pub use features::*;
 
 #[cfg(feature = "structs")]
 pub mod structs;
+//#[cfg(feature = "structs")]
+//pub use structs::*;
 
 /// Common traits for objects.
 #[cfg(any(
@@ -30,6 +34,16 @@ pub mod structs;
     )
 ))]
 pub mod traits;
+#[cfg(any(
+    feature = "traits",
+    any(
+        feature = "collection",
+        feature = "countable",
+        feature = "labeled",
+        feature = "named"
+    )
+))]
+pub use traits::*;
 
 #[doc = include_str!("../../../README.md")]
 #[cfg(doctest)]
