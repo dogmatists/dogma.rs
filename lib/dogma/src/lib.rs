@@ -16,6 +16,9 @@ pub mod enums;
 mod features;
 pub use features::*;
 
+#[cfg(feature = "structs")]
+pub mod structs;
+
 /// Common traits for objects.
 #[cfg(any(
     feature = "traits",

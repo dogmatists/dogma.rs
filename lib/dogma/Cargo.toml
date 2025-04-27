@@ -16,12 +16,15 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["enums", "serde", "traits"]
-std = []
+all = ["enums", "serde", "structs", "traits"]
+std = ["iri-string/std"]
 unstable = []
 
 # Enums:
 enums = []
+
+# Structs:
+structs = []
 
 # Traits:
 traits = ["collection", "countable", "labeled", "named"]
@@ -31,8 +34,9 @@ labeled = []
 named = []
 
 # Integrations:
-serde = ["dep:serde"]
+serde = ["dep:serde", "iri-string/serde"]
 
 [dependencies]
+iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", default-features = false, optional = true }
 stability = "0.2"

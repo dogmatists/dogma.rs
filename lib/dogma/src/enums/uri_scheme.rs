@@ -3,6 +3,7 @@
 use crate::prelude::{fmt, Cow, FromStr, String};
 
 /// An enumerated URI scheme.
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum UriScheme {
     Data,
     File,
@@ -81,12 +82,6 @@ impl FromStr for UriScheme {
 }
 
 impl fmt::Display for UriScheme {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl fmt::Debug for UriScheme {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
