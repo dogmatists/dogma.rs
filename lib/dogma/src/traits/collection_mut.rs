@@ -1,9 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::Collection;
-use crate::prelude::{
-    BTreeMap, BTreeSet, BinaryHeap, Hash, HashMap, HashSet, LinkedList, Vec, VecDeque,
-};
+use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
+
+#[cfg(feature = "std")]
+use crate::prelude::{Hash, HashMap, HashSet};
 
 /// A trait for collections of items.
 pub trait CollectionMut: Collection {
@@ -53,6 +54,7 @@ impl<K: Ord, V> CollectionMut for BTreeMap<K, V> {
 }
 
 // Implementation for `HashSet<T>`
+#[cfg(feature = "std")]
 impl<T: Eq + Hash> CollectionMut for HashSet<T> {
     fn clear(&mut self) {
         self.clear()
@@ -60,6 +62,7 @@ impl<T: Eq + Hash> CollectionMut for HashSet<T> {
 }
 
 // Implementation for `HashMap<K, V>`
+#[cfg(feature = "std")]
 impl<K: Eq + Hash, V> CollectionMut for HashMap<K, V> {
     fn clear(&mut self) {
         self.clear()
