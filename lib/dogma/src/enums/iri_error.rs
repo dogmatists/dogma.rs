@@ -4,7 +4,7 @@
 extern crate std;
 
 #[allow(unused)]
-use crate::prelude::{fmt, String};
+use crate::prelude::{fmt, format, String};
 
 pub type IriResult<T> = core::result::Result<T, IriError>;
 

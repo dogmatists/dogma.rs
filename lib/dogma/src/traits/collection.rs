@@ -1,8 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::prelude::{
-    BTreeMap, BTreeSet, BinaryHeap, Hash, HashMap, HashSet, LinkedList, Vec, VecDeque,
-};
+use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
+
+#[cfg(feature = "std")]
+use crate::prelude::{Hash, HashMap, HashSet};
 
 /// A trait for collections of items.
 pub trait Collection {
@@ -127,6 +128,7 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
 }
 
 // Implementation for `HashSet<T>`
+#[cfg(feature = "std")]
 impl<T: Eq + Hash> Collection for HashSet<T> {
     type Item = T;
 
@@ -140,6 +142,7 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
 }
 
 // Implementation for `HashMap<K, V>`
+#[cfg(feature = "std")]
 impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
     type Item = (K, V);
 
