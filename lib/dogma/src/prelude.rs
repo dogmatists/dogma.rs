@@ -11,11 +11,9 @@ extern crate alloc;
 #[cfg(feature = "std")]
 use std as alloc;
 
-#[cfg(feature = "std")]
-pub use std::collections::{HashMap, HashSet};
-
 pub use alloc::{
-    borrow::{self, Cow, ToOwned},
+    borrow::{self, Borrow, BorrowMut, Cow, ToOwned},
+    boxed::{self, Box},
     collections::{self, BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque},
     fmt, format,
     str::{self, FromStr},
@@ -25,5 +23,8 @@ pub use alloc::{
 
 pub use core::{
     hash::{self, Hash, Hasher},
-    result::Result,
+    result::{self, Result},
 };
+
+#[cfg(feature = "std")]
+pub use std::collections::{HashMap, HashSet};
