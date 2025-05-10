@@ -97,6 +97,12 @@ https://docs.rs/dogma/
 
 ### Integrations
 
+Crate (Feature) | Version | Usage | Summary
+:--- | :--- | :--- | :---
+[miette] &nbsp;<sub>(`"miette"`)</sub> | 7.5 | [![miette](https://docs.rs/miette/badge.svg)](https://docs.rs/miette/) | Enhances `dogma::{IriError, UriError}`
+[serde] &nbsp;<sub>(`"serde"`)</sub> | 1 | [![serde](https://docs.rs/serde/badge.svg)](https://docs.rs/serde/) | Derives `serde::{Serialize, Deserialize}`
+<img width="220" height="1"/> | <img width="110" height="1"/> | <img width="100" height="1"/> | &nbsp;
+
 ## 👨‍💻 Development
 
 ```bash
@@ -113,6 +119,9 @@ git clone https://github.com/dogmatists/dogma.rs.git
 
 [feature flags]: https://github.com/dogmatists/dogma.rs/blob/master/lib/dogma/Cargo.toml
 [naming conventions]: https://rust-lang.github.io/api-guidelines/naming.html
+
+[miette]: https://crates.io/crates/miette
+[serde]: https://crates.io/crates/serde
 
 [`Collection`]: https://docs.rs/dogma/latest/dogma/traits/trait.Collection.html
 [`CollectionMut`]: https://docs.rs/dogma/latest/dogma/traits/trait.CollectionMut.html
