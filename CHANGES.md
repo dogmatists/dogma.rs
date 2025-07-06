@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.10 - 2025-07-xx
+### Changed
+- Bump [known-schemes] from 0.1 to 0.2
+- Bump [miette] from 7.5 to 7.6
+
 ## 0.1.9 - 2025-06-16
 ### Changed
 - Fix an MSRV conflict with `known-schemes`
@@ -63,3 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [`IriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.IriScheme.html
 [`Uri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Uri.html
 [`UriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.UriScheme.html
+
+[known-schemes]: https://crates.io/crates/known-schemes
+[miette]: https://crates.io/crates/miette

@@ -17,7 +17,7 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["enums", "serde", "structs", "traits"]
-std = ["iri-string/std", "known-schemes/std"]
+std = ["iri-string/std", "known-schemes/std", "serde?/std"]
 unstable = []
 
 # Enums:
@@ -36,13 +36,16 @@ labeled = []
 named = []
 
 # Integrations:
+clap = ["known-schemes/clap"]
 miette = ["dep:miette"]
-serde = ["dep:serde", "iri-string/serde"]
+serde = ["dep:serde", "iri-string/serde", "known-schemes/serde"]
 
 [dependencies]
-known-schemes = { version = "0.1.2", default-features = false }
 iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
-miette = { version = "7.5", default-features = false, features = [
+known-schemes = { version = "0.2", default-features = false, features = [
+    "iri-string",
+] }
+miette = { version = "7.6", default-features = false, features = [
     "derive",
 ], optional = true }
 serde = { version = "1", default-features = false, optional = true }
