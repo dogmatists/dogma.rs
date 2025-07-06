@@ -13,7 +13,7 @@ use iri_string::{
     types::{IriStr, IriString},
 };
 
-#[derive(Clone, Debug, Hash, PartialEq, PartialOrd)]
+#[derive(Clone, Hash, PartialEq, PartialOrd)]
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
     Owned(IriString),
@@ -168,6 +168,21 @@ impl Iri<'_> {
             return None;
         }
         Some(std::path::PathBuf::from(self.path()))
+    }
+}
+
+impl fmt::Debug for Iri<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Iri::Borrowed(value) => f
+                .debug_tuple("Iri::Borrowed")
+                .field(&value.as_str())
+                .finish(),
+            Iri::Owned(value) => f //
+                .debug_tuple("Iri::Owned")
+                .field(&value.as_str())
+                .finish(),
+        }
     }
 }
 
