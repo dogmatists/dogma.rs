@@ -5,18 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.10 - 2025-07-xx
+## 0.1.10 - 2025-07-06
 ### Changed
 - Bump [known-schemes] from 0.1 to 0.2
 - Bump [miette] from 7.5 to 7.6
 
 ## 0.1.9 - 2025-06-16
 ### Changed
-- Fix an MSRV conflict with `known-schemes`
+- Fix an MSRV conflict with [known-schemes]
 
 ## 0.1.8 - 2025-05-09
 ### Changed
-- Depend on known-schemes for URI/IRI schemes
+- Depend on [known-schemes] for URI/IRI schemes
 
 ## 0.1.7 - 2025-05-07
 ### Added
