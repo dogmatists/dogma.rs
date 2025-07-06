@@ -194,3 +194,6 @@ impl fmt::Display for Iri<'_> {
         }
     }
 }
+
+#[cfg(feature = "clap")]
+include!("integrations/clap.rs");
