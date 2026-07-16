@@ -51,14 +51,22 @@ impl core::str::FromStr for AncestorPath {
             return Err(FromPathError::Empty);
         }
 
-        // Reject absolute paths (leading '/') up front to match Path::components
-        if input.starts_with('/') {
+        // Reject absolute POSIX or Windows-rooted paths (leading '/' or '\\')
+        if input.starts_with('/') || input.starts_with('\\') {
+            return Err(FromPathError::NotAncestor);
+        }
+
+        // Reject Windows drive prefixes like "C:" or "C:\" and UNC paths "\\server\share"
+        if input.len() >= 2 && input.as_bytes()[1] == b':' {
+            return Err(FromPathError::NotAncestor);
+        }
+        if input.starts_with("//") || input.starts_with("\\\\") {
             return Err(FromPathError::NotAncestor);
         }
 
         let mut depth: usize = 0;
-        // Split on '/' and interpret components similarly to Path::components
-        for comp in input.split('/') {
+        // Split on both '/' and '\\' to support POSIX and Windows separators
+        for comp in input.split(|c| c == '/' || c == '\\') {
             if comp.is_empty() {
                 // ignore duplicate or trailing slashes
                 continue;
