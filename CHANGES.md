@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0 - 2026-07-16
+### Added
+- [`dogma::path::AncestorPath`]
+- [`dogma::path::FromPathError`]
+- Integrate with [camino]
+
 ## 0.1.11 - 2025-07-06
 ### Added
 - Integrate with [clap]
@@ -68,11 +74,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [`MaybeNamed`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeNamed.html
 [`Named`]: https://docs.rs/dogma/latest/dogma/traits/trait.Named.html
 
+[`dogma::path::AncestorPath`]: https://docs.rs/dogma/latest/dogma/path/struct.AncestorPath.html
+[`dogma::path::FromPathError`]: https://docs.rs/dogma/latest/dogma/path/enum.FromPathError.html
 [`Iri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Iri.html
 [`IriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.IriScheme.html
 [`Uri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Uri.html
 [`UriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.UriScheme.html
 
+[camino]: https://crates.io/crates/camino
 [clap]: https://crates.io/crates/clap
 [known-schemes]: https://crates.io/crates/known-schemes
 [miette]: https://crates.io/crates/miette
