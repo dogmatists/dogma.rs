@@ -2,14 +2,58 @@
 
 use crate::FromPathError;
 use alloc::string::{String, ToString};
+use core::num::NonZeroUsize;
 
-#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct AncestorPath(usize);
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AncestorPath(NonZeroUsize);
+
+impl Default for AncestorPath {
+    fn default() -> Self {
+        Self::DEPTH_1
+    }
+}
 
 impl AncestorPath {
+    pub const DEPTH_1: Self = Self(NonZeroUsize::new(1).unwrap());
+    pub const DEPTH_2: Self = Self(NonZeroUsize::new(2).unwrap());
+    pub const DEPTH_3: Self = Self(NonZeroUsize::new(3).unwrap());
+    pub const DEPTH_4: Self = Self(NonZeroUsize::new(4).unwrap());
+    pub const DEPTH_5: Self = Self(NonZeroUsize::new(5).unwrap());
+    pub const DEPTH_6: Self = Self(NonZeroUsize::new(6).unwrap());
+    pub const DEPTH_7: Self = Self(NonZeroUsize::new(7).unwrap());
+    pub const DEPTH_8: Self = Self(NonZeroUsize::new(8).unwrap());
+    pub const DEPTH_9: Self = Self(NonZeroUsize::new(9).unwrap());
+
     /// The minimum depth of an ancestor path is 1.
-    pub fn depth(&self) -> usize {
-        self.0 + 1
+    pub const fn depth(&self) -> usize {
+        self.0.get()
+    }
+
+    pub const fn is_absolute(&self) -> bool {
+        false
+    }
+
+    pub const fn is_relative(&self) -> bool {
+        true
+    }
+
+    pub fn is_dir(&self) -> bool {
+        #[cfg(feature = "std")]
+        return self.to_std_path_buf().is_dir();
+        #[cfg(not(feature = "std"))]
+        false
+    }
+
+    pub fn exists(&self) -> bool {
+        #[cfg(feature = "std")]
+        return self.to_std_path_buf().exists();
+        #[cfg(not(feature = "std"))]
+        false
+    }
+
+    #[cfg(feature = "std")]
+    pub fn try_exists(&self) -> std::io::Result<bool> {
+        self.to_std_path_buf().try_exists()
     }
 
     #[cfg(feature = "std")]
@@ -34,6 +78,23 @@ impl AncestorPath {
 
     pub fn into_string(self) -> String {
         self.to_string()
+    }
+}
+
+impl From<NonZeroUsize> for AncestorPath {
+    fn from(depth: NonZeroUsize) -> Self {
+        AncestorPath(depth)
+    }
+}
+
+impl TryFrom<usize> for AncestorPath {
+    type Error = NonZeroUsize;
+
+    fn try_from(depth: usize) -> Result<Self, Self::Error> {
+        if depth == 0 {
+            return Err(NonZeroUsize::new(0).unwrap());
+        }
+        Ok(AncestorPath(NonZeroUsize::new(depth).unwrap()))
     }
 }
 
@@ -82,7 +143,7 @@ impl core::str::FromStr for AncestorPath {
             return Err(FromPathError::Empty);
         }
 
-        Ok(Self(depth - 1))
+        Ok(Self(depth.try_into().unwrap()))
     }
 }
 
@@ -126,6 +187,7 @@ impl TryFrom<&std::path::Path> for AncestorPath {
 
     fn try_from(input: &std::path::Path) -> Result<Self, Self::Error> {
         use std::path::Component::*;
+
         let mut depth = 0;
         for component in input.components() {
             match component {
@@ -136,10 +198,12 @@ impl TryFrom<&std::path::Path> for AncestorPath {
                 }
             }
         }
+
         if depth == 0 {
             return Err(FromPathError::Empty);
         }
-        Ok(Self(depth - 1))
+
+        Ok(Self(depth.try_into().unwrap()))
     }
 }
 
@@ -174,6 +238,7 @@ impl TryFrom<&camino::Utf8Path> for AncestorPath {
 
     fn try_from(input: &camino::Utf8Path) -> Result<Self, Self::Error> {
         use camino::Utf8Component::*;
+
         let mut depth = 0;
         for component in input.components() {
             match component {
@@ -184,10 +249,12 @@ impl TryFrom<&camino::Utf8Path> for AncestorPath {
                 }
             }
         }
+
         if depth == 0 {
             return Err(FromPathError::Empty);
         }
-        Ok(Self(depth - 1))
+
+        Ok(Self(depth.try_into().unwrap()))
     }
 }
 

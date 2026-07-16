@@ -1,13 +1,13 @@
 // This is free and unencumbered software released into the public domain.
 
-/// A possible error when converting a [`Path`] or [`Utf8Path`] into an
-/// [`AncestorPath`].
+/// A possible error when converting a [`Path`](Path) or [`Utf8Path`](Utf8Path)
+/// into an [`AncestorPath`](AncestorPath).
 ///
-/// Produced by the [`TryFrom<Path>`][tryfrom1] and [`TryFrom<Utf8Path>`][tryfrom2]
-/// implementations for [`AncestorPath`](AncestorPath).
+/// Produced by the [`TryFrom<&Path>`][tryfrom1] and [`TryFrom<&Utf8Path>`][tryfrom2]
+/// implementations for [`&AncestorPath`](AncestorPath).
 ///
-/// [tryfrom1]: AncestorPath#impl-TryFrom<Path>-for-AncestorPath
-/// [tryfrom2]: AncestorPath#impl-TryFrom<Utf8Path>-for-AncestorPath
+/// [tryfrom1]: AncestorPath#impl-TryFrom<%26Path>-for-AncestorPath
+/// [tryfrom2]: AncestorPath#impl-TryFrom<%26Utf8Path>-for-AncestorPath
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum FromPathError {
     /// The path is empty.

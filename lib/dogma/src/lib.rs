@@ -52,7 +52,7 @@ pub mod traits;
 pub use traits::*;
 
 #[cfg(feature = "alloc")]
-mod path;
+pub mod path;
 #[cfg(feature = "alloc")]
 pub use path::*;
 
