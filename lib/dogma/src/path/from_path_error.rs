@@ -32,6 +32,7 @@ impl FromPathError {
     /// Converts self into a [`std::io::Error`] with kind
     /// [`InvalidFilename`](std::io::ErrorKind::InvalidFilename)
     /// or [`InvalidData`](std::io::ErrorKind::InvalidData).
+    #[cfg(feature = "std")]
     pub fn into_io_error(self) -> std::io::Error {
         use std::io::{Error, ErrorKind};
         use FromPathError::*;

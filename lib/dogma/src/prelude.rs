@@ -2,6 +2,12 @@
 
 #![allow(unused)]
 
+pub use core::{
+    hash::{self, Hash, Hasher},
+    result::{self, Result},
+};
+
+#[cfg(feature = "alloc")]
 pub use alloc::{
     borrow::{self, Borrow, BorrowMut, Cow, ToOwned},
     boxed::{self, Box},
@@ -10,11 +16,6 @@ pub use alloc::{
     str::{self, FromStr},
     string::{self, String, ToString},
     vec::{self, IntoIter, Vec},
-};
-
-pub use core::{
-    hash::{self, Hash, Hasher},
-    result::{self, Result},
 };
 
 #[cfg(feature = "std")]
