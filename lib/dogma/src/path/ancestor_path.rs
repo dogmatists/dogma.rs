@@ -1,6 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
-use alloc::string::ToString;
+use crate::FromPathError;
+use alloc::string::{String, ToString};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AncestorPath(usize);
@@ -10,11 +11,79 @@ impl AncestorPath {
     pub fn depth(&self) -> usize {
         self.0 + 1
     }
+
+    #[cfg(feature = "std")]
+    pub fn to_std_path_buf(&self) -> std::path::PathBuf {
+        std::path::PathBuf::from(self.to_string())
+    }
+
+    #[cfg(feature = "camino")]
+    pub fn to_path_buf(&self) -> camino::Utf8PathBuf {
+        camino::Utf8PathBuf::from(self.to_string())
+    }
+
+    #[cfg(feature = "std")]
+    pub fn into_std_path_buf(self) -> std::path::PathBuf {
+        std::path::PathBuf::from(self.into_string())
+    }
+
+    #[cfg(feature = "camino")]
+    pub fn into_path_buf(self) -> camino::Utf8PathBuf {
+        camino::Utf8PathBuf::from(self.into_string())
+    }
+
+    pub fn into_string(self) -> String {
+        self.to_string()
+    }
 }
 
 impl core::fmt::Display for AncestorPath {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", "../".repeat(self.depth()))
+    }
+}
+
+impl core::str::FromStr for AncestorPath {
+    type Err = FromPathError;
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        if input.is_empty() {
+            return Err(FromPathError::Empty);
+        }
+
+        // Reject absolute paths (leading '/') up front to match Path::components
+        if input.starts_with('/') {
+            return Err(FromPathError::NotAncestor);
+        }
+
+        let mut depth: usize = 0;
+        // Split on '/' and interpret components similarly to Path::components
+        for comp in input.split('/') {
+            if comp.is_empty() {
+                // ignore duplicate or trailing slashes
+                continue;
+            }
+            match comp {
+                "." => continue,
+                ".." => depth += 1,
+                _ => return Err(FromPathError::NotAncestor),
+            }
+        }
+
+        if depth == 0 {
+            return Err(FromPathError::Empty);
+        }
+
+        Ok(Self(depth - 1))
+    }
+}
+
+impl<T> From<&T> for AncestorPath
+where
+    T: Clone + Into<Self>,
+{
+    fn from(t: &T) -> Self {
+        t.clone().into()
     }
 }
 
@@ -25,9 +94,91 @@ impl From<AncestorPath> for std::path::PathBuf {
     }
 }
 
+#[cfg(feature = "std")]
+impl TryFrom<std::path::PathBuf> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: std::path::PathBuf) -> Result<Self, Self::Error> {
+        Self::try_from(AsRef::<std::path::Path>::as_ref(&input))
+    }
+}
+
+#[cfg(feature = "std")]
+impl TryFrom<&std::path::PathBuf> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: &std::path::PathBuf) -> Result<Self, Self::Error> {
+        Self::try_from(AsRef::<std::path::Path>::as_ref(input))
+    }
+}
+
+#[cfg(feature = "std")]
+impl TryFrom<&std::path::Path> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: &std::path::Path) -> Result<Self, Self::Error> {
+        use std::path::Component::*;
+        let mut depth = 0;
+        for component in input.components() {
+            match component {
+                CurDir => continue, // skip any initial "./"
+                ParentDir => depth += 1,
+                _ => {
+                    return Err(FromPathError::NotAncestor);
+                }
+            }
+        }
+        if depth == 0 {
+            return Err(FromPathError::Empty);
+        }
+        Ok(Self(depth - 1))
+    }
+}
+
 #[cfg(feature = "camino")]
 impl From<AncestorPath> for camino::Utf8PathBuf {
     fn from(input: AncestorPath) -> Self {
         camino::Utf8PathBuf::from(input.to_string())
+    }
+}
+
+#[cfg(feature = "camino")]
+impl TryFrom<camino::Utf8PathBuf> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: camino::Utf8PathBuf) -> Result<Self, Self::Error> {
+        Self::try_from(AsRef::<camino::Utf8Path>::as_ref(&input))
+    }
+}
+
+#[cfg(feature = "camino")]
+impl TryFrom<&camino::Utf8PathBuf> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: &camino::Utf8PathBuf) -> Result<Self, Self::Error> {
+        Self::try_from(AsRef::<camino::Utf8Path>::as_ref(input))
+    }
+}
+
+#[cfg(feature = "camino")]
+impl TryFrom<&camino::Utf8Path> for AncestorPath {
+    type Error = FromPathError;
+
+    fn try_from(input: &camino::Utf8Path) -> Result<Self, Self::Error> {
+        use camino::Utf8Component::*;
+        let mut depth = 0;
+        for component in input.components() {
+            match component {
+                CurDir => continue, // skip any initial "./"
+                ParentDir => depth += 1,
+                _ => {
+                    return Err(FromPathError::NotAncestor);
+                }
+            }
+        }
+        if depth == 0 {
+            return Err(FromPathError::Empty);
+        }
+        Ok(Self(depth - 1))
     }
 }
