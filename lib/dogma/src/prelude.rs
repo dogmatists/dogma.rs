@@ -2,15 +2,6 @@
 
 #![allow(unused)]
 
-#[cfg(feature = "std")]
-extern crate std;
-
-#[cfg(not(feature = "std"))]
-extern crate alloc;
-
-#[cfg(feature = "std")]
-use std as alloc;
-
 pub use alloc::{
     borrow::{self, Borrow, BorrowMut, Cow, ToOwned},
     boxed::{self, Box},

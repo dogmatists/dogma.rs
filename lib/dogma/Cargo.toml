@@ -17,7 +17,8 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["enums", "serde", "structs", "traits"]
-std = ["iri-string/std", "known-schemes/std", "serde?/std"]
+alloc = []
+std = ["alloc", "iri-string/std", "known-schemes/std", "serde?/std"]
 unstable = []
 
 # Enums:
