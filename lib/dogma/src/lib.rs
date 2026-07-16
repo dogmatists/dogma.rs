@@ -51,6 +51,11 @@ pub mod traits;
 ))]
 pub use traits::*;
 
+#[cfg(feature = "alloc")]
+mod path;
+#[cfg(feature = "alloc")]
+pub use path::*;
+
 #[doc = include_str!("../../../README.md")]
 #[cfg(doctest)]
 pub struct ReadmeDoctests;
