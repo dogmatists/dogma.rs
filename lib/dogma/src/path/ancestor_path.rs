@@ -190,3 +190,84 @@ impl TryFrom<&camino::Utf8Path> for AncestorPath {
         Ok(Self(depth - 1))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::str::FromStr;
+
+    #[test]
+    fn from_str_posix_basic() {
+        // single parent
+        let p = AncestorPath::from_str("..").unwrap();
+        assert_eq!(p.depth(), 1);
+
+        // two parents
+        let p = AncestorPath::from_str("../..").unwrap();
+        assert_eq!(p.depth(), 2);
+
+        // leading current dir components are ignored
+        let p = AncestorPath::from_str("./..").unwrap();
+        assert_eq!(p.depth(), 1);
+        let p = AncestorPath::from_str("./../..").unwrap();
+        assert_eq!(p.depth(), 2);
+
+        // trailing slash is ignored
+        let p = AncestorPath::from_str("../").unwrap();
+        assert_eq!(p.depth(), 1);
+
+        // embedded current dir components are ignored
+        let p = AncestorPath::from_str(".././..").unwrap();
+        assert_eq!(p.depth(), 2);
+    }
+
+    #[test]
+    fn from_str_windows_separators() {
+        // backslash separators
+        let p = AncestorPath::from_str(r"..\\..").unwrap();
+        assert_eq!(p.depth(), 2);
+
+        // mixed separators are allowed
+        let p = AncestorPath::from_str(r"..\\../..").unwrap();
+        assert_eq!(p.depth(), 3);
+    }
+
+    #[test]
+    fn from_str_errors() {
+        // empty input
+        match AncestorPath::from_str("") {
+            Err(FromPathError::Empty) => {}
+            other => panic!("expected Empty, got: {:?}", other),
+        }
+
+        // non-ancestor components
+        match AncestorPath::from_str("../file") {
+            Err(FromPathError::NotAncestor) => {}
+            other => panic!("expected NotAncestor, got: {:?}", other),
+        }
+
+        // absolute POSIX path
+        match AncestorPath::from_str("/../") {
+            Err(FromPathError::NotAncestor) => {}
+            other => panic!("expected NotAncestor, got: {:?}", other),
+        }
+
+        // absolute Windows UNC
+        match AncestorPath::from_str(r"\\\\server\\share") {
+            Err(FromPathError::NotAncestor) => {}
+            other => panic!("expected NotAncestor, got: {:?}", other),
+        }
+
+        // drive-prefixed paths are rejected
+        match AncestorPath::from_str(r"C:\\..\\..") {
+            Err(FromPathError::NotAncestor) => {}
+            other => panic!("expected NotAncestor, got: {:?}", other),
+        }
+
+        // path with file component
+        match AncestorPath::from_str("../file") {
+            Err(FromPathError::NotAncestor) => {}
+            other => panic!("expected NotAncestor, got: {:?}", other),
+        }
+    }
+}
