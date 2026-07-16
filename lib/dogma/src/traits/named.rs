@@ -5,7 +5,7 @@ use crate::prelude::Cow;
 /// A trait for objects that have a name.
 pub trait Named {
     /// Returns the name of the object.
-    fn name(&self) -> Cow<str>;
+    fn name(&self) -> Cow<'_, str>;
 }
 
 #[cfg(feature = "serde")]

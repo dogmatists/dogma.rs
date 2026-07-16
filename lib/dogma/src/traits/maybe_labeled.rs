@@ -5,7 +5,7 @@ use crate::prelude::Cow;
 /// A trait for objects that may have a human-readable label.
 pub trait MaybeLabeled {
     /// Returns the human-readable label, if any, of the object.
-    fn label(&self) -> Option<Cow<str>> {
+    fn label(&self) -> Option<Cow<'_, str>> {
         None // the default
     }
 

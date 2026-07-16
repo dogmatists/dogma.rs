@@ -106,11 +106,11 @@ impl Iri<'_> {
         self.authority_str().is_some()
     }
 
-    pub fn authority(&self) -> Option<IriAuthority> {
+    pub fn authority(&self) -> Option<IriAuthority<'_>> {
         IriAuthority::try_from(self).ok()
     }
 
-    pub(crate) fn authority_components(&self) -> Option<AuthorityComponents> {
+    pub(crate) fn authority_components(&self) -> Option<AuthorityComponents<'_>> {
         match self {
             Iri::Borrowed(iri) => iri.authority_components(),
             Iri::Owned(iri) => iri.authority_components(),
@@ -158,7 +158,7 @@ impl Iri<'_> {
         }
     }
 
-    pub fn to_uri(&self) -> Uri {
+    pub fn to_uri(&self) -> Uri<'_> {
         self.clone() // TODO
     }
 

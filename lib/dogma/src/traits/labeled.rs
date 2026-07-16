@@ -5,7 +5,7 @@ use crate::prelude::Cow;
 /// A trait for objects that have a human-readable label.
 pub trait Labeled {
     /// Returns the human-readable label of the object.
-    fn label(&self) -> Cow<str>;
+    fn label(&self) -> Cow<'_, str>;
 }
 
 #[cfg(feature = "serde")]

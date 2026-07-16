@@ -5,7 +5,7 @@ use crate::prelude::Cow;
 /// A trait for objects that may have a name.
 pub trait MaybeNamed {
     /// Returns the name, if any, of the object.
-    fn name(&self) -> Option<Cow<str>> {
+    fn name(&self) -> Option<Cow<'_, str>> {
         None // the default
     }
 
