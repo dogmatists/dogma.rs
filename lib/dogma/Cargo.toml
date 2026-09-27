@@ -31,10 +31,10 @@ structs = []
 
 # Traits:
 traits = ["collection", "countable", "labeled", "named"]
-collection = []
+collection = ["alloc"]
 countable = []
-labeled = []
-named = []
+labeled = ["alloc"]
+named = ["alloc"]
 
 # Integrations:
 camino = ["dep:camino"]
