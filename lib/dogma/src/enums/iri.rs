@@ -84,6 +84,8 @@ impl TryFrom<String> for Iri<'static> {
 /// On non-Windows platforms, uses an empty authority and percent-encodes path
 /// data, preserving separators and IRI-compatible Unicode. Relative and
 /// non-Unicode paths are rejected.
+/// On Windows, ordinary drive paths use an empty authority, forward slashes,
+/// and percent-encoded path data.
 #[cfg(feature = "std")]
 impl TryFrom<&std::path::Path> for Iri<'static> {
     type Error = IriError;
@@ -101,7 +103,22 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
             iri_string::percent_encode::PercentEncodedForIri::from_path(path)
         );
         #[cfg(windows)]
-        let iri_string = alloc::format!("file:{}", path);
+        let iri_string = {
+            use std::path::{Component, Path, Prefix};
+
+            if matches!(
+                Path::new(path).components().next(),
+                Some(Component::Prefix(prefix)) if matches!(prefix.kind(), Prefix::Disk(_))
+            ) {
+                let path = path.replace('\\', "/");
+                alloc::format!(
+                    "file:///{}",
+                    iri_string::percent_encode::PercentEncodedForIri::from_path(&path)
+                )
+            } else {
+                alloc::format!("file:{}", path)
+            }
+        };
         Self::try_from(iri_string)
     }
 }
@@ -348,6 +365,39 @@ mod tests {
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn from_path_encodes_windows_drive_paths() {
+        for (input, expected) in [
+            (r"C:\", "file:///C:/"),
+            ("c:/Temp/file", "file:///c:/Temp/file"),
+            (r"C:\Temp\a b#c%d", "file:///C:/Temp/a%20b%23c%25d"),
+            (r"C:\Temp\%20", "file:///C:/Temp/%2520"),
+            (r"C:\café\東京", "file:///C:/café/東京"),
+            (r"D:\dir/./sub\..\file", "file:///D:/dir/./sub/../file"),
+        ] {
+            let iri = Iri::try_from(std::path::Path::new(input)).unwrap();
+            assert_eq!(iri.as_str(), expected, "{input}");
+            assert_eq!(iri.authority_str(), Some(""), "{input}");
+            assert!(!iri.has_query(), "{input}");
+            assert!(!iri.has_fragment(), "{input}");
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn from_path_rejects_non_unicode_windows_paths() {
+        use std::{ffi::OsString, os::windows::ffi::OsStringExt, path::Path};
+
+        let input = OsString::from_wide(&[0x43, 0x3a, 0x5c, 0xd800]);
+        let path = Path::new(&input);
+        assert!(matches!(
+            Iri::try_from(path),
+            Err(crate::IriError::PathNotUnicode(Some(original)))
+                if original.as_path() == path
+        ));
     }
 
     #[cfg(all(feature = "std", not(windows)))]

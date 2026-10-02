@@ -22,12 +22,13 @@ relative to the repository root.
 ## IRI/URI correctness
 
 - [ ] **IRI-07: Implement native Windows file-path conversion.**
-  In `enums/iri.rs`, string concatenation does not handle Windows backslashes,
-  drive prefixes, or UNC authorities. Successful conversions must yield absolute
-  native paths. Add Windows-native tests for drive roots, drive-relative
-  rejection, UNC paths, and reserved characters. Implement drive and UNC
-  handling in separate steps if needed; verify on Windows CI.
-  Preserve the documented non-Unicode-path policy or change it explicitly.
+  Work in `enums/iri.rs`; preserve the non-Unicode-path policy.
+  - [ ] Decode drive file IRIs into absolute native Windows paths, with
+    round-trip tests and drive-relative rejection.
+  - [ ] Implement UNC path construction and conversion with authority handling.
+  - [ ] Define support or explicit rejection for verbatim and device prefixes.
+  - [ ] Verify native Windows runtime tests on CI, including drive construction,
+    reserved characters, and non-Unicode rejection.
 
 ## Identifier APIs and serialization
 
