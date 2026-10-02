@@ -214,12 +214,18 @@ impl Iri<'_> {
     /// The IRI path must start with a literal `/`; empty or rootless paths
     /// return `None`.
     ///
+    /// Returns `None` if a query or fragment is present, even if it is empty.
+    /// Literal `?` and `#` in paths must be encoded as `%3F` and `%23`.
+    ///
     /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
     /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
     /// native separators (`/`, and on Windows also `\`).
     #[cfg(feature = "std")]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
         if self.scheme() != IriScheme::File {
+            return None;
+        }
+        if self.has_query() || self.has_fragment() {
             return None;
         }
         if self.authority_str().is_some_and(|authority| {
@@ -451,11 +457,29 @@ mod tests {
 
     #[cfg(feature = "std")]
     #[test]
+    fn to_path_rejects_queries_and_fragments() {
+        for base in [
+            "file:/tmp/data",
+            "file:///tmp/data",
+            "FiLe://localhost/C:/Temp/a%23b",
+        ] {
+            for suffix in ["?query", "#fragment", "?query#fragment", "?", "#", "?#"] {
+                let input = alloc::format!("{base}{suffix}");
+                for iri in representations(&input) {
+                    assert!(iri.to_path().is_none(), "{input}");
+                }
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
     fn to_path_decodes_path_data_once() {
         for (input, expected) in [
             ("file:///tmp/file", "/tmp/file"),
             ("file:///tmp/a%20b", "/tmp/a b"),
             ("file:///tmp/a%23b%3Fc", "/tmp/a#b?c"),
+            ("file:///C:/Temp/a%23b", "/C:/Temp/a#b"),
             ("file:///tmp/a%2520b", "/tmp/a%20b"),
             ("file:///tmp/%252F%255C%2500", "/tmp/%2F%5C%00"),
             ("file:///tmp/%25", "/tmp/%"),

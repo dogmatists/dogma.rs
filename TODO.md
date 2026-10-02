@@ -24,7 +24,6 @@ relative to the repository root.
 - [ ] **IRI-06: Define a fallible file-IRI conversion contract.**
   Work in `enums/iri.rs` and `enums/iri_error.rs`; keep native platform
   conversion work separate (IRI-07).
-  - [ ] Define and document query/fragment handling.
   - [ ] Provide useful errors for unsupported or malformed conversions.
     Consider an additive fallible API before changing `Option<PathBuf>`.
 
