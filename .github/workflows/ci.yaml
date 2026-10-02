@@ -58,6 +58,8 @@ jobs:
         run: cargo test
       - name: Run all-feature tests
         run: cargo test -p dogma --all-features
+      - name: Run minimal-feature IRI tests
+        run: cargo test -p dogma --no-default-features --features iri,std --lib
   build-windows:
     name: Build on Windows
     runs-on: windows-latest
@@ -72,3 +74,5 @@ jobs:
         run: cargo test
       - name: Run all-feature tests
         run: cargo test -p dogma --all-features
+      - name: Run minimal-feature IRI tests
+        run: cargo test -p dogma --no-default-features --features iri,std --lib
