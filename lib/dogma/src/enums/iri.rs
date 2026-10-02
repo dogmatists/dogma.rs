@@ -111,10 +111,19 @@ impl Iri<'_> {
         }
     }
 
+    /// Returns the scheme, matching names case-insensitively.
+    ///
+    /// Unrecognized schemes have lowercase names. Use [`Self::scheme_str`] for
+    /// the original spelling.
     pub fn scheme(&self) -> IriScheme {
-        self.scheme_str().parse().unwrap() // always succeeds
+        let scheme = self.scheme_str();
+        if scheme.bytes().any(|byte| byte.is_ascii_uppercase()) {
+            return scheme.to_ascii_lowercase().parse().unwrap();
+        }
+        scheme.parse().unwrap() // always succeeds
     }
 
+    /// Returns the scheme name with its original spelling.
     pub fn scheme_str(&self) -> &str {
         match self {
             Iri::Borrowed(iri) => iri.scheme_str(),
@@ -249,7 +258,7 @@ include!("integrations/clap.rs");
 mod tests {
     extern crate std;
 
-    use super::Iri;
+    use super::{Iri, IriScheme};
     use alloc::{collections::BTreeSet, string::String};
     use core::{
         cmp::Ordering,
@@ -259,6 +268,50 @@ mod tests {
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[test]
+    fn scheme_recognition_ignores_ascii_case() {
+        for (text, spelling, expected) in [
+            (
+                "https://example.com/Case?Q=Value#Part",
+                "https",
+                IriScheme::Https,
+            ),
+            (
+                "HTTPS://example.com/Case?Q=Value#Part",
+                "HTTPS",
+                IriScheme::Https,
+            ),
+            (
+                "hTtPs://example.com/Case?Q=Value#Part",
+                "hTtPs",
+                IriScheme::Https,
+            ),
+            ("HTTP://example.com/", "HTTP", IriScheme::Http),
+            ("FiLe:/Example", "FiLe", IriScheme::File),
+        ] {
+            for iri in representations(text) {
+                assert_eq!(iri.scheme(), expected);
+                assert_eq!(iri.scheme_str(), spelling);
+                assert_eq!(iri.as_str(), text);
+            }
+        }
+    }
+
+    #[test]
+    fn scheme_normalizes_unknown_names() {
+        let expected = IriScheme::Other(String::from("x-example+v1.2"));
+        for (text, spelling) in [
+            ("x-example+v1.2:Payload", "x-example+v1.2"),
+            ("X-Example+V1.2:Payload", "X-Example+V1.2"),
+        ] {
+            for iri in representations(text) {
+                assert_eq!(iri.scheme(), expected);
+                assert_eq!(iri.scheme_str(), spelling);
+                assert_eq!(iri.as_str(), text);
+            }
+        }
     }
 
     #[test]
