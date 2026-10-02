@@ -47,10 +47,6 @@ relative to the repository root.
   and authority components; document host conversion rules. Preserve the
   source IRI and avoid double encoding.
 
-- [ ] **API-02: Centralize access to the underlying validated IRI.**
-  In `enums/iri.rs`, delegate repeated string/component-access matches through
-  `Iri::as_iri_str()`.
-
 - [ ] **SERDE-01: Support non-`'static` serializable trait objects.**
   The six `impl serde::Serialize for dyn ...` implementations in `traits/`
   implicitly require `'static`: `Named`, `MaybeNamed`, `Labeled`,

@@ -151,10 +151,7 @@ impl Iri<'_> {
     }
 
     pub fn as_str(&self) -> &str {
-        match self {
-            Iri::Borrowed(iri) => iri.as_str(),
-            Iri::Owned(iri) => iri.as_str(),
-        }
+        self.as_iri_str().as_str()
     }
 
     /// Converts this IRI into an owned value with a `'static` lifetime.
@@ -183,10 +180,7 @@ impl Iri<'_> {
 
     /// Returns the scheme name with its original spelling.
     pub fn scheme_str(&self) -> &str {
-        match self {
-            Iri::Borrowed(iri) => iri.scheme_str(),
-            Iri::Owned(iri) => iri.scheme_str(),
-        }
+        self.as_iri_str().scheme_str()
     }
 
     pub fn has_authority(&self) -> bool {
@@ -198,24 +192,15 @@ impl Iri<'_> {
     }
 
     pub(crate) fn authority_components(&self) -> Option<AuthorityComponents<'_>> {
-        match self {
-            Iri::Borrowed(iri) => iri.authority_components(),
-            Iri::Owned(iri) => iri.authority_components(),
-        }
+        self.as_iri_str().authority_components()
     }
 
     pub fn authority_str(&self) -> Option<&str> {
-        match self {
-            Iri::Borrowed(iri) => iri.authority_str(),
-            Iri::Owned(iri) => iri.authority_str(),
-        }
+        self.as_iri_str().authority_str()
     }
 
     pub fn path(&self) -> &str {
-        match self {
-            Iri::Borrowed(iri) => iri.path_str(),
-            Iri::Owned(iri) => iri.path_str(),
-        }
+        self.as_iri_str().path_str()
     }
 
     pub fn path_segments(&self) -> Option<Split<'_, char>> {
@@ -228,10 +213,7 @@ impl Iri<'_> {
     }
 
     pub fn query_str(&self) -> Option<&str> {
-        match self {
-            Iri::Borrowed(iri) => iri.query_str(),
-            Iri::Owned(iri) => iri.query_str(),
-        }
+        self.as_iri_str().query_str()
     }
 
     pub fn has_fragment(&self) -> bool {
@@ -239,10 +221,7 @@ impl Iri<'_> {
     }
 
     pub fn fragment_str(&self) -> Option<&str> {
-        match self {
-            Iri::Borrowed(iri) => iri.fragment_str(),
-            Iri::Owned(iri) => iri.fragment_str(),
-        }
+        self.as_iri_str().fragment_str()
     }
 
     #[cfg(feature = "uri")]
