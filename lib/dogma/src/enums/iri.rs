@@ -117,10 +117,12 @@ impl Iri<'_> {
     /// the original spelling.
     pub fn scheme(&self) -> IriScheme {
         let scheme = self.scheme_str();
-        if scheme.bytes().any(|byte| byte.is_ascii_uppercase()) {
-            return scheme.to_ascii_lowercase().parse().unwrap();
-        }
-        scheme.parse().unwrap() // always succeeds
+        // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
+        IriScheme::ALL
+            .iter()
+            .find(|known| known.as_str().eq_ignore_ascii_case(scheme))
+            .cloned()
+            .unwrap_or_else(|| IriScheme::Other(scheme.to_ascii_lowercase()))
     }
 
     /// Returns the scheme name with its original spelling.
@@ -268,6 +270,29 @@ mod tests {
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[test]
+    fn scheme_recognizes_telnet_and_tftp() {
+        let schemes = ["telnet://127.0.0.1/", "tftp://127.0.0.1/"]
+            .map(|text| Iri::try_from(text).unwrap().scheme());
+        assert_eq!(schemes, [IriScheme::Telnet, IriScheme::Tftp]);
+        assert_eq!(schemes.map(|scheme| scheme.to_port()), [Some(23), Some(69)]);
+    }
+
+    #[test]
+    fn scheme_recognizes_all_known_names() {
+        for expected in IriScheme::ALL {
+            for name in [
+                String::from(expected.as_str()),
+                expected.as_str().to_ascii_uppercase(),
+            ] {
+                let text = alloc::format!("{name}:value");
+                for iri in representations(&text) {
+                    assert_eq!(iri.scheme(), *expected, "{text}");
+                }
+            }
+        }
     }
 
     #[test]

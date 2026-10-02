@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-03. PATH-01 is the highest-priority non-IRI correctness fix.
+  start with IRI-04. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -20,14 +20,6 @@ relative to the repository root.
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
 ## IRI/URI correctness
-
-- [ ] **IRI-03: Investigate missing known-scheme mappings.**
-  `enums/iri.rs::scheme()` delegates classification to `known-schemes`.
-  The resolved 0.2.0 dependency's [source][schemes-source] lists `Telnet` and
-  `Tftp` in `UriScheme::ALL` but omits them from `FromStr`. This is a
-  source-inspection finding: first reproduce with `telnet://127.0.0.1/` and
-  `tftp://127.0.0.1/`. Expected classifications have default ports 23 and 69.
-  Check whether an upstream release fixes this before adding a local workaround.
 
 - [ ] **IRI-04: Encode filesystem path data when constructing file IRIs.**
   `enums/iri.rs::TryFrom<&std::path::Path>` currently uses `file:{path}`.
@@ -267,6 +259,3 @@ lint/documentation cleanup tasks, use:
 cargo clippy -p dogma --all-targets --all-features -- -D warnings
 RUSTDOCFLAGS="-D warnings" cargo doc -p dogma --all-features --no-deps
 ```
-
-[schemes-source]:
-  https://docs.rs/known-schemes/0.2.0/src/known_schemes/uri_scheme.rs.html
