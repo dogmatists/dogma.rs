@@ -246,7 +246,9 @@ impl Iri<'_> {
     /// information or ports, return `None`.
     ///
     /// The IRI path must start with a literal `/`; empty or rootless paths
-    /// return `None`.
+    /// return `None`. On Windows, the decoded path must start with `/C:/`
+    /// (using any ASCII drive letter); the leading slash is removed and path
+    /// separators become backslashes. Other Windows path forms return `None`.
     ///
     /// Returns `None` if a query or fragment is present, even if it is empty.
     /// Literal `?` and `#` in paths must be encoded as `%3F` and `%23`.
@@ -307,9 +309,18 @@ impl Iri<'_> {
             }
             decoded.push(byte);
         }
-        String::from_utf8(decoded)
-            .map(std::path::PathBuf::from)
-            .map_err(|_| IriToPathError::InvalidEncoding)
+        let decoded = String::from_utf8(decoded).map_err(|_| IriToPathError::InvalidEncoding)?;
+        #[cfg(windows)]
+        let decoded = {
+            // A rooted path alone depends on the current drive on Windows.
+            // Accept only an explicit drive root, not UNC or device prefixes.
+            match decoded.as_bytes() {
+                [b'/', drive, b':', b'/', ..] if drive.is_ascii_alphabetic() => {}
+                _ => return Err(IriToPathError::PathNotAbsolute),
+            }
+            decoded[1..].replace('/', "\\")
+        };
+        Ok(std::path::PathBuf::from(decoded))
     }
 }
 
@@ -398,6 +409,64 @@ mod tests {
             assert_eq!(iri.authority_str(), Some(""), "{input}");
             assert!(!iri.has_query(), "{input}");
             assert!(!iri.has_fragment(), "{input}");
+            let decoded = iri.try_to_path().unwrap();
+            assert!(decoded.is_absolute(), "{input}");
+            assert_eq!(
+                decoded.as_os_str(),
+                std::ffi::OsStr::new(&input.replace('/', "\\")),
+                "{input}"
+            );
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn to_path_decodes_windows_drive_paths() {
+        for (input, expected) in [
+            ("file:///C:/", r"C:\"),
+            ("file:/c:/Temp/file", r"c:\Temp\file"),
+            ("file://localhost/C:/Temp/a%20b", r"C:\Temp\a b"),
+            ("FiLe://LoCaLhOsT/D:/a%23b", r"D:\a#b"),
+            ("file:///C:/a%23b%3Fc", r"C:\a#b?c"),
+            ("file:///C:/%2520%252F%255C%2500", r"C:\%20%2F%5C%00"),
+            ("file:///C:/%25", r"C:\%"),
+            ("file:///C:/a+b%2Bc", r"C:\a+b+c"),
+            ("file:///%63%3a/caf%C3%A9/東京", r"c:\café\東京"),
+            ("file:///C:/%EE%80%80", "C:\\\u{e000}"),
+            ("file:///D:/dir/./sub/../file", r"D:\dir\.\sub\..\file"),
+        ] {
+            for iri in representations(input) {
+                for path in [iri.try_to_path().unwrap(), iri.to_path().unwrap()] {
+                    assert!(path.is_absolute(), "{input}");
+                    assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected), "{input}");
+                }
+            }
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn to_path_requires_windows_drive_roots() {
+        for input in [
+            "file:///",
+            "file:///tmp/data",
+            "file:///C:",
+            "file:///C:relative",
+            "file:///1:/data",
+            "file:///é:/data",
+            "file:///C%3Arelative",
+            "file:///C%7C/data",
+            "file:////server/share/data",
+            "file:////./C:/data",
+        ] {
+            for iri in representations(input) {
+                assert_eq!(
+                    iri.try_to_path(),
+                    Err(crate::IriToPathError::PathNotAbsolute),
+                    "{input}"
+                );
+                assert!(iri.to_path().is_none(), "{input}");
+            }
         }
     }
 
@@ -500,7 +569,7 @@ mod tests {
         ));
     }
 
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", not(windows)))]
     #[test]
     fn to_path_accepts_local_authorities() {
         for (input, expected) in [
@@ -613,7 +682,7 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", not(windows)))]
     #[test]
     fn to_path_decodes_path_data_once() {
         for (input, expected) in [

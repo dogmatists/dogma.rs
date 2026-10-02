@@ -108,6 +108,7 @@ pub enum IriToPathError {
     UnsupportedFragment,
 
     /// The IRI path is empty or does not start with a literal `/`.
+    /// On Windows, also returned if the decoded path lacks a drive root.
     PathNotAbsolute,
 
     /// The path cannot be percent-decoded as UTF-8.
@@ -131,7 +132,7 @@ impl fmt::Display for IriToPathError {
             Self::UnsupportedAuthority => "file-IRI authority is not supported",
             Self::UnsupportedQuery => "file-IRI queries are not supported",
             Self::UnsupportedFragment => "file-IRI fragments are not supported",
-            Self::PathNotAbsolute => "file-IRI path must start with '/'",
+            Self::PathNotAbsolute => "file-IRI path does not identify an absolute native path",
             Self::InvalidEncoding => "file-IRI path cannot be decoded as UTF-8",
             Self::NulByte => "file-IRI path contains a NUL byte",
             Self::EncodedSeparator => "file-IRI path contains an encoded native separator",
