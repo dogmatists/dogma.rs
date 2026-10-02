@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-01. PATH-01 is the highest-priority non-IRI correctness fix.
+  start with IRI-02. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -20,14 +20,6 @@ relative to the repository root.
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
 ## IRI/URI correctness
-
-- [ ] **IRI-01: Reject invalid explicit ports during address resolution.**
-  In `structs/iri_authority.rs`, `port()` maps an out-of-range number to `None`,
-  and `to_socket_addrs()` then substitutes the scheme's default port.
-  Reproduction: `http://127.0.0.1:99999/` resolves to port 80. Distinguish an
-  absent port from an invalid explicit value; return `InvalidInput` for the
-  latter. Cover 0, 65535, 65536, missing defaults, and explicitly chosen
-  empty-port semantics. Use IP literals so tests need no external DNS.
 
 - [ ] **IRI-02: Resolve bracketed IPv6 authorities correctly.**
   In `structs/iri_authority.rs::to_socket_addrs`, `http://[::1]:80/` passes
