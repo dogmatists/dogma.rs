@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-06. PATH-01 is the highest-priority non-IRI correctness fix.
+  start with IRI-07. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -20,12 +20,6 @@ relative to the repository root.
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
 ## IRI/URI correctness
-
-- [ ] **IRI-06: Define a fallible file-IRI conversion contract.**
-  Work in `enums/iri.rs` and `enums/iri_error.rs`; keep native platform
-  conversion work separate (IRI-07).
-  - [ ] Provide useful errors for unsupported or malformed conversions.
-    Consider an additive fallible API before changing `Option<PathBuf>`.
 
 - [ ] **IRI-07: Implement native Windows file-path conversion.**
   In `enums/iri.rs`, string concatenation does not handle Windows backslashes,

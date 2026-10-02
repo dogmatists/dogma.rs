@@ -3,6 +3,8 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+#[cfg(feature = "std")]
+use crate::enums::IriToPathError;
 #[cfg(feature = "uri")]
 use crate::enums::Uri;
 use crate::{
@@ -220,39 +222,62 @@ impl Iri<'_> {
     /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
     /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
     /// native separators (`/`, and on Windows also `\`).
+    ///
+    /// See [`Self::try_to_path`] for error details.
     #[cfg(feature = "std")]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
+        self.try_to_path().ok()
+    }
+
+    /// Converts a file IRI's path using the rules of [`Self::to_path`].
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`IriToPathError`] describing the unsupported component or
+    /// invalid path data that prevents conversion.
+    #[cfg(feature = "std")]
+    pub fn try_to_path(&self) -> Result<std::path::PathBuf, IriToPathError> {
         if self.scheme() != IriScheme::File {
-            return None;
+            return Err(IriToPathError::UnsupportedScheme);
         }
-        if self.has_query() || self.has_fragment() {
-            return None;
+        if self.has_query() {
+            return Err(IriToPathError::UnsupportedQuery);
+        }
+        if self.has_fragment() {
+            return Err(IriToPathError::UnsupportedFragment);
         }
         if self.authority_str().is_some_and(|authority| {
             !authority.is_empty() && !authority.eq_ignore_ascii_case("localhost")
         }) {
-            return None;
+            return Err(IriToPathError::UnsupportedAuthority);
         }
         let path = self.path();
         if !path.starts_with('/') {
-            return None;
+            return Err(IriToPathError::PathNotAbsolute);
         }
         let mut decoded = alloc::vec::Vec::with_capacity(path.len());
         let mut bytes = path.bytes();
         while let Some(mut byte) = bytes.next() {
             if byte == b'%' {
-                let high = char::from(bytes.next()?).to_digit(16)?;
-                let low = char::from(bytes.next()?).to_digit(16)?;
+                let high = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
+                    .to_digit(16)
+                    .ok_or(IriToPathError::InvalidEncoding)?;
+                let low = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
+                    .to_digit(16)
+                    .ok_or(IriToPathError::InvalidEncoding)?;
                 byte = ((high << 4) | low) as u8;
-                if byte == 0 || std::path::is_separator(char::from(byte)) {
-                    return None;
+                if byte == 0 {
+                    return Err(IriToPathError::NulByte);
+                }
+                if std::path::is_separator(char::from(byte)) {
+                    return Err(IriToPathError::EncodedSeparator);
                 }
             }
             decoded.push(byte);
         }
         String::from_utf8(decoded)
-            .ok()
             .map(std::path::PathBuf::from)
+            .map_err(|_| IriToPathError::InvalidEncoding)
     }
 }
 
@@ -474,6 +499,36 @@ mod tests {
 
     #[cfg(feature = "std")]
     #[test]
+    fn try_to_path_reports_conversion_errors() {
+        use crate::IriToPathError as Error;
+
+        for (input, expected) in [
+            ("https://example.com/data", Error::UnsupportedScheme),
+            (
+                "file://remote.example/share/data",
+                Error::UnsupportedAuthority,
+            ),
+            ("file:///tmp/data?query", Error::UnsupportedQuery),
+            ("file:///tmp/data?", Error::UnsupportedQuery),
+            ("file:///C:/Temp/data#fragment", Error::UnsupportedFragment),
+            ("file:///C:/Temp/data#", Error::UnsupportedFragment),
+            ("file:", Error::PathNotAbsolute),
+            ("file:relative/path", Error::PathNotAbsolute),
+            ("file:C:/Temp/data", Error::PathNotAbsolute),
+            ("file:///tmp/%FF", Error::InvalidEncoding),
+            ("file:///tmp/%C3", Error::InvalidEncoding),
+            ("file:///tmp/a%00b", Error::NulByte),
+            ("file:///C:/Temp/a%2fb", Error::EncodedSeparator),
+        ] {
+            for iri in representations(input) {
+                assert_eq!(iri.try_to_path(), Err(expected), "{input}");
+                assert!(iri.to_path().is_none(), "{input}");
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
     fn to_path_decodes_path_data_once() {
         for (input, expected) in [
             ("file:///tmp/file", "/tmp/file"),
@@ -489,11 +544,9 @@ mod tests {
             ("FiLe:/tmp/a%0ab", "/tmp/a\nb"),
         ] {
             for iri in representations(input) {
-                assert_eq!(
-                    iri.to_path().unwrap().as_os_str(),
-                    std::ffi::OsStr::new(expected),
-                    "{input}"
-                );
+                for path in [iri.to_path().unwrap(), iri.try_to_path().unwrap()] {
+                    assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected), "{input}");
+                }
             }
         }
     }
@@ -527,6 +580,11 @@ mod tests {
             for iri in representations(input) {
                 if cfg!(windows) {
                     assert!(iri.to_path().is_none(), "{input}");
+                    assert_eq!(
+                        iri.try_to_path(),
+                        Err(crate::IriToPathError::EncodedSeparator),
+                        "{input}"
+                    );
                 } else {
                     assert_eq!(
                         iri.to_path().unwrap().as_os_str(),

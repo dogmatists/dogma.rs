@@ -80,3 +80,53 @@ impl From<iri_string::types::CreationError<String>> for IriError {
         IriError::Invalid(Some(error.into_source()))
     }
 }
+
+/// An error returned by [`Iri::try_to_path`](crate::Iri::try_to_path).
+#[cfg(feature = "std")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
+#[non_exhaustive]
+pub enum IriToPathError {
+    /// The IRI scheme is not `file`.
+    UnsupportedScheme,
+
+    /// The authority is neither absent, empty, nor bare `localhost`.
+    UnsupportedAuthority,
+
+    /// A query component is present, even if empty.
+    UnsupportedQuery,
+
+    /// A fragment component is present, even if empty.
+    UnsupportedFragment,
+
+    /// The IRI path is empty or does not start with a literal `/`.
+    PathNotAbsolute,
+
+    /// The path cannot be percent-decoded as UTF-8.
+    InvalidEncoding,
+
+    /// The decoded path contains a NUL byte.
+    NulByte,
+
+    /// The path contains an encoded native separator (`/`, or `\` on Windows).
+    EncodedSeparator,
+}
+
+#[cfg(feature = "std")]
+impl core::error::Error for IriToPathError {}
+
+#[cfg(feature = "std")]
+impl fmt::Display for IriToPathError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::UnsupportedScheme => "filesystem path conversion requires the file scheme",
+            Self::UnsupportedAuthority => "file-IRI authority is not supported",
+            Self::UnsupportedQuery => "file-IRI queries are not supported",
+            Self::UnsupportedFragment => "file-IRI fragments are not supported",
+            Self::PathNotAbsolute => "file-IRI path must start with '/'",
+            Self::InvalidEncoding => "file-IRI path cannot be decoded as UTF-8",
+            Self::NulByte => "file-IRI path contains a NUL byte",
+            Self::EncodedSeparator => "file-IRI path contains an encoded native separator",
+        })
+    }
+}
