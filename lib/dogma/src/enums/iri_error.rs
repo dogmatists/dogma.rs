@@ -98,7 +98,11 @@ pub enum IriToPathError {
     /// The IRI scheme is not `file`.
     UnsupportedScheme,
 
-    /// The authority is neither absent, empty, nor bare `localhost`.
+    /// The authority is unsupported on this platform.
+    /// On Windows, this includes user information, ports, bracketed IP literals,
+    /// and server names that select a device namespace or a dot segment.
+    /// Elsewhere, only absent, empty, or bare `localhost` authorities are
+    /// allowed.
     UnsupportedAuthority,
 
     /// A query component is present, even if empty.
@@ -108,17 +112,21 @@ pub enum IriToPathError {
     UnsupportedFragment,
 
     /// The IRI path is empty or does not start with a literal `/`.
-    /// On Windows, also returned if the decoded path lacks a drive root.
+    /// On Windows, also returned if a local path lacks a drive root.
     PathNotAbsolute,
 
-    /// The path cannot be percent-decoded as UTF-8.
+    /// The path or UNC hostname cannot be percent-decoded as UTF-8.
     InvalidEncoding,
 
-    /// The decoded path contains a NUL byte.
+    /// The decoded path or UNC hostname contains a NUL byte.
     NulByte,
 
-    /// The path contains an encoded native separator (`/`, or `\` on Windows).
+    /// The path or UNC hostname contains an encoded native separator
+    /// (`/`, or `\` on Windows).
     EncodedSeparator,
+
+    /// The UNC share is empty, is `.` or `..`, or contains `:`.
+    InvalidUncShare,
 }
 
 #[cfg(feature = "std")]
@@ -133,9 +141,12 @@ impl fmt::Display for IriToPathError {
             Self::UnsupportedQuery => "file-IRI queries are not supported",
             Self::UnsupportedFragment => "file-IRI fragments are not supported",
             Self::PathNotAbsolute => "file-IRI path does not identify an absolute native path",
-            Self::InvalidEncoding => "file-IRI path cannot be decoded as UTF-8",
-            Self::NulByte => "file-IRI path contains a NUL byte",
-            Self::EncodedSeparator => "file-IRI path contains an encoded native separator",
+            Self::InvalidEncoding => "file-IRI path or hostname cannot be decoded as UTF-8",
+            Self::NulByte => "file-IRI path or hostname contains a NUL byte",
+            Self::EncodedSeparator => {
+                "file-IRI path or hostname contains an encoded native separator"
+            }
+            Self::InvalidUncShare => "file-IRI path does not identify a valid UNC share",
         })
     }
 }

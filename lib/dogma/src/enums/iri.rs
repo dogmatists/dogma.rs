@@ -244,21 +244,28 @@ impl Iri<'_> {
 
     /// Returns the percent-decoded path component of a file IRI.
     ///
-    /// Only absent or empty authorities and bare `localhost` (ignoring ASCII
-    /// case) are accepted. Other authorities, including those with user
-    /// information or ports, return `None`.
+    /// On non-Windows platforms, only absent or empty authorities and bare
+    /// `localhost` (ignoring ASCII case) are accepted.
     ///
     /// The IRI path must start with a literal `/`; empty or rootless paths
-    /// return `None`. On Windows, the decoded path must start with `/C:/`
-    /// (using any ASCII drive letter); the leading slash is removed and path
-    /// separators become backslashes. Other Windows path forms return `None`.
+    /// return `None`. For local Windows drive paths, the decoded path must start
+    /// with `/C:/` (using any ASCII drive letter); the leading slash is removed
+    /// and path separators become backslashes.
+    ///
+    /// On Windows, a nonempty registered-name or IPv4 host and a share path
+    /// produce a UNC path. Hostnames are percent-decoded as UTF-8; `localhost`
+    /// (ignoring ASCII case after decoding) with a drive path denotes that local
+    /// drive, and otherwise denotes a UNC server. User information, ports,
+    /// bracketed IP literals, and the server names `.`, `..`, and `?` are
+    /// unsupported. Shares must be nonempty, must not be `.` or `..`, and must
+    /// not contain `:`.
     ///
     /// Returns `None` if a query or fragment is present, even if it is empty.
     /// Literal `?` and `#` in paths must be encoded as `%3F` and `%23`.
     ///
     /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
     /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
-    /// native separators (`/`, and on Windows also `\`).
+    /// native separators (`/`, and on Windows also `\`) in paths or hostnames.
     ///
     /// See [`Self::try_to_path`] for error details.
     #[cfg(feature = "std")]
@@ -283,48 +290,86 @@ impl Iri<'_> {
         if self.has_fragment() {
             return Err(IriToPathError::UnsupportedFragment);
         }
+        #[cfg(not(windows))]
         if self.authority_str().is_some_and(|authority| {
             !authority.is_empty() && !authority.eq_ignore_ascii_case("localhost")
         }) {
             return Err(IriToPathError::UnsupportedAuthority);
         }
+        #[cfg(windows)]
+        let host = self
+            .authority_components()
+            .map(|authority| {
+                if authority.userinfo().is_some()
+                    || authority.port().is_some()
+                    || authority.host().starts_with('[')
+                {
+                    return Err(IriToPathError::UnsupportedAuthority);
+                }
+                let host = decode_file_path_data(authority.host())?;
+                // These names would select a device namespace or a dot segment.
+                if matches!(host.as_str(), "." | ".." | "?") {
+                    return Err(IriToPathError::UnsupportedAuthority);
+                }
+                Ok(host)
+            })
+            .transpose()?;
         let path = self.path();
         if !path.starts_with('/') {
             return Err(IriToPathError::PathNotAbsolute);
         }
-        let mut decoded = alloc::vec::Vec::with_capacity(path.len());
-        let mut bytes = path.bytes();
-        while let Some(mut byte) = bytes.next() {
-            if byte == b'%' {
-                let high = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
-                    .to_digit(16)
-                    .ok_or(IriToPathError::InvalidEncoding)?;
-                let low = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
-                    .to_digit(16)
-                    .ok_or(IriToPathError::InvalidEncoding)?;
-                byte = ((high << 4) | low) as u8;
-                if byte == 0 {
-                    return Err(IriToPathError::NulByte);
-                }
-                if std::path::is_separator(char::from(byte)) {
-                    return Err(IriToPathError::EncodedSeparator);
-                }
-            }
-            decoded.push(byte);
-        }
-        let decoded = String::from_utf8(decoded).map_err(|_| IriToPathError::InvalidEncoding)?;
+        let decoded = decode_file_path_data(path)?;
         #[cfg(windows)]
         let decoded = {
-            // A rooted path alone depends on the current drive on Windows.
-            // Accept only an explicit drive root, not UNC or device prefixes.
-            match decoded.as_bytes() {
-                [b'/', drive, b':', b'/', ..] if drive.is_ascii_alphabetic() => {}
-                _ => return Err(IriToPathError::PathNotAbsolute),
+            let drive_path = matches!(
+                decoded.as_bytes(),
+                [b'/', drive, b':', b'/', ..] if drive.is_ascii_alphabetic()
+            );
+            match host.as_deref().filter(|host| !host.is_empty()) {
+                Some(host) if !(host.eq_ignore_ascii_case("localhost") && drive_path) => {
+                    let share = decoded[1..].split('/').next().unwrap_or("");
+                    if matches!(share, "" | "." | "..") || share.contains(':') {
+                        return Err(IriToPathError::InvalidUncShare);
+                    }
+                    alloc::format!("\\\\{}{}", host, decoded.replace('/', "\\"))
+                }
+                _ => {
+                    // A rooted path alone depends on the current drive.
+                    if !drive_path {
+                        return Err(IriToPathError::PathNotAbsolute);
+                    }
+                    decoded[1..].replace('/', "\\")
+                }
             }
-            decoded[1..].replace('/', "\\")
         };
         Ok(std::path::PathBuf::from(decoded))
     }
+}
+
+// Shared decoding for paths and Windows UNC hostnames.
+#[cfg(feature = "std")]
+fn decode_file_path_data(text: &str) -> Result<String, IriToPathError> {
+    let mut decoded = alloc::vec::Vec::with_capacity(text.len());
+    let mut bytes = text.bytes();
+    while let Some(mut byte) = bytes.next() {
+        if byte == b'%' {
+            let high = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
+                .to_digit(16)
+                .ok_or(IriToPathError::InvalidEncoding)?;
+            let low = char::from(bytes.next().ok_or(IriToPathError::InvalidEncoding)?)
+                .to_digit(16)
+                .ok_or(IriToPathError::InvalidEncoding)?;
+            byte = ((high << 4) | low) as u8;
+            if byte == 0 {
+                return Err(IriToPathError::NulByte);
+            }
+            if std::path::is_separator(char::from(byte)) {
+                return Err(IriToPathError::EncodedSeparator);
+            }
+        }
+        decoded.push(byte);
+    }
+    String::from_utf8(decoded).map_err(|_| IriToPathError::InvalidEncoding)
 }
 
 impl Hash for Iri<'_> {
@@ -475,7 +520,7 @@ mod tests {
 
     #[cfg(all(feature = "std", windows))]
     #[test]
-    fn from_path_encodes_windows_unc_paths() {
+    fn windows_unc_paths_round_trip() {
         for (input, expected, authority, path) in [
             (r"\\server\share", "file://server/share", "server", "/share"),
             (
@@ -483,6 +528,12 @@ mod tests {
                 "file://server/share/",
                 "server",
                 "/share/",
+            ),
+            (
+                r"\\localhost\share\file",
+                "file://localhost/share/file",
+                "localhost",
+                "/share/file",
             ),
             (
                 r"\\server\a b\a#b%20",
@@ -521,6 +572,80 @@ mod tests {
             assert_eq!(iri.path(), path, "{input}");
             assert!(!iri.has_query(), "{input}");
             assert!(!iri.has_fragment(), "{input}");
+            let decoded = iri.try_to_path().unwrap();
+            assert!(decoded.is_absolute(), "{input}");
+            assert_eq!(
+                decoded.as_os_str(),
+                std::ffi::OsStr::new(&input.replace('/', "\\")),
+                "{input}"
+            );
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn to_path_decodes_windows_unc_paths() {
+        for (input, expected) in [
+            ("file://server/share", r"\\server\share"),
+            ("file://server/share/", r"\\server\share\"),
+            ("file://server/a%20b/c%23d", r"\\server\a b\c#d"),
+            ("FiLe://SeRvEr/share/%2520", r"\\SeRvEr\share\%20"),
+            ("file://127.0.0.1/share/file", r"\\127.0.0.1\share\file"),
+            ("file://local%68ost/C:/Temp/file", r"C:\Temp\file"),
+            ("file://LoCaLhOsT/share/file", r"\\LoCaLhOsT\share\file"),
+            ("file://local%68ost/share/file", r"\\localhost\share\file"),
+            ("file://h%C3%B4te/共有/caf%C3%A9", r"\\hôte\共有\café"),
+            ("file://host%252F/share/%255C", r"\\host%2F\share\%5C"),
+            (
+                "file://server/share/./dir/../file",
+                r"\\server\share\.\dir\..\file",
+            ),
+        ] {
+            for iri in representations(input) {
+                for path in [iri.try_to_path().unwrap(), iri.to_path().unwrap()] {
+                    assert!(path.is_absolute(), "{input}");
+                    assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected), "{input}");
+                }
+            }
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn to_path_rejects_invalid_windows_unc_paths() {
+        use crate::IriToPathError as Error;
+
+        for (input, expected) in [
+            ("file://user@server/share", Error::UnsupportedAuthority),
+            ("file://@localhost/share", Error::UnsupportedAuthority),
+            ("file://server:80/share", Error::UnsupportedAuthority),
+            ("file://server:/share", Error::UnsupportedAuthority),
+            ("file://:80/share", Error::UnsupportedAuthority),
+            ("file://[::1]/share", Error::UnsupportedAuthority),
+            ("file://./share", Error::UnsupportedAuthority),
+            ("file://../share", Error::UnsupportedAuthority),
+            ("file://%2E/share", Error::UnsupportedAuthority),
+            ("file://%3F/C:/file", Error::UnsupportedAuthority),
+            ("file://host%2Fother/share", Error::EncodedSeparator),
+            ("file://host%5Cother/share", Error::EncodedSeparator),
+            ("file://host%00/share", Error::NulByte),
+            ("file://host%FF/share", Error::InvalidEncoding),
+            ("file://server", Error::PathNotAbsolute),
+            ("file://server/", Error::InvalidUncShare),
+            ("file://server//share", Error::InvalidUncShare),
+            ("file://server/./file", Error::InvalidUncShare),
+            ("file://server/%2e%2e/file", Error::InvalidUncShare),
+            ("file://server/C:/file", Error::InvalidUncShare),
+            ("file://localhost/C:relative", Error::InvalidUncShare),
+            ("file://server/sh%2Fare/file", Error::EncodedSeparator),
+            ("file://server/share/a%5Cb", Error::EncodedSeparator),
+            ("file://server/share/a%00b", Error::NulByte),
+            ("file://server/share/%FF", Error::InvalidEncoding),
+        ] {
+            for iri in representations(input) {
+                assert_eq!(iri.try_to_path(), Err(expected), "{input}");
+                assert!(iri.to_path().is_none(), "{input}");
+            }
         }
     }
 
@@ -642,7 +767,7 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", not(windows)))]
     #[test]
     fn to_path_rejects_unsupported_authorities() {
         for input in [
@@ -696,6 +821,7 @@ mod tests {
             "file:/tmp/data",
             "file:///tmp/data",
             "FiLe://localhost/C:/Temp/a%23b",
+            "file://server/share/a%20b",
         ] {
             for suffix in ["?query", "#fragment", "?query#fragment", "?", "#", "?#"] {
                 let input = alloc::format!("{base}{suffix}");
@@ -714,7 +840,7 @@ mod tests {
         for (input, expected) in [
             ("https://example.com/data", Error::UnsupportedScheme),
             (
-                "file://remote.example/share/data",
+                "file://user@remote.example/share/data",
                 Error::UnsupportedAuthority,
             ),
             ("file:///tmp/data?query", Error::UnsupportedQuery),

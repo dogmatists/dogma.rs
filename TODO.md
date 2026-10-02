@@ -23,10 +23,8 @@ relative to the repository root.
 
 - [ ] **IRI-07: Implement native Windows file-path conversion.**
   Work in `enums/iri.rs`; preserve the non-Unicode-path policy.
-  - [ ] Decode UNC file IRIs into native Windows paths, defining authority
-    handling (including `localhost`) and adding round-trip tests.
   - [ ] Verify native Windows runtime tests on CI, including drive round trips,
-    UNC construction, reserved characters, special-prefix rejection, and
+    UNC round trips, reserved characters, special-prefix rejection, and
     non-Unicode rejection.
 
 ## Identifier APIs and serialization
