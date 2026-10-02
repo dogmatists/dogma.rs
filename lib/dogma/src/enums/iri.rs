@@ -205,12 +205,33 @@ impl Iri<'_> {
         self.clone() // TODO
     }
 
+    /// Returns the percent-decoded path component of a file IRI.
+    ///
+    /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
+    /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
+    /// native separators (`/`, and on Windows also `\`).
     #[cfg(feature = "std")]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
         if self.scheme() != IriScheme::File {
             return None;
         }
-        Some(std::path::PathBuf::from(self.path()))
+        let path = self.path();
+        let mut decoded = alloc::vec::Vec::with_capacity(path.len());
+        let mut bytes = path.bytes();
+        while let Some(mut byte) = bytes.next() {
+            if byte == b'%' {
+                let high = char::from(bytes.next()?).to_digit(16)?;
+                let low = char::from(bytes.next()?).to_digit(16)?;
+                byte = ((high << 4) | low) as u8;
+                if byte == 0 || std::path::is_separator(char::from(byte)) {
+                    return None;
+                }
+            }
+            decoded.push(byte);
+        }
+        String::from_utf8(decoded)
+            .ok()
+            .map(std::path::PathBuf::from)
     }
 }
 
@@ -285,7 +306,7 @@ mod tests {
 
     #[cfg(all(feature = "std", not(windows)))]
     #[test]
-    fn from_path_encodes_posix_path_data() {
+    fn posix_paths_round_trip() {
         for (input, expected) in [
             ("/tmp/a b", "/tmp/a%20b"),
             ("/tmp/a#b", "/tmp/a%23b"),
@@ -307,6 +328,11 @@ mod tests {
             assert_eq!(iri.path(), expected, "{input:?}");
             assert!(!iri.has_query(), "{input:?}");
             assert!(!iri.has_fragment(), "{input:?}");
+            assert_eq!(
+                iri.to_path().unwrap().as_os_str(),
+                std::ffi::OsStr::new(input),
+                "{input:?}"
+            );
         }
     }
 
@@ -340,6 +366,71 @@ mod tests {
             Err(crate::IriError::PathNotUnicode(Some(original)))
                 if original.as_path() == path
         ));
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_decodes_path_data_once() {
+        for (input, expected) in [
+            ("file:///tmp/file", "/tmp/file"),
+            ("file:///tmp/a%20b", "/tmp/a b"),
+            ("file:///tmp/a%23b%3Fc", "/tmp/a#b?c"),
+            ("file:///tmp/a%2520b", "/tmp/a%20b"),
+            ("file:///tmp/%252F%255C%2500", "/tmp/%2F%5C%00"),
+            ("file:///tmp/%25", "/tmp/%"),
+            ("file:///tmp/a+b%2Bc", "/tmp/a+b+c"),
+            ("file:///tmp/caf%c3%a9/%E6%9D%B1%E4%BA%AC", "/tmp/café/東京"),
+            ("file:///tmp/café/%EE%80%80", "/tmp/café/\u{e000}"),
+            ("FiLe:/tmp/a%0ab", "/tmp/a\nb"),
+        ] {
+            for iri in representations(input) {
+                assert_eq!(
+                    iri.to_path().unwrap().as_os_str(),
+                    std::ffi::OsStr::new(expected),
+                    "{input}"
+                );
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_rejects_unrepresentable_path_data() {
+        for input in [
+            "file:///tmp/%FF",
+            "file:///tmp/%C3",
+            "file:///tmp/%C0%AF",
+            "file:///tmp/%ED%A0%80",
+            "file:///tmp/%F4%90%80%80",
+            "file:///tmp/a%00b",
+            "file:///tmp/a%2Fb",
+            "file:///C:/Temp/a%2fb",
+        ] {
+            for iri in representations(input) {
+                assert!(iri.to_path().is_none(), "{input}");
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_decodes_backslashes_only_off_windows() {
+        for (input, expected) in [
+            ("file:///tmp/a%5Cb", r"/tmp/a\b"),
+            ("file:///C:/Temp/a%5cb", r"/C:/Temp/a\b"),
+        ] {
+            for iri in representations(input) {
+                if cfg!(windows) {
+                    assert!(iri.to_path().is_none(), "{input}");
+                } else {
+                    assert_eq!(
+                        iri.to_path().unwrap().as_os_str(),
+                        std::ffi::OsStr::new(expected),
+                        "{input}"
+                    );
+                }
+            }
+        }
     }
 
     #[test]
