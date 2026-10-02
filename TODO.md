@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-02. PATH-01 is the highest-priority non-IRI correctness fix.
+  start with IRI-03. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -20,13 +20,6 @@ relative to the repository root.
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
 ## IRI/URI correctness
-
-- [ ] **IRI-02: Resolve bracketed IPv6 authorities correctly.**
-  In `structs/iri_authority.rs::to_socket_addrs`, `http://[::1]:80/` passes
-  `[::1]` to hostname lookup and fails. Parse IP literals appropriately before
-  hostname resolution, while preserving the public authority spelling.
-  Test explicit/default ports and retain IPv4 support. Address resolution
-  tests should not open network connections.
 
 - [ ] **IRI-03: Investigate missing known-scheme mappings.**
   `enums/iri.rs::scheme()` delegates classification to `known-schemes`.
@@ -221,10 +214,10 @@ relative to the repository root.
   Explain the collection-trait contracts, including `CollectionMut::clear`.
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
-  Add focused tests for authority resolution, file conversions, Serde, and CLI
-  parsing. Cover native POSIX/Windows path conversions as well as string
-  parsing. Useful property tests include bounded ancestor-depth round trips
-  and identifier/path encoding round trips. Test real examples when adding them;
+  Add focused tests for file conversions, Serde, and CLI parsing.
+  Cover native POSIX/Windows path conversions as well as string parsing.
+  Useful property tests include bounded ancestor-depth round trips and
+  identifier/path encoding round trips. Test real examples when adding them;
   `lib/dogma/examples/` currently contains only `.gitkeep`.
 
 - [ ] **QA-02: Expand runtime test coverage in CI.**

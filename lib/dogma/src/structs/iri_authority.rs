@@ -72,13 +72,17 @@ impl IriAuthority<'_> {
 
 /// Resolves the host, using the scheme's default for an absent or empty port.
 ///
+/// Bracketed IPv6 literals are parsed directly.
+///
 /// Returns [`InvalidInput`](std::io::ErrorKind::InvalidInput) if a nonempty port
-/// is outside `0..=65535`, or if a default is needed but unavailable.
+/// is outside `0..=65535`, if a default is needed but unavailable, or if a
+/// bracketed IP literal is unsupported.
 #[cfg(feature = "std")]
 impl std::net::ToSocketAddrs for IriAuthority<'_> {
     type Iter = std::vec::IntoIter<std::net::SocketAddr>;
 
     fn to_socket_addrs(&self) -> std::io::Result<Self::Iter> {
+        use core::net::{Ipv6Addr, SocketAddr};
         use std::io::{Error, ErrorKind::InvalidInput};
 
         let host = self.host_str();
@@ -92,6 +96,16 @@ impl std::net::ToSocketAddrs for IriAuthority<'_> {
                 .map_err(|_| Error::new(InvalidInput, "invalid port"))?,
         };
 
+        if let Some(literal) = host
+            .strip_prefix('[')
+            .and_then(|host| host.strip_suffix(']'))
+        {
+            let address = literal
+                .parse::<Ipv6Addr>()
+                .map_err(|_| Error::new(InvalidInput, "unsupported IP literal"))?;
+            return Ok(alloc::vec![SocketAddr::from((address, port))].into_iter());
+        }
+
         (host, port).to_socket_addrs()
     }
 }
@@ -99,7 +113,7 @@ impl std::net::ToSocketAddrs for IriAuthority<'_> {
 #[cfg(all(test, feature = "std"))]
 mod tests {
     use crate::Iri;
-    use core::net::SocketAddr;
+    use core::net::{Ipv6Addr, SocketAddr};
     use std::{io::ErrorKind, net::ToSocketAddrs};
 
     #[test]
@@ -146,5 +160,48 @@ mod tests {
             let error = iri.authority().unwrap().to_socket_addrs().unwrap_err();
             assert_eq!(error.kind(), ErrorKind::InvalidInput, "{text}");
         }
+    }
+
+    #[test]
+    fn socket_addrs_resolve_ipv6_literals() {
+        for (text, port) in [
+            ("http://[::1]:80/", 80),
+            ("http://[::1]:8080/", 8080),
+            ("http://[::1]/", 80),
+            ("http://[::1]:/", 80),
+            ("https://[::1]/", 443),
+            ("https://[::1]:/", 443),
+            ("custom://[::1]:0/", 0),
+            ("custom://[::1]:65535/", 65535),
+        ] {
+            let iri = Iri::try_from(text).unwrap();
+            let authority = iri.authority().unwrap();
+            let mut addresses = authority.to_socket_addrs().unwrap();
+            assert_eq!(
+                addresses.next(),
+                Some(SocketAddr::from((Ipv6Addr::LOCALHOST, port))),
+                "{text}",
+            );
+            assert_eq!(addresses.next(), None, "{text}");
+            assert_eq!(authority.host_str(), "[::1]");
+        }
+    }
+
+    #[test]
+    fn socket_addrs_preserve_ipv6_literal_spelling() {
+        let iri = Iri::try_from("http://[2001:DB8:0:0:0:0:0:1]:8080/").unwrap();
+        let authority = iri.authority().unwrap();
+        let mut addresses = authority.to_socket_addrs().unwrap();
+        let address = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1);
+        assert_eq!(addresses.next(), Some(SocketAddr::from((address, 8080))));
+        assert_eq!(addresses.next(), None);
+        assert_eq!(authority.host_str(), "[2001:DB8:0:0:0:0:0:1]");
+    }
+
+    #[test]
+    fn socket_addrs_reject_unsupported_ip_literals() {
+        let iri = Iri::try_from("http://[v1.test:addr]:80/").unwrap();
+        let error = iri.authority().unwrap().to_socket_addrs().unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidInput);
     }
 }
