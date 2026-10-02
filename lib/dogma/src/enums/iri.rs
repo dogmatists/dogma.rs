@@ -207,12 +207,21 @@ impl Iri<'_> {
 
     /// Returns the percent-decoded path component of a file IRI.
     ///
+    /// Only absent or empty authorities and bare `localhost` (ignoring ASCII
+    /// case) are accepted. Other authorities, including those with user
+    /// information or ports, return `None`.
+    ///
     /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
     /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
     /// native separators (`/`, and on Windows also `\`).
     #[cfg(feature = "std")]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
         if self.scheme() != IriScheme::File {
+            return None;
+        }
+        if self.authority_str().is_some_and(|authority| {
+            !authority.is_empty() && !authority.eq_ignore_ascii_case("localhost")
+        }) {
             return None;
         }
         let path = self.path();
@@ -366,6 +375,48 @@ mod tests {
             Err(crate::IriError::PathNotUnicode(Some(original)))
                 if original.as_path() == path
         ));
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_accepts_local_authorities() {
+        for (input, expected) in [
+            ("file:/tmp/data", "/tmp/data"),
+            ("file:///tmp/data", "/tmp/data"),
+            ("file://localhost/tmp/a%20b", "/tmp/a b"),
+            ("FiLe://LoCaLhOsT/C:/Temp/a%20b", "/C:/Temp/a b"),
+        ] {
+            for iri in representations(input) {
+                assert_eq!(
+                    iri.to_path().unwrap().as_os_str(),
+                    std::ffi::OsStr::new(expected),
+                    "{input}"
+                );
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_rejects_unsupported_authorities() {
+        for input in [
+            "file://remote.example/share/data",
+            "file://server/share/a%20b",
+            "file://localhost.example/tmp/data",
+            "file://localhost./tmp/data",
+            "file://127.0.0.1/tmp/data",
+            "file://[::1]/C:/Temp/data",
+            "file://user@localhost/tmp/data",
+            "file://@localhost/C:/Temp/data",
+            "file://localhost:80/tmp/data",
+            "file://localhost:/C:/Temp/data",
+            "file://:80/tmp/data",
+            "file://local%68ost/tmp/data",
+        ] {
+            for iri in representations(input) {
+                assert!(iri.to_path().is_none(), "{input}");
+            }
+        }
     }
 
     #[cfg(feature = "std")]

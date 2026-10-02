@@ -22,14 +22,13 @@ relative to the repository root.
 ## IRI/URI correctness
 
 - [ ] **IRI-06: Define a fallible file-IRI conversion contract.**
-  `enums/iri.rs::to_path()` turns `file://remote.example/share/data` into the
-  local path `/share/data`, silently dropping the authority. It also accepts
-  `file:relative/path`, whereas construction from a path requires an absolute
-  path. Define local/remote authority handling and the absolute-path rule;
-  document query/fragment handling. Provide useful errors for unsupported or
-  malformed conversions, considering an additive fallible API before changing
-  the current `Option<PathBuf>` signature. Error types live in
-  `enums/iri_error.rs`. Split contract/API work from platform implementation.
+  Work in `enums/iri.rs` and `enums/iri_error.rs`; keep native platform
+  conversion work separate (IRI-07).
+  - [ ] Define and enforce the absolute-path rule. `to_path()` accepts
+    `file:relative/path`, whereas construction requires an absolute path.
+  - [ ] Define and document query/fragment handling.
+  - [ ] Provide useful errors for unsupported or malformed conversions.
+    Consider an additive fallible API before changing `Option<PathBuf>`.
 
 - [ ] **IRI-07: Implement native Windows file-path conversion.**
   In `enums/iri.rs`, string concatenation does not handle Windows backslashes,
