@@ -26,9 +26,8 @@ relative to the repository root.
   - [ ] Decode drive file IRIs into absolute native Windows paths, with
     round-trip tests and drive-relative rejection.
   - [ ] Implement UNC path construction and conversion with authority handling.
-  - [ ] Define support or explicit rejection for verbatim and device prefixes.
   - [ ] Verify native Windows runtime tests on CI, including drive construction,
-    reserved characters, and non-Unicode rejection.
+    reserved characters, special-prefix rejection, and non-Unicode rejection.
 
 ## Identifier APIs and serialization
 

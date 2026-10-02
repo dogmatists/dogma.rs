@@ -42,6 +42,10 @@ pub enum IriError {
         )
     )]
     PathNotUnicode(Option<std::path::PathBuf>),
+
+    /// A Windows verbatim or device namespace prefix cannot be represented.
+    #[cfg(feature = "std")]
+    PathPrefixUnsupported(std::path::PathBuf),
 }
 
 impl core::error::Error for IriError {}
@@ -49,6 +53,10 @@ impl core::error::Error for IriError {}
 impl fmt::Display for IriError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            #[cfg(feature = "std")]
+            IriError::PathPrefixUnsupported(path) => {
+                write!(f, "path prefix is not supported: {}", path.display())
+            }
             IriError::Invalid(None) => write!(f, "invalid IRI"),
             IriError::Invalid(Some(s)) => write!(f, "invalid IRI: {}", s),
 

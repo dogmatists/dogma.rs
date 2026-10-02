@@ -86,6 +86,7 @@ impl TryFrom<String> for Iri<'static> {
 /// non-Unicode paths are rejected.
 /// On Windows, ordinary drive paths use an empty authority, forward slashes,
 /// and percent-encoded path data.
+/// Windows verbatim and device namespace prefixes are rejected explicitly.
 #[cfg(feature = "std")]
 impl TryFrom<&std::path::Path> for Iri<'static> {
     type Error = IriError;
@@ -97,6 +98,20 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
         let Some(path) = path.to_str() else {
             return Err(IriError::PathNotUnicode(Some(path.into())));
         };
+        #[cfg(windows)]
+        {
+            use std::path::{Component, Path, Prefix};
+
+            if matches!(
+                Path::new(path).components().next(),
+                Some(Component::Prefix(prefix))
+                    if matches!(prefix.kind(), Prefix::Verbatim(_)
+                        | Prefix::VerbatimDisk(_) | Prefix::VerbatimUNC(_, _)
+                        | Prefix::DeviceNS(_))
+            ) {
+                return Err(IriError::PathPrefixUnsupported(path.into()));
+            }
+        }
         #[cfg(not(windows))]
         let iri_string = alloc::format!(
             "file://{}",
@@ -383,6 +398,27 @@ mod tests {
             assert_eq!(iri.authority_str(), Some(""), "{input}");
             assert!(!iri.has_query(), "{input}");
             assert!(!iri.has_fragment(), "{input}");
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn from_path_rejects_windows_special_prefixes() {
+        for input in [
+            r"\\?\C:\Temp\file",
+            r"\\?\UNC\server\share\file",
+            r"\\?\Volume{example}\file",
+            r"\\.\PhysicalDrive0",
+        ] {
+            let path = std::path::Path::new(input);
+            assert!(
+                matches!(
+                    Iri::try_from(path),
+                    Err(crate::IriError::PathPrefixUnsupported(original))
+                        if original.as_os_str() == path.as_os_str()
+                ),
+                "{input}"
+            );
         }
     }
 
