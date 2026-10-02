@@ -101,6 +101,16 @@ impl Iri<'_> {
         }
     }
 
+    /// Converts this IRI into an owned value with a `'static` lifetime.
+    ///
+    /// Borrowed strings are copied; owned strings are moved without allocating.
+    pub fn into_owned(self) -> Iri<'static> {
+        match self {
+            Iri::Borrowed(iri) => Iri::Owned(iri.into()),
+            Iri::Owned(iri) => Iri::Owned(iri),
+        }
+    }
+
     pub fn scheme(&self) -> IriScheme {
         self.scheme_str().parse().unwrap() // always succeeds
     }
@@ -232,6 +242,7 @@ mod tests {
     extern crate std;
 
     use super::Iri;
+    use alloc::string::String;
     use core::{
         cmp::Ordering,
         hash::{BuildHasher, BuildHasherDefault},
@@ -240,6 +251,28 @@ mod tests {
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[test]
+    fn into_owned_outlives_borrowed_input() {
+        let text = "https://example.com/café?lang=fr#top";
+        let owned: Iri<'static> = {
+            let input = String::from(text);
+            Iri::try_from(input.as_str()).unwrap().into_owned()
+        };
+        assert!(matches!(&owned, Iri::Owned(_)));
+        assert_eq!(owned.as_str(), text);
+    }
+
+    #[test]
+    fn into_owned_reuses_owned_string() {
+        let text = "https://example.com/café?lang=fr#top";
+        let input: Iri<'_> = text.parse().unwrap();
+        let pointer = input.as_str().as_ptr();
+        let owned: Iri<'static> = input.into_owned();
+        assert!(matches!(&owned, Iri::Owned(_)));
+        assert_eq!(owned.as_str(), text);
+        assert_eq!(owned.as_str().as_ptr(), pointer);
     }
 
     #[test]
