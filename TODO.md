@@ -24,17 +24,16 @@ relative to the repository root.
 - [ ] **IRI-06: Define a fallible file-IRI conversion contract.**
   Work in `enums/iri.rs` and `enums/iri_error.rs`; keep native platform
   conversion work separate (IRI-07).
-  - [ ] Define and enforce the absolute-path rule. `to_path()` accepts
-    `file:relative/path`, whereas construction requires an absolute path.
   - [ ] Define and document query/fragment handling.
   - [ ] Provide useful errors for unsupported or malformed conversions.
     Consider an additive fallible API before changing `Option<PathBuf>`.
 
 - [ ] **IRI-07: Implement native Windows file-path conversion.**
   In `enums/iri.rs`, string concatenation does not handle Windows backslashes,
-  drive prefixes, or UNC authorities. Add Windows-native tests for drive roots,
-  drive-relative rejection, UNC paths, and reserved characters. Implement
-  drive and UNC handling in separate steps if needed; verify on Windows CI.
+  drive prefixes, or UNC authorities. Successful conversions must yield absolute
+  native paths. Add Windows-native tests for drive roots, drive-relative
+  rejection, UNC paths, and reserved characters. Implement drive and UNC
+  handling in separate steps if needed; verify on Windows CI.
   Preserve the documented non-Unicode-path policy or change it explicitly.
 
 ## Identifier APIs and serialization

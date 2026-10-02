@@ -211,6 +211,9 @@ impl Iri<'_> {
     /// case) are accepted. Other authorities, including those with user
     /// information or ports, return `None`.
     ///
+    /// The IRI path must start with a literal `/`; empty or rootless paths
+    /// return `None`.
+    ///
     /// Escapes are decoded exactly once as UTF-8; `+` remains literal.
     /// Returns `None` for other schemes, invalid UTF-8, NUL bytes, or encoded
     /// native separators (`/`, and on Windows also `\`).
@@ -225,6 +228,9 @@ impl Iri<'_> {
             return None;
         }
         let path = self.path();
+        if !path.starts_with('/') {
+            return None;
+        }
         let mut decoded = alloc::vec::Vec::with_capacity(path.len());
         let mut bytes = path.bytes();
         while let Some(mut byte) = bytes.next() {
@@ -412,6 +418,30 @@ mod tests {
             "file://localhost:/C:/Temp/data",
             "file://:80/tmp/data",
             "file://local%68ost/tmp/data",
+        ] {
+            for iri in representations(input) {
+                assert!(iri.to_path().is_none(), "{input}");
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn to_path_rejects_empty_and_rootless_paths() {
+        for input in [
+            "file:",
+            "file://",
+            "file://localhost",
+            "FiLe://LOCALHOST",
+            "file:relative/path",
+            "file:./data",
+            "file:../data",
+            "file:C:relative",
+            "file:C:/Temp/data",
+            "file:%43%3A/Temp/data",
+            "file:%5Crooted",
+            "file:%2Ftmp/data",
+            "file:%252Ftmp/data",
         ] {
             for iri in representations(input) {
                 assert!(iri.to_path().is_none(), "{input}");
