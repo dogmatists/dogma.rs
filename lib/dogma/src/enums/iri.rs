@@ -85,7 +85,8 @@ impl TryFrom<String> for Iri<'static> {
 /// data, preserving separators and IRI-compatible Unicode. Relative and
 /// non-Unicode paths are rejected.
 /// On Windows, ordinary drive paths use an empty authority, forward slashes,
-/// and percent-encoded path data.
+/// and percent-encoded path data. UNC paths use the server as a percent-encoded
+/// registered-name authority, with the share as the first path segment.
 /// Windows verbatim and device namespace prefixes are rejected explicitly.
 #[cfg(feature = "std")]
 impl TryFrom<&std::path::Path> for Iri<'static> {
@@ -98,20 +99,6 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
         let Some(path) = path.to_str() else {
             return Err(IriError::PathNotUnicode(Some(path.into())));
         };
-        #[cfg(windows)]
-        {
-            use std::path::{Component, Path, Prefix};
-
-            if matches!(
-                Path::new(path).components().next(),
-                Some(Component::Prefix(prefix))
-                    if matches!(prefix.kind(), Prefix::Verbatim(_)
-                        | Prefix::VerbatimDisk(_) | Prefix::VerbatimUNC(_, _)
-                        | Prefix::DeviceNS(_))
-            ) {
-                return Err(IriError::PathPrefixUnsupported(path.into()));
-            }
-        }
         #[cfg(not(windows))]
         let iri_string = alloc::format!(
             "file://{}",
@@ -119,19 +106,35 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
         );
         #[cfg(windows)]
         let iri_string = {
+            use iri_string::percent_encode::PercentEncodedForIri;
             use std::path::{Component, Path, Prefix};
 
-            if matches!(
-                Path::new(path).components().next(),
-                Some(Component::Prefix(prefix)) if matches!(prefix.kind(), Prefix::Disk(_))
-            ) {
-                let path = path.replace('\\', "/");
-                alloc::format!(
-                    "file:///{}",
-                    iri_string::percent_encode::PercentEncodedForIri::from_path(&path)
-                )
-            } else {
-                alloc::format!("file:{}", path)
+            let Some(Component::Prefix(prefix)) = Path::new(path).components().next() else {
+                return Err(IriError::PathPrefixUnsupported(path.into()));
+            };
+            match prefix.kind() {
+                Prefix::Disk(_) => {
+                    let path = path.replace('\\', "/");
+                    alloc::format!("file:///{}", PercentEncodedForIri::from_path(&path))
+                }
+                Prefix::UNC(server, share) => {
+                    let server = server
+                        .to_str()
+                        .ok_or_else(|| IriError::PathNotUnicode(Some(path.into())))?;
+                    let share = share
+                        .to_str()
+                        .ok_or_else(|| IriError::PathNotUnicode(Some(path.into())))?;
+                    // Slice the original path to preserve dot segments and
+                    // trailing separators instead of rebuilding components.
+                    let suffix = path[prefix.as_os_str().len()..].replace('\\', "/");
+                    alloc::format!(
+                        "file://{}/{}{}",
+                        PercentEncodedForIri::from_reg_name(server),
+                        PercentEncodedForIri::from_path_segment(share),
+                        PercentEncodedForIri::from_path(&suffix)
+                    )
+                }
+                _ => return Err(IriError::PathPrefixUnsupported(path.into())),
             }
         };
         Self::try_from(iri_string)
@@ -467,6 +470,57 @@ mod tests {
                 );
                 assert!(iri.to_path().is_none(), "{input}");
             }
+        }
+    }
+
+    #[cfg(all(feature = "std", windows))]
+    #[test]
+    fn from_path_encodes_windows_unc_paths() {
+        for (input, expected, authority, path) in [
+            (r"\\server\share", "file://server/share", "server", "/share"),
+            (
+                r"\\server\share\",
+                "file://server/share/",
+                "server",
+                "/share/",
+            ),
+            (
+                r"\\server\a b\a#b%20",
+                "file://server/a%20b/a%23b%2520",
+                "server",
+                "/a%20b/a%23b%2520",
+            ),
+            (
+                r"\\serveur-é\共有\café",
+                "file://serveur-é/共有/café",
+                "serveur-é",
+                "/共有/café",
+            ),
+            (
+                r"\\host@name:80\share\file",
+                "file://host%40name%3A80/share/file",
+                "host%40name%3A80",
+                "/share/file",
+            ),
+            (
+                r"\\host%20\share\file",
+                "file://host%2520/share/file",
+                "host%2520",
+                "/share/file",
+            ),
+            (
+                r"//server/share/./dir\..\file",
+                "file://server/share/./dir/../file",
+                "server",
+                "/share/./dir/../file",
+            ),
+        ] {
+            let iri = Iri::try_from(std::path::Path::new(input)).unwrap();
+            assert_eq!(iri.as_str(), expected, "{input}");
+            assert_eq!(iri.authority_str(), Some(authority), "{input}");
+            assert_eq!(iri.path(), path, "{input}");
+            assert!(!iri.has_query(), "{input}");
+            assert!(!iri.has_fragment(), "{input}");
         }
     }
 
