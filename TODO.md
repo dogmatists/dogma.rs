@@ -11,21 +11,13 @@ relative to the repository root.
   coding; an unchecked goal is not a request to implement its whole section.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
-- The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-07. PATH-01 is the highest-priority non-IRI correctness fix.
+- The current enhancement focus is IRIs/URIs. Start with URI-01's migration
+  plan. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
 - Preserve `no_std`, `deny(unsafe_code)`, and feature gates. Prefer module/type
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
-
-## IRI/URI correctness
-
-- [ ] **IRI-07: Implement native Windows file-path conversion.**
-  Work in `enums/iri.rs`; preserve the non-Unicode-path policy.
-  - [ ] Verify native Windows runtime tests on CI, including drive round trips,
-    UNC round trips, reserved characters, special-prefix rejection, and
-    non-Unicode rejection.
 
 ## Identifier APIs and serialization
 
