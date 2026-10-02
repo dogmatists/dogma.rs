@@ -23,7 +23,7 @@ unstable = []
 
 # Enums:
 enums = ["iri", "uri"]
-iri = []
+iri = ["alloc"]
 uri = ["iri"]
 
 # Structs:
@@ -37,9 +37,9 @@ labeled = ["alloc"]
 named = ["alloc"]
 
 # Integrations:
-camino = ["dep:camino"]
-clap = ["dep:clap", "known-schemes/clap"]
-miette = ["dep:miette"]
+camino = ["dep:camino", "std"]
+clap = ["dep:clap", "known-schemes/clap", "std"]
+miette = ["dep:miette", "std"]
 serde = ["dep:serde", "iri-string/serde", "known-schemes/serde"]
 
 [dependencies]

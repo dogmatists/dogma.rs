@@ -3,8 +3,10 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+#[cfg(feature = "uri")]
+use crate::enums::Uri;
 use crate::{
-    enums::{IriError, IriScheme, Uri},
+    enums::{IriError, IriScheme},
     prelude::{fmt, str::Split, FromStr, String},
     structs::IriAuthority,
 };
@@ -158,6 +160,7 @@ impl Iri<'_> {
         }
     }
 
+    #[cfg(feature = "uri")]
     pub fn to_uri(&self) -> Uri<'_> {
         self.clone() // TODO
     }

@@ -12,6 +12,38 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  check-features:
+    name: Check feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          targets: thumbv7em-none-eabihf
+      - name: Check without default features
+        run: cargo check -p dogma --no-default-features
+      - name: Check individual features
+        run: |
+          for feature in all alloc std unstable enums iri uri structs traits \
+            collection countable labeled named camino clap miette serde; do
+            cargo check -p dogma --no-default-features --features "$feature"
+          done
+      - name: Check identifier feature combinations
+        run: |
+          for identifier in iri uri all; do
+            for feature in alloc std camino clap miette serde; do
+              cargo check -p dogma --no-default-features \
+                --features "$identifier,$feature"
+            done
+          done
+      - name: Check no_std target
+        run: |
+          for feature in iri uri all; do
+            cargo check -p dogma --no-default-features --features "$feature" \
+              --target thumbv7em-none-eabihf
+          done
   build-ubuntu:
     name: Build on Ubuntu
     runs-on: ubuntu-latest

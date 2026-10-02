@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+#[cfg(feature = "uri")]
 pub type UriValueParser = IriValueParser;
 
 #[derive(Clone, Debug)]
