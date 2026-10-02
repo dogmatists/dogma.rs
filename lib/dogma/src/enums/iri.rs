@@ -22,7 +22,7 @@ use iri_string::{
 /// An IRI stored as either a borrowed or owned string.
 ///
 /// Equality, ordering, and hashing use the exact IRI string, independently of
-/// ownership. No normalization is performed.
+/// ownership. Ordering is lexicographic; no normalization is performed.
 #[derive(Clone)]
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
@@ -204,9 +204,17 @@ impl PartialEq for Iri<'_> {
     }
 }
 
+impl Eq for Iri<'_> {}
+
 impl PartialOrd for Iri<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.as_str().partial_cmp(other.as_str())
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Iri<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.as_str().cmp(other.as_str())
     }
 }
 
@@ -242,12 +250,12 @@ mod tests {
     extern crate std;
 
     use super::Iri;
-    use alloc::string::String;
+    use alloc::{collections::BTreeSet, string::String};
     use core::{
         cmp::Ordering,
         hash::{BuildHasher, BuildHasherDefault},
     };
-    use std::collections::hash_map::DefaultHasher;
+    use std::collections::{hash_map::DefaultHasher, HashMap};
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
@@ -294,6 +302,31 @@ mod tests {
         let hasher = BuildHasherDefault::<DefaultHasher>::default();
         let [borrowed, owned] = representations("https://example.com/café");
         assert_eq!(hasher.hash_one(&borrowed), hasher.hash_one(&owned));
+    }
+
+    #[test]
+    fn hash_map_keys_ignore_ownership() {
+        let [borrowed, owned] = representations("https://example.com/café");
+        let mut values = HashMap::new();
+        values.insert(borrowed, 1);
+        assert_eq!(values.get(&owned), Some(&1));
+        assert_eq!(values.insert(owned, 2), Some(1));
+        assert_eq!(values.len(), 1);
+    }
+
+    #[test]
+    fn ordered_set_keys_ignore_ownership() {
+        let lower = "https://example.com/a";
+        let higher = "https://example.com/café";
+        let mut values = BTreeSet::new();
+        for text in [higher, lower] {
+            for iri in representations(text) {
+                values.insert(iri);
+            }
+        }
+        assert_eq!(values.len(), 2);
+        assert_eq!(values.first().unwrap().as_str(), lower);
+        assert_eq!(values.last().unwrap().as_str(), higher);
     }
 
     #[test]
