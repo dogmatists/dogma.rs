@@ -47,10 +47,6 @@ relative to the repository root.
   and authority components; document host conversion rules. Preserve the
   source IRI and avoid double encoding.
 
-- [ ] **API-01: Add `AsRef<str>` for `Iri`.**
-  Location: `enums/iri.rs`. Expose the existing zero-copy string view through
-  the standard trait for interoperability with generic string APIs.
-
 - [ ] **API-02: Centralize access to the underlying validated IRI.**
   Location: `enums/iri.rs`. Consider an `as_iri_str()` accessor or
   `AsRef<IriStr>`, then delegate repeated component-access matches through it.

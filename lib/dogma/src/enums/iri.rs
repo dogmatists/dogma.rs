@@ -372,6 +372,13 @@ fn decode_file_path_data(text: &str) -> Result<String, IriToPathError> {
     String::from_utf8(decoded).map_err(|_| IriToPathError::InvalidEncoding)
 }
 
+/// Borrows the original IRI string without allocating or normalizing it.
+impl core::convert::AsRef<str> for Iri<'_> {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
 impl Hash for Iri<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.as_str().hash(state)
