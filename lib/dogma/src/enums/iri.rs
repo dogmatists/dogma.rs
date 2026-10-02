@@ -10,12 +10,20 @@ use crate::{
     prelude::{fmt, str::Split, FromStr, String},
     structs::IriAuthority,
 };
+use core::{
+    cmp::Ordering,
+    hash::{Hash, Hasher},
+};
 use iri_string::{
     components::AuthorityComponents,
     types::{IriStr, IriString},
 };
 
-#[derive(Clone, Hash, PartialEq, PartialOrd)]
+/// An IRI stored as either a borrowed or owned string.
+///
+/// Equality, ordering, and hashing use the exact IRI string, independently of
+/// ownership. No normalization is performed.
+#[derive(Clone)]
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
     Owned(IriString),
@@ -174,6 +182,24 @@ impl Iri<'_> {
     }
 }
 
+impl Hash for Iri<'_> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.as_str().hash(state)
+    }
+}
+
+impl PartialEq for Iri<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_str() == other.as_str()
+    }
+}
+
+impl PartialOrd for Iri<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.as_str().partial_cmp(other.as_str())
+    }
+}
+
 impl fmt::Debug for Iri<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -200,3 +226,58 @@ impl fmt::Display for Iri<'_> {
 
 #[cfg(feature = "clap")]
 include!("integrations/clap.rs");
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+
+    use super::Iri;
+    use core::{
+        cmp::Ordering,
+        hash::{BuildHasher, BuildHasherDefault},
+    };
+    use std::collections::hash_map::DefaultHasher;
+
+    fn representations(text: &str) -> [Iri<'_>; 2] {
+        [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[test]
+    fn equality_ignores_ownership() {
+        for text in [
+            "https://example.com/",
+            "https://example.com/café?lang=fr#top",
+        ] {
+            let [borrowed, owned] = representations(text);
+            assert_eq!(borrowed, owned);
+            assert_eq!(owned, borrowed);
+            assert_eq!(borrowed.partial_cmp(&owned), Some(Ordering::Equal));
+            assert_eq!(owned.partial_cmp(&borrowed), Some(Ordering::Equal));
+        }
+    }
+
+    #[test]
+    fn hashing_ignores_ownership() {
+        let hasher = BuildHasherDefault::<DefaultHasher>::default();
+        let [borrowed, owned] = representations("https://example.com/café");
+        assert_eq!(hasher.hash_one(&borrowed), hasher.hash_one(&owned));
+    }
+
+    #[test]
+    fn ordering_is_lexical_for_all_ownership_combinations() {
+        for (lower, higher) in [
+            ("https://example.com/a", "https://example.com/z"),
+            ("https://example.com/a", "https://example.com/é"),
+            ("HTTPS://example.com/", "https://example.com/"),
+            ("https://example.com/%7E", "https://example.com/~"),
+        ] {
+            for left in representations(lower) {
+                for right in representations(higher) {
+                    assert_ne!(left, right);
+                    assert_eq!(left.partial_cmp(&right), Some(Ordering::Less));
+                    assert_eq!(right.partial_cmp(&left), Some(Ordering::Greater));
+                }
+            }
+        }
+    }
+}
