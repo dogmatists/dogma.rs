@@ -45,11 +45,19 @@ jobs:
               --target thumbv7em-none-eabihf
           done
   build-ubuntu:
-    name: Build on Ubuntu
+    name: Build on Ubuntu (${{ matrix.toolchain }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ["1.97.0", stable]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.toolchain }}
       - name: Build
         run: cargo build
       - name: Build examples
@@ -61,11 +69,19 @@ jobs:
       - name: Run minimal-feature IRI tests
         run: cargo test -p dogma --no-default-features --features iri,std --lib
   build-windows:
-    name: Build on Windows
+    name: Build on Windows (${{ matrix.toolchain }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ["1.97.0", stable]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.toolchain }}
       - name: Build
         run: cargo build
       - name: Build examples

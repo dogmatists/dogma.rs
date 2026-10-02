@@ -189,10 +189,6 @@ relative to the repository root.
   identifier/path encoding round trips. Test real examples when adding them;
   `lib/dogma/examples/` currently contains only `.gitkeep`.
 
-- [ ] **QA-02: Expand runtime test coverage in CI.**
-  In `.github/workflows/ci.yaml`, explicitly exercise the MSRV and current
-  stable. Use `--lib` for isolated library tests while DOC-02 is open.
-
 - [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
   First address META-01 and DOC-03. Strict Clippy currently fails; beyond stale
   MSRV diagnostics, findings include redundant closures, needless `Ok(...?)`,
