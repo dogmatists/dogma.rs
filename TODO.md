@@ -11,8 +11,8 @@ relative to the repository root.
   coding; an unchecked goal is not a request to implement its whole section.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
-- The current enhancement focus is IRIs/URIs. Start with URI-01's migration
-  plan. PATH-01 is the highest-priority non-IRI correctness fix.
+- The current enhancement focus is IRIs/URIs. Start with URI-01's staged error
+  types. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -21,23 +21,33 @@ relative to the repository root.
 
 ## Identifier APIs and serialization
 
-- [ ] **URI-01: Design and introduce a genuinely validated URI type.**
-  `enums/uri.rs` aliases `Uri` to `Iri`, so parsing
-  `https://example.com/café` as a `Uri` currently succeeds. Use the upstream
-  `iri_string::types::{UriStr,UriString}` validation model for ASCII URIs.
-  First plan small, compiling migration steps: construction, ownership,
-  comparison, conversion, feature gates, and integrations. Audit the aliases
-  in `enums/uri_error.rs`, `structs/uri_authority.rs`, and
-  `enums/integrations/clap.rs`; the URI parser must produce the URI type.
-  Alias replacement changes the public API and needs a documented migration.
+- [ ] **URI-01: Introduce a genuinely validated URI type.**
+  Follow the [migration plan](doc/uri-migration.md) for contracts, source audit,
+  compiling sequence, caller migration, and per-step verification. Prepare
+  crate-private replacements before switching public aliases. Each substep is
+  a separate atomic change; URI-02's encoder must precede filesystem adapters
+  and activation.
+  - [ ] Stage distinct URI errors, result alias, and gated diagnostics.
+  - [ ] Stage the URI enum, strict constructors, and borrowed views.
+  - [ ] Add ownership conversion, cloning, and identity `to_uri()`.
+  - [ ] Add formatting and ownership-independent comparison/hash traits.
+  - [ ] Add scheme and raw component accessors.
+  - [ ] Add URI-to-IRI conversions and strict checked IRI borrowing.
+  - [ ] Stage the URI authority wrapper and shared component construction.
+  - [ ] Add `std`-gated URI filesystem adapters with native path coverage.
+  - [ ] Stage a distinct Clap parser returning `Uri<'static>`.
+  - [ ] Activate URI/error/authority/parser replacements and `Iri::to_uri()`
+    together, with public API tests, migration rustdoc, and a changelog entry.
 
 - [ ] **URI-02: Implement real IRI-to-URI conversion.**
-  `enums/iri.rs::to_uri()` only clones. Build on URI-01's type/conversion
-  contract and upstream conversion facilities. For example,
-  `https://example.com/café` must produce an ASCII URI ending in
-  `caf%C3%A9`. Cover already-ASCII values, Unicode, existing percent escapes,
-  and authority components; document host conversion rules. Preserve the
-  source IRI and avoid double encoding.
+  `enums/iri.rs::to_uri()` only clones. Follow the encoding contract in the
+  [migration plan](doc/uri-migration.md): borrow ASCII input, otherwise use
+  upstream percent-encoding, including Unicode hostnames without IDNA.
+  - [ ] After URI-01's strict bridges, stage an internal encoding adapter to
+    the new URI type. Cover ASCII, Unicode in every component, existing escapes,
+    and unchanged input; `https://example.com/café` must end in `caf%C3%A9`.
+  - [ ] Wire the public method during URI-01 activation, with conversion rustdoc
+    and public tests for both ownership forms.
 
 - [ ] **SERDE-01: Support non-`'static` serializable trait objects.**
   The six `impl serde::Serialize for dyn ...` implementations in `traits/`
