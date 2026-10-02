@@ -37,20 +37,29 @@ impl AncestorPath {
         true
     }
 
+    /// Returns `true` if this ancestor path exists and points to a directory.
+    ///
+    /// The path is relative to the process's current working directory.
+    /// Returns `false` if metadata cannot be read.
+    #[cfg(feature = "std")]
     pub fn is_dir(&self) -> bool {
-        #[cfg(feature = "std")]
-        return self.to_std_path_buf().is_dir();
-        #[cfg(not(feature = "std"))]
-        false
+        self.to_std_path_buf().is_dir()
     }
 
+    /// Returns `true` if this ancestor path exists.
+    ///
+    /// The path is relative to the process's current working directory.
+    /// Returns `false` if its existence cannot be determined. Use
+    /// [`Self::try_exists`] to distinguish errors from a missing path.
+    #[cfg(feature = "std")]
     pub fn exists(&self) -> bool {
-        #[cfg(feature = "std")]
-        return self.to_std_path_buf().exists();
-        #[cfg(not(feature = "std"))]
-        false
+        self.to_std_path_buf().exists()
     }
 
+    /// Checks whether this ancestor path exists.
+    ///
+    /// The path is relative to the process's current working directory.
+    /// Returns an error if its existence cannot be determined.
     #[cfg(feature = "std")]
     pub fn try_exists(&self) -> std::io::Result<bool> {
         self.to_std_path_buf().try_exists()
