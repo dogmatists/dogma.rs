@@ -48,9 +48,8 @@ relative to the repository root.
   source IRI and avoid double encoding.
 
 - [ ] **API-02: Centralize access to the underlying validated IRI.**
-  Location: `enums/iri.rs`. Consider an `as_iri_str()` accessor or
-  `AsRef<IriStr>`, then delegate repeated component-access matches through it.
-  Separate the public accessor addition from a broader internal refactor.
+  In `enums/iri.rs`, delegate repeated string/component-access matches through
+  `Iri::as_iri_str()`.
 
 - [ ] **SERDE-01: Support non-`'static` serializable trait objects.**
   The six `impl serde::Serialize for dyn ...` implementations in `traits/`

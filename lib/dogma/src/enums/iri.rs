@@ -142,6 +142,14 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
 }
 
 impl Iri<'_> {
+    /// Borrows the underlying validated IRI without allocating or normalizing it.
+    pub fn as_iri_str(&self) -> &IriStr {
+        match self {
+            Iri::Borrowed(iri) => iri,
+            Iri::Owned(iri) => iri.as_ref(),
+        }
+    }
+
     pub fn as_str(&self) -> &str {
         match self {
             Iri::Borrowed(iri) => iri.as_str(),
