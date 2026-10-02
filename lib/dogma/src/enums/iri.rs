@@ -77,6 +77,11 @@ impl TryFrom<String> for Iri<'static> {
     }
 }
 
+/// Converts an absolute Unicode filesystem path into an owned file IRI.
+///
+/// On non-Windows platforms, uses an empty authority and percent-encodes path
+/// data, preserving separators and IRI-compatible Unicode. Relative and
+/// non-Unicode paths are rejected.
 #[cfg(feature = "std")]
 impl TryFrom<&std::path::Path> for Iri<'static> {
     type Error = IriError;
@@ -88,8 +93,14 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
         let Some(path) = path.to_str() else {
             return Err(IriError::PathNotUnicode(Some(path.into())));
         };
-        let iri_string = std::format!("file:{}", path);
-        Ok(Self::try_from(iri_string)?)
+        #[cfg(not(windows))]
+        let iri_string = alloc::format!(
+            "file://{}",
+            iri_string::percent_encode::PercentEncodedForIri::from_path(path)
+        );
+        #[cfg(windows)]
+        let iri_string = alloc::format!("file:{}", path);
+        Self::try_from(iri_string)
     }
 }
 
@@ -270,6 +281,65 @@ mod tests {
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]
+    }
+
+    #[cfg(all(feature = "std", not(windows)))]
+    #[test]
+    fn from_path_encodes_posix_path_data() {
+        for (input, expected) in [
+            ("/tmp/a b", "/tmp/a%20b"),
+            ("/tmp/a#b", "/tmp/a%23b"),
+            ("/tmp/a?b", "/tmp/a%3Fb"),
+            ("/tmp/a%20b", "/tmp/a%2520b"),
+            ("/tmp/%", "/tmp/%25"),
+            (r"/tmp/a\b", "/tmp/a%5Cb"),
+            ("/tmp/a\nb", "/tmp/a%0Ab"),
+            ("/tmp/café/東京", "/tmp/café/東京"),
+            ("/tmp/\u{e000}", "/tmp/%EE%80%80"),
+            ("/", "/"),
+            ("/tmp/./dir/../file", "/tmp/./dir/../file"),
+            ("//server/share", "//server/share"),
+            ("///tmp/file", "///tmp/file"),
+        ] {
+            let iri = Iri::try_from(std::path::Path::new(input)).unwrap();
+            assert_eq!(iri.scheme(), IriScheme::File, "{input:?}");
+            assert_eq!(iri.authority_str(), Some(""), "{input:?}");
+            assert_eq!(iri.path(), expected, "{input:?}");
+            assert!(!iri.has_query(), "{input:?}");
+            assert!(!iri.has_fragment(), "{input:?}");
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
+    fn from_path_rejects_relative_paths() {
+        for input in [
+            "",
+            "relative/file",
+            "../a b#c?d%",
+            r"C:relative\file",
+            r"\rooted",
+        ] {
+            let path = std::path::Path::new(input);
+            assert!(matches!(
+                Iri::try_from(path),
+                Err(crate::IriError::PathIsRelative(Some(original)))
+                    if original.as_path() == path
+            ));
+        }
+    }
+
+    #[cfg(all(feature = "std", unix))]
+    #[test]
+    fn from_path_rejects_non_unicode_paths() {
+        use std::{ffi::OsStr, os::unix::ffi::OsStrExt, path::Path};
+
+        let path = Path::new(OsStr::from_bytes(b"/tmp/\xff"));
+        assert!(matches!(
+            Iri::try_from(path),
+            Err(crate::IriError::PathNotUnicode(Some(original)))
+                if original.as_path() == path
+        ));
     }
 
     #[test]

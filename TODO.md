@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. For the next atomic IRI fix,
-  start with IRI-04. PATH-01 is the highest-priority non-IRI correctness fix.
+  start with IRI-05. PATH-01 is the highest-priority non-IRI correctness fix.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -21,19 +21,12 @@ relative to the repository root.
 
 ## IRI/URI correctness
 
-- [ ] **IRI-04: Encode filesystem path data when constructing file IRIs.**
-  `enums/iri.rs::TryFrom<&std::path::Path>` currently uses `file:{path}`.
-  On POSIX, `/tmp/a b` is rejected; `/tmp/a#b` and `/tmp/a?b` become fragment
-  and query components; a literal `%20` is mistaken for an existing escape.
-  Encode reserved characters correctly. Test spaces, `%`, `#`, `?`, Unicode,
-  and relative-path rejection. Keep Windows handling as its own step (IRI-07).
-
 - [ ] **IRI-05: Decode file-IRI paths correctly.**
   `enums/iri.rs::to_path()` currently returns encoded path text directly:
   `file:///tmp/a%20b` becomes the literal path `/tmp/a%20b`, not `/tmp/a b`.
   Decode correctly without double decoding or lossy string conversion. Define
   behavior for decoded non-Unicode bytes and encoded separators. Add round-trip
-  tests with IRI-04 once both conversion directions are implemented.
+  tests through the filesystem-path constructor.
 
 - [ ] **IRI-06: Define a fallible file-IRI conversion contract.**
   `enums/iri.rs::to_path()` turns `file://remote.example/share/data` into the
