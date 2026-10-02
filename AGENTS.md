@@ -1,5 +1,7 @@
 # Project files
 - Don't ask to examine parent directories, stick to the project directory.
+- Read [TODO.md](TODO.md) for remaining enhancements. Make one narrowly scoped,
+  atomic change per request; remove completed items after verification.
 - When updating `AGENTS.md`, keep in mind that the file is meant to especially
   benefit lesser models than yourself, such as GPT-5.6 Sol, Terra, and Luna;
   but they also have smaller context windows, so be terse and token-efficient.
@@ -53,8 +55,9 @@ cargo check -p dogma --no-default-features --features all
 cargo doc -p dogma --all-features --no-deps
 ```
 
-- Unit tests are in `lib/dogma/src/path/ancestor_path.rs`; README examples
-  run as doctests via `lib.rs`. Cover POSIX and Windows inputs for path changes.
+- Unit tests are in `lib/dogma/src/enums/iri.rs` and
+  `lib/dogma/src/path/ancestor_path.rs`; README doctests run via `lib.rs`.
+  Cover POSIX and Windows inputs for path changes.
 - `.github/workflows/ci.yaml` builds, builds examples, and tests on Ubuntu
   and Windows.
 - Stable rustfmt warns about the nightly-only `imports_granularity` setting.
