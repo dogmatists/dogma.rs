@@ -84,7 +84,7 @@ impl fmt::Display for IriError {
             #[cfg(feature = "std")]
             IriError::PathPrefixUnsupported(path) => {
                 write!(f, "path prefix is not supported: {}", path.display())
-            }
+            },
             IriError::Invalid(None) => write!(f, "invalid IRI"),
             IriError::Invalid(Some(s)) => write!(f, "invalid IRI: {}", s),
 
@@ -93,14 +93,14 @@ impl fmt::Display for IriError {
             #[cfg(feature = "std")]
             IriError::PathIsRelative(Some(path)) => {
                 write!(f, "relative path is not supported: {}", path.display())
-            }
+            },
 
             #[cfg(feature = "std")]
             IriError::PathNotUnicode(None) => write!(f, "non-Unicode path is not supported"),
             #[cfg(feature = "std")]
             IriError::PathNotUnicode(Some(path)) => {
                 write!(f, "non-Unicode path is not supported: {}", path.display())
-            }
+            },
         }
     }
 }
@@ -176,7 +176,7 @@ impl fmt::Display for IriToPathError {
             Self::NulByte => "file-IRI path or hostname contains a NUL byte",
             Self::EncodedSeparator => {
                 "file-IRI path or hostname contains an encoded native separator"
-            }
+            },
             Self::InvalidUncShare => "file-IRI path does not identify a valid UNC share",
         })
     }

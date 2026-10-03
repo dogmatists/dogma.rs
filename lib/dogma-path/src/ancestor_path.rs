@@ -298,7 +298,7 @@ impl TryFrom<&std::path::Path> for AncestorPath {
                 ParentDir => depth += 1,
                 _ => {
                     return Err(FromPathError::NotAncestor);
-                }
+                },
             }
         }
 
@@ -349,7 +349,7 @@ impl TryFrom<&camino::Utf8Path> for AncestorPath {
                 ParentDir => depth += 1,
                 _ => {
                     return Err(FromPathError::NotAncestor);
-                }
+                },
             }
         }
 
@@ -608,37 +608,37 @@ mod tests {
     fn from_str_errors() {
         // empty input
         match AncestorPath::from_str("") {
-            Err(FromPathError::Empty) => {}
+            Err(FromPathError::Empty) => {},
             other => panic!("expected Empty, got: {:?}", other),
         }
 
         // non-ancestor components
         match AncestorPath::from_str("../file") {
-            Err(FromPathError::NotAncestor) => {}
+            Err(FromPathError::NotAncestor) => {},
             other => panic!("expected NotAncestor, got: {:?}", other),
         }
 
         // absolute POSIX path
         match AncestorPath::from_str("/../") {
-            Err(FromPathError::NotAncestor) => {}
+            Err(FromPathError::NotAncestor) => {},
             other => panic!("expected NotAncestor, got: {:?}", other),
         }
 
         // absolute Windows UNC
         match AncestorPath::from_str(r"\\\\server\\share") {
-            Err(FromPathError::NotAncestor) => {}
+            Err(FromPathError::NotAncestor) => {},
             other => panic!("expected NotAncestor, got: {:?}", other),
         }
 
         // drive-prefixed paths are rejected
         match AncestorPath::from_str(r"C:\\..\\..") {
-            Err(FromPathError::NotAncestor) => {}
+            Err(FromPathError::NotAncestor) => {},
             other => panic!("expected NotAncestor, got: {:?}", other),
         }
 
         // path with file component
         match AncestorPath::from_str("../file") {
-            Err(FromPathError::NotAncestor) => {}
+            Err(FromPathError::NotAncestor) => {},
             other => panic!("expected NotAncestor, got: {:?}", other),
         }
     }

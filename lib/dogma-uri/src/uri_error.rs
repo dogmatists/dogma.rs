@@ -88,17 +88,17 @@ impl fmt::Display for UriError {
             #[cfg(feature = "std")]
             Self::PathIsRelative(Some(path)) => {
                 write!(f, "relative path is not supported: {}", path.display())
-            }
+            },
             #[cfg(feature = "std")]
             Self::PathNotUnicode(None) => f.write_str("non-Unicode path is not supported"),
             #[cfg(feature = "std")]
             Self::PathNotUnicode(Some(path)) => {
                 write!(f, "non-Unicode path is not supported: {}", path.display())
-            }
+            },
             #[cfg(feature = "std")]
             Self::PathPrefixUnsupported(path) => {
                 write!(f, "path prefix is not supported: {}", path.display())
-            }
+            },
         }
     }
 }

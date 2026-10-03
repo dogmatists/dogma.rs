@@ -130,7 +130,7 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
                 Prefix::Disk(_) => {
                     let path = path.replace('\\', "/");
                     alloc::format!("file:///{}", PercentEncodedForIri::from_path(&path))
-                }
+                },
                 Prefix::UNC(server, share) => {
                     let server = server
                         .to_str()
@@ -147,7 +147,7 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
                         PercentEncodedForIri::from_path_segment(share),
                         PercentEncodedForIri::from_path(&suffix)
                     )
-                }
+                },
                 _ => return Err(IriError::PathPrefixUnsupported(path.into())),
             }
         };
@@ -392,14 +392,14 @@ impl Iri<'_> {
                         return Err(IriToPathError::InvalidUncShare);
                     }
                     alloc::format!("\\\\{}{}", host, decoded.replace('/', "\\"))
-                }
+                },
                 _ => {
                     // A rooted path alone depends on the current drive.
                     if !drive_path {
                         return Err(IriToPathError::PathNotAbsolute);
                     }
                     decoded[1..].replace('/', "\\")
-                }
+                },
             }
         };
         Ok(std::path::PathBuf::from(decoded))
