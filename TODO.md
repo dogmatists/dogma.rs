@@ -11,7 +11,6 @@ relative to the repository root.
   coding; an unchecked goal is not a request to implement its whole section.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
-- The current enhancement focus is identifier serialization (SERDE-02).
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -19,13 +18,6 @@ relative to the repository root.
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
 ## Identifier APIs and serialization
-
-- [ ] **SERDE-02: Serialize and deserialize identifier values.**
-  Use a string wire representation independent of ownership, and validate
-  deserialized input. Test both ownership forms, invalid input, Unicode, and
-  percent escapes under `no_std` plus `alloc`. Keep enum variant tags out of
-  the wire format.
-  - [ ] Deserialize and validate owned URI strings.
 
 - [ ] **SERDE-03: Define serialization for `AncestorPath`.**
   Location: `path/ancestor_path.rs`. Choose and document a wire representation

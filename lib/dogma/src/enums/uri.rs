@@ -25,6 +25,8 @@ use iri_string::{
 /// independently of ownership.
 /// With `serde`, both ownership forms serialize as the original ASCII string,
 /// without enum variant tags, normalization, or percent decoding.
+/// Deserialization validates the string as a strict URI and always returns an
+/// owned value, independently of the deserializer's input lifetime.
 ///
 /// # Migrating from the former IRI alias
 ///
@@ -332,6 +334,14 @@ impl fmt::Display for Uri<'_> {
 impl serde::Serialize for Uri<'_> {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Uri<'_> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let text = <String as serde::Deserialize<'de>>::deserialize(deserializer)?;
+        Uri::try_from(text).map_err(serde::de::Error::custom)
     }
 }
 

@@ -128,8 +128,9 @@ impls. Each step includes focused regression coverage.
 Keep `default = ["all", "std"]`, `uri = ["iri"]`, and the current allocation
 requirements. Every staged module and export must use its identifier gate;
 filesystem/network and optional integrations keep their existing gates.
-Preserve `no_std` and `deny(unsafe_code)`. Dependency optionalization and Serde
-implementations remain separately tracked by FEAT-02 and SERDE-02.
+Preserve `no_std` and `deny(unsafe_code)`. Dependency optionalization remains
+separately tracked by FEAT-02. Serde support was added after URI activation:
+identifiers use plain strings and deserialization validates into owned values.
 
 For implementation commits, run the root checks in `AGENTS.md`, with the
 documentation build last. Additionally run Rust 1.97 library tests with defaults
