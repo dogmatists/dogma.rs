@@ -23,6 +23,15 @@ use iri_string::{
 
 /// An IRI stored as either a borrowed or owned string.
 ///
+/// Available with `iri`. Every value has a scheme and satisfies IRI syntax;
+/// relative references are rejected. Validation does not check whether the
+/// identifier's resource exists or whether its scheme is recognized.
+///
+/// `TryFrom<&str>` borrows validated input, while `TryFrom<String>` takes
+/// ownership of its allocation. [`str::parse`] creates an owned value.
+/// Cloning preserves the variant: borrowed values share their input and owned
+/// values copy it. Use [`Self::into_owned`] to remove the input lifetime.
+///
 /// Equality, ordering, and hashing use the exact IRI string, independently of
 /// ownership. Ordering is lexicographic; no normalization is performed.
 /// With `serde`, both ownership forms serialize as the original string, without
@@ -31,7 +40,9 @@ use iri_string::{
 /// independently of the deserializer's input lifetime.
 #[derive(Clone)]
 pub enum Iri<'a> {
+    /// A validated string borrowed for `'a`.
     Borrowed(&'a IriStr),
+    /// A validated string owned by this value.
     Owned(IriString),
 }
 
@@ -154,6 +165,9 @@ impl Iri<'_> {
         }
     }
 
+    /// Borrows the original spelling, including Unicode and percent escapes.
+    ///
+    /// Does not allocate, decode, or normalize the identifier.
     pub fn as_str(&self) -> &str {
         self.as_iri_str().as_str()
     }
