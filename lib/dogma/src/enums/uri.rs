@@ -113,6 +113,22 @@ pub(crate) mod staged {
         }
     }
 
+    /// Encodes an IRI as a URI, borrowing ASCII input and owning encoded output.
+    ///
+    /// Non-ASCII characters become UTF-8 percent escapes in every component,
+    /// including hostnames; this does not perform IDNA/Punycode conversion.
+    /// Existing escapes, case, and dot segments are preserved. The source is
+    /// unchanged. Wire this adapter to `Iri::to_uri()` at URI activation.
+    pub(crate) fn encode_iri<'a>(iri: &'a Iri<'_>) -> Uri<'a> {
+        use iri_string::format::ToDedicatedString;
+
+        let iri = iri.as_iri_str();
+        match iri.as_uri() {
+            Some(uri) => Uri::Borrowed(uri),
+            None => Uri::Owned(iri.encode_to_uri().to_dedicated_string()),
+        }
+    }
+
     impl Uri<'_> {
         /// Borrows the validated URI without allocating.
         pub fn as_uri_str(&self) -> &UriStr {
@@ -337,6 +353,51 @@ pub(crate) mod staged {
                 for iri in [Iri::try_from(text).unwrap(), text.parse().unwrap()] {
                     let pointer = iri.as_str().as_ptr();
                     assert!(matches!(Uri::try_from(&iri), Err(UriError::Invalid(None))));
+                    assert_eq!(iri.as_str(), text);
+                    assert_eq!(iri.as_str().as_ptr(), pointer);
+                }
+            }
+        }
+
+        #[test]
+        fn encoding_borrows_ascii_from_both_ownership_forms() {
+            for text in [
+                "HTTPS://EXAMPLE.com/a/../%c3%a9?x=%FF+#",
+                "urn:example:value",
+            ] {
+                for iri in [Iri::try_from(text).unwrap(), text.parse().unwrap()] {
+                    let uri = encode_iri(&iri);
+                    assert!(matches!(uri, Uri::Borrowed(_)));
+                    assert_eq!(uri.as_str(), text);
+                    assert_eq!(uri.as_str().as_ptr(), iri.as_str().as_ptr());
+                    assert_eq!(iri.as_str(), text);
+                }
+            }
+        }
+
+        #[test]
+        fn encoding_escapes_unicode_in_every_component() {
+            for (text, expected) in [
+                (
+                    "https://usér:páss@example.com/",
+                    "https://us%C3%A9r:p%C3%A1ss@example.com/",
+                ),
+                ("https://例.example/", "https://%E4%BE%8B.example/"),
+                ("https://example.com/café", "https://example.com/caf%C3%A9"),
+                ("https://example.com/?q=é", "https://example.com/?q=%C3%A9"),
+                ("https://example.com/#é", "https://example.com/#%C3%A9"),
+                ("x:/😀?q=\u{e000}", "x:/%F0%9F%98%80?q=%EE%80%80"),
+                (
+                    "HTTPS://é@例.example/a/../%c3%a9/é?q=%FF+é#%2fé",
+                    "HTTPS://%C3%A9@%E4%BE%8B.example/a/../%c3%a9/%C3%A9?q=%FF+%C3%A9#%2f%C3%A9",
+                ),
+            ] {
+                for iri in [Iri::try_from(text).unwrap(), text.parse().unwrap()] {
+                    let pointer = iri.as_str().as_ptr();
+                    let uri = encode_iri(&iri);
+                    assert!(matches!(uri, Uri::Owned(_)));
+                    assert_eq!(uri.as_str(), expected);
+                    assert!(UriStr::new(uri.as_str()).is_ok());
                     assert_eq!(iri.as_str(), text);
                     assert_eq!(iri.as_str().as_ptr(), pointer);
                 }

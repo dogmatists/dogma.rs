@@ -37,9 +37,6 @@ relative to the repository root.
   `enums/iri.rs::to_uri()` only clones. Follow the encoding contract in the
   [migration plan](doc/uri-migration.md): borrow ASCII input, otherwise use
   upstream percent-encoding, including Unicode hostnames without IDNA.
-  - [ ] After URI-01's strict bridges, stage an internal encoding adapter to
-    the new URI type. Cover ASCII, Unicode in every component, existing escapes,
-    and unchanged input; `https://example.com/café` must end in `caf%C3%A9`.
   - [ ] Wire the public method during URI-01 activation, with conversion rustdoc
     and public tests for both ownership forms.
 
