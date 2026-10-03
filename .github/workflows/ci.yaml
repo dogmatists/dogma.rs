@@ -68,6 +68,8 @@ jobs:
         run: cargo test -p dogma --all-features
       - name: Run minimal-feature IRI tests
         run: cargo test -p dogma --no-default-features --features iri,std --lib
+      - name: Run minimal-feature URI tests
+        run: cargo test -p dogma --no-default-features --features uri,std --lib
   build-windows:
     name: Build on Windows (${{ matrix.toolchain }})
     runs-on: windows-latest
@@ -92,3 +94,5 @@ jobs:
         run: cargo test -p dogma --all-features
       - name: Run minimal-feature IRI tests
         run: cargo test -p dogma --no-default-features --features iri,std --lib
+      - name: Run minimal-feature URI tests
+        run: cargo test -p dogma --no-default-features --features uri,std --lib

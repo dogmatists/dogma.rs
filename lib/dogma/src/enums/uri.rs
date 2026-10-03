@@ -341,6 +341,116 @@ pub(crate) mod staged {
             [Uri::try_from(text).unwrap(), text.parse().unwrap()]
         }
 
+        #[cfg(all(feature = "std", windows))]
+        #[test]
+        fn windows_paths_round_trip_as_ascii_uris() {
+            for (text, expected) in [
+                (r"C:\", "file:///C:/"),
+                (r"C:\Temp\a b#c%20", "file:///C:/Temp/a%20b%23c%2520"),
+                (r"C:\café\東京", "file:///C:/caf%C3%A9/%E6%9D%B1%E4%BA%AC"),
+                (r"D:\dir/./sub\..\file", "file:///D:/dir/./sub/../file"),
+                (r"\\server\share", "file://server/share"),
+                (r"\\server\share\", "file://server/share/"),
+                (r"\\localhost\share\a b", "file://localhost/share/a%20b"),
+                (
+                    r"\\serveur-é\共有\café",
+                    "file://serveur-%C3%A9/%E5%85%B1%E6%9C%89/caf%C3%A9",
+                ),
+                (r"\\host%20\share\%20", "file://host%2520/share/%2520"),
+                (
+                    r"//server/share/./dir\..\file",
+                    "file://server/share/./dir/../file",
+                ),
+            ] {
+                let uri = Uri::try_from(std::path::Path::new(text)).unwrap();
+                assert!(matches!(uri, Uri::Owned(_)));
+                assert_eq!(uri.as_str(), expected);
+                assert!(uri.as_str().is_ascii());
+                assert!(!uri.has_query() && !uri.has_fragment());
+                for uri in representations(uri.as_str()) {
+                    for path in [uri.to_path().unwrap(), uri.try_to_path().unwrap()] {
+                        assert!(path.is_absolute());
+                        assert_eq!(
+                            path.as_os_str(),
+                            std::ffi::OsStr::new(&text.replace('/', "\\"))
+                        );
+                    }
+                }
+            }
+        }
+
+        #[cfg(all(feature = "std", windows))]
+        #[test]
+        fn to_windows_path_decodes_localhost_and_unc_data_once() {
+            for (text, expected) in [
+                ("FiLe://LoCaLhOsT/C:/a%23b%3Fc", r"C:\a#b?c"),
+                ("file://local%68ost/C:/Temp/data", r"C:\Temp\data"),
+                (
+                    "file://h%C3%B4te/%E5%85%B1%E6%9C%89/caf%C3%A9",
+                    r"\\hôte\共有\café",
+                ),
+                (
+                    "file://server/share/%252F%255C%2500",
+                    r"\\server\share\%2F%5C%00",
+                ),
+                ("file:///C:/a+b%2Bc", r"C:\a+b+c"),
+            ] {
+                for uri in representations(text) {
+                    for path in [uri.to_path().unwrap(), uri.try_to_path().unwrap()] {
+                        assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected));
+                    }
+                }
+            }
+        }
+
+        #[cfg(all(feature = "std", windows))]
+        #[test]
+        fn to_windows_path_rejects_unsupported_native_paths() {
+            use crate::IriToPathError as Error;
+            for (text, expected) in [
+                ("file:///tmp/data", Error::PathNotAbsolute),
+                ("file:///C:relative", Error::PathNotAbsolute),
+                ("file://server/", Error::InvalidUncShare),
+                ("file://server/%2e%2e/file", Error::InvalidUncShare),
+                ("file://server/C:/file", Error::InvalidUncShare),
+                ("file://server:/share", Error::UnsupportedAuthority),
+                ("file://[::1]/share", Error::UnsupportedAuthority),
+                ("file://%2E/share", Error::UnsupportedAuthority),
+                ("file://%3F/C:/file", Error::UnsupportedAuthority),
+                ("file://host%5Cother/share", Error::EncodedSeparator),
+                ("file://server/share/a%5Cb", Error::EncodedSeparator),
+                ("file:///C:/a%5Cb", Error::EncodedSeparator),
+                ("file://host%00/share", Error::NulByte),
+                ("file://host%FF/share", Error::InvalidEncoding),
+            ] {
+                for uri in representations(text) {
+                    assert_eq!(uri.try_to_path(), Err(expected), "{text}");
+                    assert!(uri.to_path().is_none());
+                }
+            }
+        }
+
+        #[cfg(all(feature = "std", windows))]
+        #[test]
+        fn from_windows_path_preserves_rejected_input() {
+            use std::{ffi::OsString, os::windows::ffi::OsStringExt, path::Path};
+
+            for text in [
+                r"\\?\C:\Temp\file",
+                r"\\?\UNC\server\share\file",
+                r"\\?\Volume{example}\file",
+                r"\\.\PhysicalDrive0",
+            ] {
+                let path = Path::new(text);
+                assert!(matches!(Uri::try_from(path),
+                    Err(UriError::PathPrefixUnsupported(original)) if original.as_os_str() == path.as_os_str()));
+            }
+            let input = OsString::from_wide(&[0x43, 0x3a, 0x5c, 0xd800]);
+            let path = Path::new(&input);
+            assert!(matches!(Uri::try_from(path),
+                Err(UriError::PathNotUnicode(Some(original))) if original.as_os_str() == path.as_os_str()));
+        }
+
         #[cfg(all(feature = "std", not(windows)))]
         #[test]
         fn from_posix_path_encodes_owned_ascii_uris() {
