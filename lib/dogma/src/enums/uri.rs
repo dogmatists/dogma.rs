@@ -9,13 +9,20 @@ pub type Uri<'a> = Iri<'a>; // TODO
 pub(crate) mod staged {
     use crate::enums::uri_error::staged::{UriError, UriResult};
     use alloc::string::String;
-    use core::str::FromStr;
+    use core::{
+        cmp::Ordering,
+        fmt,
+        hash::{Hash, Hasher},
+        str::FromStr,
+    };
     use iri_string::types::{IriStr, UriStr, UriString};
 
     /// An ASCII URI stored as either a borrowed or owned validated string.
     ///
     /// Construction requires a scheme and rejects Unicode, malformed escapes,
     /// and relative references. Spelling is preserved without normalization.
+    /// Equality, lexicographic ordering, and hashing use the exact string,
+    /// independently of ownership.
     #[derive(Clone)]
     pub enum Uri<'a> {
         Borrowed(&'a UriStr),
@@ -111,9 +118,118 @@ pub(crate) mod staged {
         }
     }
 
+    impl Hash for Uri<'_> {
+        fn hash<H: Hasher>(&self, state: &mut H) {
+            self.as_str().hash(state)
+        }
+    }
+
+    impl PartialEq for Uri<'_> {
+        fn eq(&self, other: &Self) -> bool {
+            self.as_str() == other.as_str()
+        }
+    }
+
+    impl Eq for Uri<'_> {}
+
+    impl PartialOrd for Uri<'_> {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    impl Ord for Uri<'_> {
+        fn cmp(&self, other: &Self) -> Ordering {
+            self.as_str().cmp(other.as_str())
+        }
+    }
+
+    impl fmt::Debug for Uri<'_> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let variant = match self {
+                Self::Borrowed(_) => "Uri::Borrowed",
+                Self::Owned(_) => "Uri::Owned",
+            };
+            f.debug_tuple(variant).field(&self.as_str()).finish()
+        }
+    }
+
+    impl fmt::Display for Uri<'_> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fmt::Display::fmt(self.as_uri_str(), f)
+        }
+    }
+
     #[cfg(test)]
     mod tests {
+        extern crate std;
+
         use super::*;
+        use alloc::collections::BTreeSet;
+        use core::hash::{BuildHasher, BuildHasherDefault};
+        use std::collections::{hash_map::DefaultHasher, HashMap};
+
+        fn representations(text: &str) -> [Uri<'_>; 2] {
+            [Uri::try_from(text).unwrap(), text.parse().unwrap()]
+        }
+
+        #[test]
+        fn formatting_preserves_spelling_and_identifies_variants() {
+            let text = "HTTPS://EXAMPLE.com/%7e/../?q=%ff#";
+            let [borrowed, owned] = representations(text);
+            assert_eq!(alloc::format!("{borrowed}"), text);
+            assert_eq!(alloc::format!("{owned}"), text);
+            assert_eq!(
+                alloc::format!("{borrowed:?}"),
+                alloc::format!("Uri::Borrowed({text:?})")
+            );
+            assert_eq!(
+                alloc::format!("{owned:?}"),
+                alloc::format!("Uri::Owned({text:?})")
+            );
+        }
+
+        #[test]
+        fn value_traits_ignore_ownership() {
+            let hasher = BuildHasherDefault::<DefaultHasher>::default();
+            for text in ["https://example.com/", "urn:example:%C3%A9?#"] {
+                let [borrowed, owned] = representations(text);
+                assert_eq!(borrowed, owned);
+                assert_eq!(owned, borrowed);
+                assert_eq!(borrowed.partial_cmp(&owned), Some(Ordering::Equal));
+                assert_eq!(owned.cmp(&borrowed), Ordering::Equal);
+                assert_eq!(hasher.hash_one(&borrowed), hasher.hash_one(&owned));
+                let mut values = HashMap::new();
+                values.insert(borrowed, 1);
+                assert_eq!(values.get(&owned), Some(&1));
+                assert_eq!(values.insert(owned, 2), Some(1));
+                assert_eq!(values.len(), 1);
+            }
+        }
+
+        #[test]
+        fn ordering_is_lexical_without_normalization() {
+            for (lower, higher) in [
+                ("https://example.com/a", "https://example.com/z"),
+                ("HTTPS://example.com/", "https://example.com/"),
+                ("https://example.com/%7E", "https://example.com/~"),
+                ("https://example.com/%2F", "https://example.com/%2f"),
+            ] {
+                let mut values = BTreeSet::new();
+                for left in representations(lower) {
+                    for right in representations(higher) {
+                        assert_ne!(left, right);
+                        assert_eq!(left.partial_cmp(&right), Some(Ordering::Less));
+                        assert_eq!(right.partial_cmp(&left), Some(Ordering::Greater));
+                        values.insert(right);
+                    }
+                    values.insert(left);
+                }
+                assert_eq!(values.len(), 2);
+                assert_eq!(values.first().unwrap().as_str(), lower);
+                assert_eq!(values.last().unwrap().as_str(), higher);
+            }
+        }
 
         #[test]
         fn into_owned_outlives_borrowed_input() {
