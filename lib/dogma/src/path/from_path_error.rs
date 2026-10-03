@@ -1,13 +1,17 @@
 // This is free and unencumbered software released into the public domain.
 
-/// A possible error when converting a [`Path`](Path) or [`Utf8Path`](Utf8Path)
-/// into an [`AncestorPath`](AncestorPath).
+/// An error when parsing or converting a path into an
+/// [`AncestorPath`](super::AncestorPath).
 ///
-/// Produced by the [`TryFrom<&Path>`][tryfrom1] and [`TryFrom<&Utf8Path>`][tryfrom2]
-/// implementations for [`&AncestorPath`](AncestorPath).
-///
-/// [tryfrom1]: AncestorPath#impl-TryFrom<%26Path>-for-AncestorPath
-/// [tryfrom2]: AncestorPath#impl-TryFrom<%26Utf8Path>-for-AncestorPath
+/// Returned by its [`FromStr`](core::str::FromStr) implementation.
+#[cfg_attr(
+    feature = "std",
+    doc = "\nAlso returned when converting a [`std::path::Path`] into an ancestor path."
+)]
+#[cfg_attr(
+    feature = "camino",
+    doc = "\nAlso returned when converting a [`camino::Utf8Path`] into an ancestor path."
+)]
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum FromPathError {
     /// The path is empty.

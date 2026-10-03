@@ -134,10 +134,8 @@ relative to the repository root.
   coverage; do not disable all doctests to make the command pass.
 
 - [ ] **DOC-03: Fix existing rustdoc warnings.**
-  `path/from_path_error.rs` has six unresolved links to `Path`, `Utf8Path`,
-  and `AncestorPath`, including implementation anchors. Resolve links correctly
-  under optional features. `structs/iri_authority.rs` has two bare RFC URLs;
-  make them proper links. The all-feature doc build reports eight warnings.
+  `structs/iri_authority.rs` has two bare RFC URLs; make them proper links.
+  The all-feature doc build reports two warnings.
 
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, path
