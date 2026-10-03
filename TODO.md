@@ -133,10 +133,6 @@ relative to the repository root.
   feature-specific examples appropriately while retaining enabled-feature
   coverage; do not disable all doctests to make the command pass.
 
-- [ ] **DOC-03: Fix existing rustdoc warnings.**
-  `structs/iri_authority.rs` has two bare RFC URLs; make them proper links.
-  The all-feature doc build reports two warnings.
-
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion
@@ -152,7 +148,7 @@ relative to the repository root.
   only `.gitkeep`.
 
 - [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
-  First address META-01 and DOC-03. Strict Clippy currently fails; beyond stale
+  First address META-01. Strict Clippy currently fails; beyond stale
   MSRV diagnostics, findings include redundant closures, needless `Ok(...?)`,
   `ok_or_else(|| ())`, decimal `from_str_radix`, and manual separator matching.
   Clean these up in bounded patches before enabling warning-as-error checks.

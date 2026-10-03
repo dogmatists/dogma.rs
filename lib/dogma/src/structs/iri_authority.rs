@@ -26,8 +26,8 @@ impl<'a, 'b> TryFrom<&'a Iri<'b>> for IriAuthority<'a> {
 }
 
 impl IriAuthority<'_> {
-    /// See: https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1
-    /// See: https://datatracker.ietf.org/doc/html/rfc7230#section-2.7.1
+    /// See: <https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1>
+    /// See: <https://datatracker.ietf.org/doc/html/rfc7230#section-2.7.1>
     pub fn userinfo(&self) -> Option<&str> {
         self.components.userinfo()
     }
