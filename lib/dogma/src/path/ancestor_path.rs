@@ -99,26 +99,48 @@ impl AncestorPath {
         self.to_std_path_buf().try_exists()
     }
 
+    /// Allocates a [`std::path::PathBuf`] containing `../` once per depth level.
+    ///
+    /// Uses forward slashes and a trailing slash even on Windows. The path stays
+    /// relative; this conversion does not access the filesystem. Requires `std`.
     #[cfg(feature = "std")]
     pub fn to_std_path_buf(&self) -> std::path::PathBuf {
         std::path::PathBuf::from(self.to_string())
     }
 
+    /// Allocates a [`camino::Utf8PathBuf`] containing `../` once per depth level.
+    ///
+    /// Uses forward slashes and a trailing slash on every platform. The path
+    /// stays relative; no filesystem access is performed. Requires `camino`.
     #[cfg(feature = "camino")]
     pub fn to_path_buf(&self) -> camino::Utf8PathBuf {
         camino::Utf8PathBuf::from(self.to_string())
     }
 
+    /// Consumes this ancestor path and allocates a [`std::path::PathBuf`].
+    ///
+    /// Produces the same relative path as [`Self::to_std_path_buf`]. Consuming
+    /// the value does not avoid allocation: it stores only a depth. Requires
+    /// `std`.
     #[cfg(feature = "std")]
     pub fn into_std_path_buf(self) -> std::path::PathBuf {
         std::path::PathBuf::from(self.into_string())
     }
 
+    /// Consumes this ancestor path and allocates a [`camino::Utf8PathBuf`].
+    ///
+    /// Produces the same relative path as [`Self::to_path_buf`]. Consuming the
+    /// value does not avoid allocation: it stores only a depth. Requires `camino`.
     #[cfg(feature = "camino")]
     pub fn into_path_buf(self) -> camino::Utf8PathBuf {
         camino::Utf8PathBuf::from(self.into_string())
     }
 
+    /// Consumes this ancestor path and allocates its canonical string.
+    ///
+    /// The result contains `../` once per depth level, including the trailing
+    /// slash. Its length is three bytes per level, so storage grows with depth.
+    /// This formats the stored depth rather than recovering the original input.
     pub fn into_string(self) -> String {
         self.to_string()
     }
