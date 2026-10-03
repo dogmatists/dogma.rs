@@ -3,7 +3,7 @@
 use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
 
 #[cfg(feature = "std")]
-use crate::prelude::{Hash, HashMap, HashSet};
+use crate::prelude::{HashMap, HashSet};
 
 /// A trait for collections of items.
 pub trait Collection {
@@ -89,7 +89,7 @@ impl<T> Collection for LinkedList<T> {
 }
 
 // Implementation for `BinaryHeap<T>`
-impl<T: Ord> Collection for BinaryHeap<T> {
+impl<T> Collection for BinaryHeap<T> {
     type Item = T;
 
     fn len(&self) -> usize {
@@ -102,7 +102,7 @@ impl<T: Ord> Collection for BinaryHeap<T> {
 }
 
 // Implementation for `BTreeSet<T>`
-impl<T: Ord> Collection for BTreeSet<T> {
+impl<T> Collection for BTreeSet<T> {
     type Item = T;
 
     fn len(&self) -> usize {
@@ -115,7 +115,7 @@ impl<T: Ord> Collection for BTreeSet<T> {
 }
 
 // Implementation for `BTreeMap<K, V>`
-impl<K: Ord, V> Collection for BTreeMap<K, V> {
+impl<K, V> Collection for BTreeMap<K, V> {
     type Item = (K, V);
 
     fn len(&self) -> usize {
@@ -129,7 +129,7 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
 
 // Implementation for `HashSet<T, S>`
 #[cfg(feature = "std")]
-impl<T: Eq + Hash, S> Collection for HashSet<T, S> {
+impl<T, S> Collection for HashSet<T, S> {
     type Item = T;
 
     fn len(&self) -> usize {
@@ -143,7 +143,7 @@ impl<T: Eq + Hash, S> Collection for HashSet<T, S> {
 
 // Implementation for `HashMap<K, V, S>`
 #[cfg(feature = "std")]
-impl<K: Eq + Hash, V, S> Collection for HashMap<K, V, S> {
+impl<K, V, S> Collection for HashMap<K, V, S> {
     type Item = (K, V);
 
     fn len(&self) -> usize {

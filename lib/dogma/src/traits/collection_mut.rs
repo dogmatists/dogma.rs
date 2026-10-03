@@ -4,7 +4,7 @@ use super::Collection;
 use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
 
 #[cfg(feature = "std")]
-use crate::prelude::{Hash, HashMap, HashSet};
+use crate::prelude::{HashMap, HashSet};
 
 /// A trait for collections of items.
 pub trait CollectionMut: Collection {
@@ -33,21 +33,21 @@ impl<T> CollectionMut for LinkedList<T> {
 }
 
 // Implementation for `BinaryHeap<T>`
-impl<T: Ord> CollectionMut for BinaryHeap<T> {
+impl<T> CollectionMut for BinaryHeap<T> {
     fn clear(&mut self) {
         self.clear()
     }
 }
 
 // Implementation for `BTreeSet<T>`
-impl<T: Ord> CollectionMut for BTreeSet<T> {
+impl<T> CollectionMut for BTreeSet<T> {
     fn clear(&mut self) {
         self.clear()
     }
 }
 
 // Implementation for `BTreeMap<K, V>`
-impl<K: Ord, V> CollectionMut for BTreeMap<K, V> {
+impl<K, V> CollectionMut for BTreeMap<K, V> {
     fn clear(&mut self) {
         self.clear()
     }
@@ -55,7 +55,7 @@ impl<K: Ord, V> CollectionMut for BTreeMap<K, V> {
 
 // Implementation for `HashSet<T, S>`
 #[cfg(feature = "std")]
-impl<T: Eq + Hash, S> CollectionMut for HashSet<T, S> {
+impl<T, S> CollectionMut for HashSet<T, S> {
     fn clear(&mut self) {
         self.clear()
     }
@@ -63,18 +63,38 @@ impl<T: Eq + Hash, S> CollectionMut for HashSet<T, S> {
 
 // Implementation for `HashMap<K, V, S>`
 #[cfg(feature = "std")]
-impl<K: Eq + Hash, V, S> CollectionMut for HashMap<K, V, S> {
+impl<K, V, S> CollectionMut for HashMap<K, V, S> {
     fn clear(&mut self) {
         self.clear()
     }
 }
 
-#[cfg(all(test, feature = "std"))]
+#[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "std")]
     use core::hash::BuildHasherDefault;
+    #[cfg(feature = "std")]
     use std::hash::DefaultHasher;
 
+    #[test]
+    fn collection_traits_accept_unconstrained_items() {
+        struct Item;
+
+        fn assert_traits<C: CollectionMut>() {}
+
+        assert_traits::<BinaryHeap<Item>>();
+        assert_traits::<BTreeSet<Item>>();
+        assert_traits::<BTreeMap<Item, Item>>();
+
+        #[cfg(feature = "std")]
+        {
+            assert_traits::<HashSet<Item, ()>>();
+            assert_traits::<HashMap<Item, Item, ()>>();
+        }
+    }
+
+    #[cfg(feature = "std")]
     fn check_clear<C: CollectionMut>(mut collection: C) {
         assert_eq!(collection.len(), 2);
         assert!(!collection.is_empty());
@@ -88,6 +108,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn hash_map_with_custom_hasher() {
         let mut map = HashMap::with_hasher(BuildHasherDefault::<DefaultHasher>::default());
         map.insert("first", 1);
@@ -96,6 +117,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn hash_set_with_custom_hasher() {
         let mut set = HashSet::with_hasher(BuildHasherDefault::<DefaultHasher>::default());
         set.insert("first");

@@ -71,14 +71,6 @@ relative to the repository root.
   before adding implementations. Preserve the nonzero-depth invariant; test
   round trips and invalid values.
 
-## Paths and collection traits
-
-- [ ] **COLL-02: Remove unnecessary collection bounds.**
-  In `traits/collection.rs` and `traits/collection_mut.rs`, keep only bounds
-  actually required by delegated `len`, `is_empty`, and `clear` methods. Audit
-  `Ord`, `Eq`, and `Hash` bounds on heap/tree/hash collections; generic read-only
-  operations should not need insertion-related bounds.
-
 ## Features, compatibility, and release tooling
 
 - [ ] **FEAT-01: Make `FEATURES` report the enabled feature set accurately.**
