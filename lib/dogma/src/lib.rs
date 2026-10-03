@@ -1,9 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-//! ```rust
-//! # use dogma::*;
-//! ```
-
+#![doc = include_str!("usage.md")]
 #![no_std]
 #![deny(unsafe_code)]
 
@@ -55,7 +52,3 @@ pub use traits::*;
 pub mod path;
 #[cfg(feature = "alloc")]
 pub use path::*;
-
-#[doc = include_str!("../../../README.md")]
-#[cfg(doctest)]
-pub struct ReadmeDoctests;

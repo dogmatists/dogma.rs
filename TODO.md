@@ -28,22 +28,8 @@ relative to the repository root.
 
 ## Documentation and verification
 
-- [ ] **DOC-01: Make doctest inputs work inside the published package.**
-  `lib.rs` uses `include_str!("../../../README.md")`, which escapes the packaged
-  crate and causes its doctests to fail with a missing-file error. Use
-  package-local documentation inputs or module/type examples, preserving
-  meaningful doctest coverage.
-  Reproduce from the repository root (substitute the current release version):
-
-  ```sh
-  cargo package -p dogma
-  cargo test --manifest-path target/package/dogma-0.2.2/Cargo.toml --doc
-  ```
-
-  Add `--allow-dirty` to `cargo package` when verifying uncommitted changes.
-
 - [ ] **DOC-02: Make doctests feature-aware.**
-  `cargo test -p dogma --no-default-features` fails because README examples
+  `cargo test -p dogma --no-default-features` fails because `usage.md` examples
   imported by `lib.rs` refer to disabled `Named`/`MaybeNamed` traits. Gate
   feature-specific examples appropriately while retaining enabled-feature
   coverage; do not disable all doctests to make the command pass.
@@ -61,8 +47,8 @@ relative to the repository root.
   only `.gitkeep`.
 
 - [ ] **QA-04: Verify published-package doctests in CI.**
-  After DOC-01, test the extracted package as well as the checkout. A successful
-  `cargo package` alone does not exercise the broken README doctest include.
+  Test the extracted package as well as the checkout. A successful
+  `cargo package` alone does not exercise doctest documentation inputs.
 
 ## Validation for implementation work
 
