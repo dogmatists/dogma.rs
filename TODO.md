@@ -19,14 +19,6 @@ relative to the repository root.
 
 ## Features, compatibility, and release tooling
 
-- [ ] **FEAT-02: Make identifier dependencies optional.**
-  `cargo tree -p dogma --no-default-features --edges normal` still includes
-  `iri-string` and `known-schemes`. In `lib/dogma/Cargo.toml`, attach these
-  dependencies to the identifier features and use weak dependency-feature
-  forwarding where appropriate (`dependency?/feature`).
-  Verify trait-only builds, especially `named,serde` and `labeled,serde`, as
-  well as the identifier/integration matrix.
-
 - [ ] **FEAT-03: Give the `structs` feature meaningful semantics.**
   `structs = []` alone exposes no concrete types and produces an unused
   `structs::*` re-export warning. Define which types this group enables and

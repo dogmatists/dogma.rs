@@ -18,12 +18,12 @@ publish.workspace = true
 default = ["all", "std"]
 all = ["enums", "serde", "structs", "traits"]
 alloc = []
-std = ["alloc", "iri-string/std", "known-schemes/std", "serde?/std"]
+std = ["alloc", "iri-string?/std", "known-schemes?/std", "serde?/std"]
 unstable = []
 
 # Enums:
 enums = ["iri", "uri"]
-iri = ["alloc"]
+iri = ["alloc", "dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
 
 # Structs:
@@ -38,19 +38,19 @@ named = ["alloc"]
 
 # Integrations:
 camino = ["dep:camino", "std"]
-clap = ["dep:clap", "known-schemes/clap", "std"]
+clap = ["dep:clap", "known-schemes?/clap", "std"]
 miette = ["dep:miette", "std"]
-serde = ["dep:serde", "iri-string/serde", "known-schemes/serde"]
+serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
 
 [dependencies]
 camino = { version = "1.2", default-features = false, optional = true }
 clap = { version = "4.5", default-features = false, features = [
     "std",
 ], optional = true }
-iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
+iri-string = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
 known-schemes = { version = "0.2", default-features = false, features = [
     "iri-string",
-] }
+], optional = true }
 miette = { version = "7.6", default-features = false, features = [
     "derive",
 ], optional = true }
