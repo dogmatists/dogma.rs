@@ -1,11 +1,15 @@
 Common naming, labeling, and collection traits, plus IRI and URI types.
 
+The naming examples below require the `named` feature, enabled by default.
+
 ## Naming an object
 
 Implement `Named` when every value has a name. The returned `Cow` can own a
 computed name:
 
 ```rust
+# #[cfg(feature = "named")]
+# {
 use dogma::Named;
 use std::borrow::Cow;
 
@@ -22,6 +26,7 @@ impl Named for Person {
 
 let person = Person { first_name: "Ada".into(), last_name: "Lovelace".into() };
 assert_eq!(person.name(), "Ada Lovelace");
+# }
 ```
 
 ## Optional names
@@ -30,6 +35,8 @@ Implement `MaybeNamed` when a name may be absent. An existing name can be
 borrowed without allocating:
 
 ```rust
+# #[cfg(feature = "named")]
+# {
 use dogma::MaybeNamed;
 use std::borrow::Cow;
 
@@ -46,4 +53,5 @@ impl MaybeNamed for UserProfile {
 let profile = UserProfile { display_name: Some("Ada".into()) };
 assert!(matches!(profile.name(), Some(Cow::Borrowed("Ada"))));
 assert_eq!(UserProfile { display_name: None }.name(), None);
+# }
 ```

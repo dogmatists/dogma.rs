@@ -28,12 +28,6 @@ relative to the repository root.
 
 ## Documentation and verification
 
-- [ ] **DOC-02: Make doctests feature-aware.**
-  `cargo test -p dogma --no-default-features` fails because `usage.md` examples
-  imported by `lib.rs` refer to disabled `Named`/`MaybeNamed` traits. Gate
-  feature-specific examples appropriately while retaining enabled-feature
-  coverage; do not disable all doctests to make the command pass.
-
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion
