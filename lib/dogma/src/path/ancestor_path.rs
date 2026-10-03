@@ -4,6 +4,40 @@ use crate::FromPathError;
 use alloc::string::{String, ToString};
 use core::num::NonZeroUsize;
 
+/// A relative path consisting of one or more parent-directory components.
+///
+/// Stores only a nonzero [`depth`](Self::depth), not the original spelling.
+/// The default depth is one. Conversion from `usize` rejects zero with
+/// [`core::num::TryFromIntError`]. Display writes `../` once per level, always
+/// including the trailing slash, on every platform.
+///
+/// # Parsing and normalization
+///
+/// String parsing accepts both `/` and `\` separators on every platform. It
+/// ignores `.` components and repeated or trailing separators, counting each
+/// `..` component. Empty or current-directory-only input yields
+/// [`FromPathError::Empty`]. Roots, drive prefixes, and named components yield
+/// [`FromPathError::NotAncestor`]; `child/..` is rejected, not simplified.
+/// Parsing does not access the filesystem or resolve symbolic links.
+///
+/// Conversions from `std::path::Path` and `camino::Utf8Path` instead use native
+/// path components. In particular, `..\..` is accepted as two parents on Windows
+/// but rejected as a named component on POSIX systems.
+///
+/// Available with `alloc`. Native standard-library path conversions and
+/// filesystem queries require `std`; Camino conversions require `camino`.
+///
+/// ```
+/// use dogma::{AncestorPath, FromPathError};
+///
+/// let path: AncestorPath = r".\..\..".parse().unwrap();
+/// assert_eq!(path.depth(), 2);
+/// assert_eq!(path.to_string(), "../../");
+/// assert_eq!(
+///     "child/..".parse::<AncestorPath>(),
+///     Err(FromPathError::NotAncestor),
+/// );
+/// ```
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AncestorPath(NonZeroUsize);
 

@@ -138,9 +138,11 @@ relative to the repository root.
   The all-feature doc build reports two warnings.
 
 - [ ] **DOC-04: Document public API behavior incrementally.**
-  Prioritize identifier ownership, encoded versus decoded components, path
-  normalization, platform differences, feature requirements, and conversion
-  errors. Extend rustdoc in `enums/`, `structs/`, and `path/` in small patches.
+  Prioritize identifier ownership, encoded versus decoded components, identifier
+  path normalization, platform differences, feature requirements, and conversion
+  errors. For `AncestorPath`, document the remaining individual methods, including
+  path-buffer allocation and conversion. Extend rustdoc in `enums/`, `structs/`,
+  and `path/` in small patches.
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.
