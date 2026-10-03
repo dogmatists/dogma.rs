@@ -7,6 +7,9 @@ pub type Uri<'a> = Iri<'a>; // TODO
 // Remove the staging module and its dead-code allowance at URI activation.
 #[allow(dead_code)]
 pub(crate) mod staged {
+    #[cfg(feature = "std")]
+    extern crate std;
+
     use crate::enums::{
         uri_error::staged::{UriError, UriResult},
         Iri, UriScheme,
@@ -79,6 +82,23 @@ pub(crate) mod staged {
     impl From<UriString> for Uri<'static> {
         fn from(uri: UriString) -> Self {
             Self::Owned(uri)
+        }
+    }
+
+    /// Converts an absolute Unicode filesystem path into an owned file URI.
+    ///
+    /// Uses the IRI path rules, then percent-encodes all non-ASCII characters.
+    /// Path separators and dot segments are preserved; reserved path data and
+    /// existing percent signs are escaped. On Windows, drive and UNC paths are
+    /// supported, but verbatim and device namespace prefixes are rejected.
+    /// Relative and non-Unicode paths return errors retaining the original path.
+    #[cfg(feature = "std")]
+    impl TryFrom<&std::path::Path> for Uri<'static> {
+        type Error = UriError;
+
+        fn try_from(path: &std::path::Path) -> UriResult<Self> {
+            let iri = Iri::try_from(path).map_err(UriError::from_iri)?;
+            Ok(encode_iri(&iri).into_owned())
         }
     }
 
@@ -299,6 +319,57 @@ pub(crate) mod staged {
 
         fn representations(text: &str) -> [Uri<'_>; 2] {
             [Uri::try_from(text).unwrap(), text.parse().unwrap()]
+        }
+
+        #[cfg(all(feature = "std", not(windows)))]
+        #[test]
+        fn from_posix_path_encodes_owned_ascii_uris() {
+            for (path, expected) in [
+                ("/", "file:///"),
+                ("/tmp/a b#c?d%20", "file:///tmp/a%20b%23c%3Fd%2520"),
+                (r"/tmp/a\b", "file:///tmp/a%5Cb"),
+                ("/tmp/a\nb", "file:///tmp/a%0Ab"),
+                ("/café/東京", "file:///caf%C3%A9/%E6%9D%B1%E4%BA%AC"),
+                ("/tmp/./dir/../file", "file:///tmp/./dir/../file"),
+                ("//server/share", "file:////server/share"),
+            ] {
+                let uri: Uri<'static> = {
+                    let input = std::path::PathBuf::from(path);
+                    Uri::try_from(input.as_path()).unwrap()
+                };
+                assert!(matches!(uri, Uri::Owned(_)));
+                assert_eq!(uri.as_str(), expected);
+                assert!(uri.as_str().is_ascii());
+                assert_eq!(uri.authority_str(), Some(""));
+                assert!(!uri.has_query());
+                assert!(!uri.has_fragment());
+            }
+        }
+
+        #[cfg(feature = "std")]
+        #[test]
+        fn from_path_preserves_relative_path_errors() {
+            for text in [
+                "",
+                "relative/file",
+                "../a b#c?d%",
+                r"C:relative\file",
+                r"\rooted",
+            ] {
+                let path = std::path::Path::new(text);
+                assert!(matches!(Uri::try_from(path),
+                    Err(UriError::PathIsRelative(Some(original))) if original == path));
+            }
+        }
+
+        #[cfg(all(feature = "std", unix))]
+        #[test]
+        fn from_path_preserves_non_unicode_posix_input() {
+            use std::{ffi::OsStr, os::unix::ffi::OsStrExt, path::Path};
+
+            let path = Path::new(OsStr::from_bytes(b"/tmp/\xff"));
+            assert!(matches!(Uri::try_from(path),
+                Err(UriError::PathNotUnicode(Some(original))) if original == path));
         }
 
         #[test]
