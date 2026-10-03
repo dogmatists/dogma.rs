@@ -6,8 +6,24 @@ use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
 #[cfg(feature = "std")]
 use crate::prelude::{HashMap, HashSet};
 
-/// A trait for collections of items.
+/// A collection whose items can all be removed.
+///
+/// Extends [`Collection`] with [`clear`](Self::clear). Arrays and slices implement
+/// `Collection` but not this trait, because their length cannot be changed through
+/// a mutable reference.
+///
+/// Available with the `collection` feature. Implementations for hash maps and
+/// hash sets additionally require `std`.
 pub trait CollectionMut: Collection {
+    /// Removes all items from the collection.
+    ///
+    /// After this method returns normally, [`len`](Collection::len) is zero and
+    /// [`is_empty`](Collection::is_empty) is `true`. Clearing an empty collection
+    /// leaves it empty.
+    ///
+    /// The provided implementations delegate to the collection's inherent
+    /// `clear` method, dropping its owned items. Retaining or releasing allocated
+    /// capacity is collection-specific; this trait guarantees neither.
     fn clear(&mut self);
 }
 

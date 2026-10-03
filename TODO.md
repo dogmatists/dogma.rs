@@ -143,7 +143,6 @@ relative to the repository root.
   Prioritize identifier ownership, encoded versus decoded components, path
   normalization, platform differences, feature requirements, and conversion
   errors. Extend rustdoc in `enums/`, `structs/`, and `path/` in small patches.
-  Explain the collection-trait contracts, including `CollectionMut::clear`.
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.

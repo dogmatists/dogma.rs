@@ -5,19 +5,34 @@ use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
 #[cfg(feature = "std")]
 use crate::prelude::{HashMap, HashSet};
 
-/// A trait for collections of items.
+/// Reports a collection's item count and whether it is empty.
+///
+/// Implementors must keep [`len`](Self::len), [`is_empty`](Self::is_empty), and
+/// [`is_nonempty`](Self::is_nonempty) consistent: a collection is empty exactly
+/// when its length is zero. This trait does not provide iteration or item access.
+///
+/// Available with the `collection` feature. Implementations for hash maps and
+/// hash sets additionally require `std`.
 pub trait Collection {
+    /// The type of an item in the collection.
+    ///
+    /// For maps this is the key-value pair `(K, V)`, so each entry counts as one
+    /// item. For sequences and sets this is the element type `T`.
     type Item;
 
-    /// Returns the number of items in the collection.
+    /// Returns the number of items currently in the collection, not its capacity.
+    ///
+    /// Arrays always report their fixed length; slices report their slice length.
     fn len(&self) -> usize;
 
-    /// Checks whether the collection is empty.
+    /// Returns `true` exactly when [`len`](Self::len) is zero.
+    ///
+    /// Overrides must preserve this equivalence.
     fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    /// Checks whether the collection is nonempty.
+    /// Returns the logical negation of [`is_empty`](Self::is_empty).
     fn is_nonempty(&self) -> bool {
         !self.is_empty()
     }
