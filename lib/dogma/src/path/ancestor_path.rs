@@ -383,6 +383,52 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "camino")]
+    #[test]
+    fn from_camino_paths_uses_native_components() {
+        let windows_parents = if cfg!(windows) {
+            Ok(AncestorPath::DEPTH_2)
+        } else {
+            Err(FromPathError::NotAncestor)
+        };
+
+        for (input, expected) in [
+            ("..", Ok(AncestorPath::DEPTH_1)),
+            ("../..", Ok(AncestorPath::DEPTH_2)),
+            ("./..//./../", Ok(AncestorPath::DEPTH_2)),
+            (r"..\..", windows_parents.clone()),
+            (r"..\../", windows_parents),
+            ("", Err(FromPathError::Empty)),
+            (".", Err(FromPathError::Empty)),
+            ("././", Err(FromPathError::Empty)),
+            ("/..", Err(FromPathError::NotAncestor)),
+            (r"\..", Err(FromPathError::NotAncestor)),
+            (r"C:..", Err(FromPathError::NotAncestor)),
+            (r"C:\..", Err(FromPathError::NotAncestor)),
+            (r"\\server\share\..", Err(FromPathError::NotAncestor)),
+            ("../café", Err(FromPathError::NotAncestor)),
+            ("café/..", Err(FromPathError::NotAncestor)),
+            ("../café/..", Err(FromPathError::NotAncestor)),
+        ] {
+            let path = camino::Utf8PathBuf::from(input);
+            assert_eq!(
+                AncestorPath::try_from(path.as_path()),
+                expected,
+                "borrowed path: {input:?}"
+            );
+            assert_eq!(
+                AncestorPath::try_from(&path),
+                expected,
+                "borrowed path buffer: {input:?}"
+            );
+            assert_eq!(
+                AncestorPath::try_from(path),
+                expected,
+                "owned path buffer: {input:?}"
+            );
+        }
+    }
+
     #[test]
     fn display_propagates_write_errors_at_any_depth() {
         struct BoundedWriter(usize);
