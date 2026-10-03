@@ -7,15 +7,21 @@ pub type Uri<'a> = Iri<'a>; // TODO
 // Remove the staging module and its dead-code allowance at URI activation.
 #[allow(dead_code)]
 pub(crate) mod staged {
-    use crate::enums::uri_error::staged::{UriError, UriResult};
+    use crate::enums::{
+        uri_error::staged::{UriError, UriResult},
+        UriScheme,
+    };
     use alloc::string::String;
     use core::{
         cmp::Ordering,
         fmt,
         hash::{Hash, Hasher},
-        str::FromStr,
+        str::{FromStr, Split},
     };
-    use iri_string::types::{IriStr, UriStr, UriString};
+    use iri_string::{
+        components::AuthorityComponents,
+        types::{IriStr, UriStr, UriString},
+    };
 
     /// An ASCII URI stored as either a borrowed or owned validated string.
     ///
@@ -110,6 +116,74 @@ pub(crate) mod staged {
         pub fn to_uri(&self) -> Uri<'_> {
             self.clone()
         }
+
+        /// Returns the scheme, matching names case-insensitively.
+        ///
+        /// Unknown scheme names are lowercased. See [`Self::scheme_str`] for
+        /// the original spelling.
+        pub fn scheme(&self) -> UriScheme {
+            let scheme = self.scheme_str();
+            // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
+            UriScheme::ALL
+                .iter()
+                .find(|known| known.as_str().eq_ignore_ascii_case(scheme))
+                .cloned()
+                .unwrap_or_else(|| UriScheme::Other(scheme.to_ascii_lowercase()))
+        }
+
+        /// Returns the scheme name with its original spelling.
+        pub fn scheme_str(&self) -> &str {
+            self.as_uri_str().scheme_str()
+        }
+
+        /// Reports whether an authority is present, even if empty.
+        pub fn has_authority(&self) -> bool {
+            self.authority_str().is_some()
+        }
+
+        pub(crate) fn authority_components(&self) -> Option<AuthorityComponents<'_>> {
+            self.as_uri_str().authority_components()
+        }
+
+        /// Returns the encoded authority, excluding its leading `//`.
+        ///
+        /// An empty authority is `Some("")`; an absent authority is `None`.
+        pub fn authority_str(&self) -> Option<&str> {
+            self.as_uri_str().authority_str()
+        }
+
+        /// Returns the encoded path without normalizing dot segments.
+        pub fn path(&self) -> &str {
+            self.as_uri_str().path_str()
+        }
+
+        /// Splits an absolute path after removing its first `/`.
+        ///
+        /// Preserves empty segments and escapes. Empty and rootless paths
+        /// return `None`; the root path `/` yields one empty segment.
+        pub fn path_segments(&self) -> Option<Split<'_, char>> {
+            self.path().strip_prefix('/').map(|path| path.split('/'))
+        }
+
+        /// Reports whether a query is present, even if empty.
+        pub fn has_query(&self) -> bool {
+            self.query_str().is_some()
+        }
+
+        /// Returns the encoded query without `?`, distinguishing empty/absent.
+        pub fn query_str(&self) -> Option<&str> {
+            self.as_uri_str().query_str()
+        }
+
+        /// Reports whether a fragment is present, even if empty.
+        pub fn has_fragment(&self) -> bool {
+            self.fragment_str().is_some()
+        }
+
+        /// Returns the encoded fragment without `#`, distinguishing empty/absent.
+        pub fn fragment_str(&self) -> Option<&str> {
+            self.as_uri_str().fragment_str()
+        }
     }
 
     impl AsRef<str> for Uri<'_> {
@@ -171,6 +245,93 @@ pub(crate) mod staged {
 
         fn representations(text: &str) -> [Uri<'_>; 2] {
             [Uri::try_from(text).unwrap(), text.parse().unwrap()]
+        }
+
+        #[test]
+        fn schemes_recognize_all_known_names_case_insensitively() {
+            for expected in UriScheme::ALL {
+                for name in [
+                    String::from(expected.as_str()),
+                    expected.as_str().to_ascii_uppercase(),
+                ] {
+                    let text = alloc::format!("{name}:value");
+                    for uri in representations(&text) {
+                        assert_eq!(uri.scheme(), *expected, "{text}");
+                        assert_eq!(uri.scheme_str(), name);
+                        assert_eq!(uri.as_str(), text);
+                    }
+                }
+            }
+            for uri in representations("X-Example+V1.2:Payload") {
+                assert_eq!(
+                    uri.scheme(),
+                    UriScheme::Other(String::from("x-example+v1.2"))
+                );
+                assert_eq!(uri.scheme_str(), "X-Example+V1.2");
+            }
+            for uri in representations("hTtPs://example.com/") {
+                assert_eq!(uri.scheme(), UriScheme::Https);
+                assert_eq!(uri.scheme_str(), "hTtPs");
+            }
+        }
+
+        #[test]
+        fn components_preserve_encoded_spelling() {
+            let text = "HTTPS://u%73er:p%40ss@EXAMPLE.com:443/a%2fb/../c?x=%ff+#P%61rt";
+            for uri in representations(text) {
+                assert_eq!(uri.authority_str(), Some("u%73er:p%40ss@EXAMPLE.com:443"));
+                let authority = uri.authority_components().unwrap();
+                assert_eq!(authority.userinfo(), Some("u%73er:p%40ss"));
+                assert_eq!(authority.host(), "EXAMPLE.com");
+                assert_eq!(authority.port(), Some("443"));
+                assert_eq!(uri.path(), "/a%2fb/../c");
+                assert_eq!(uri.query_str(), Some("x=%ff+"));
+                assert_eq!(uri.fragment_str(), Some("P%61rt"));
+                assert_eq!(uri.as_str(), text);
+                assert!(uri.has_authority() && uri.has_query() && uri.has_fragment());
+            }
+        }
+
+        #[test]
+        fn components_distinguish_empty_and_absent() {
+            for (text, authority, query, fragment) in [
+                ("x:", None, None, None),
+                ("x://", Some(""), None, None),
+                ("x:?", None, Some(""), None),
+                ("x:#", None, None, Some("")),
+                ("x://?#", Some(""), Some(""), Some("")),
+            ] {
+                for uri in representations(text) {
+                    assert_eq!(uri.authority_str(), authority);
+                    assert_eq!(uri.has_authority(), authority.is_some());
+                    assert_eq!(uri.authority_components().is_some(), authority.is_some());
+                    assert_eq!(uri.path(), "");
+                    assert_eq!(uri.query_str(), query);
+                    assert_eq!(uri.has_query(), query.is_some());
+                    assert_eq!(uri.fragment_str(), fragment);
+                    assert_eq!(uri.has_fragment(), fragment.is_some());
+                }
+            }
+        }
+
+        #[test]
+        fn path_segments_preserve_empty_encoded_and_dot_segments() {
+            for (text, expected) in [
+                ("x:", None),
+                ("urn:example:value", None),
+                ("x:/", Some(alloc::vec![""])),
+                ("x:/a//b/", Some(alloc::vec!["a", "", "b", ""])),
+                ("x:/a%2Fb/./../", Some(alloc::vec!["a%2Fb", ".", "..", ""])),
+            ] {
+                for uri in representations(text) {
+                    assert_eq!(
+                        uri.path_segments()
+                            .map(|parts| parts.collect::<alloc::vec::Vec<_>>()),
+                        expected,
+                        "{text}"
+                    );
+                }
+            }
         }
 
         #[test]
