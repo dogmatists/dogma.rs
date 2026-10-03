@@ -73,12 +73,6 @@ relative to the repository root.
 
 ## Paths and collection traits
 
-- [ ] **PATH-02: Stream ancestor-path formatting.**
-  `path/ancestor_path.rs::Display` allocates an intermediate string with
-  `"../".repeat(depth)`. Write components directly to the formatter and
-  propagate formatting errors. Preserve canonical output, including the
-  trailing slash.
-
 - [ ] **COLL-01: Support custom hashers in collection traits.**
   `traits/collection.rs` and `traits/collection_mut.rs` implement traits only
   for default-hasher `HashMap`/`HashSet`. Generalize over the hasher parameter.

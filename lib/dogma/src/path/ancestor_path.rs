@@ -107,7 +107,10 @@ impl TryFrom<usize> for AncestorPath {
 
 impl core::fmt::Display for AncestorPath {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{}", "../".repeat(self.depth()))
+        for _ in 0..self.depth() {
+            f.write_str("../")?;
+        }
+        Ok(())
     }
 }
 
@@ -280,6 +283,42 @@ mod tests {
         for depth in [1usize, 2, usize::MAX / 2, usize::MAX] {
             let path = AncestorPath::try_from(depth).unwrap();
             assert_eq!(path.depth(), depth);
+        }
+    }
+
+    #[test]
+    fn display_uses_canonical_components() {
+        for (input, expected) in [
+            ("..", "../"),
+            ("../..", "../../"),
+            (r"..\..", "../../"),
+            (r".\../..\..\", "../../../"),
+        ] {
+            let path = AncestorPath::from_str(input).unwrap();
+            assert_eq!(path.to_string(), expected);
+        }
+    }
+
+    #[test]
+    fn display_propagates_write_errors_at_any_depth() {
+        struct BoundedWriter(usize);
+
+        impl core::fmt::Write for BoundedWriter {
+            fn write_str(&mut self, s: &str) -> core::fmt::Result {
+                self.0 = self.0.checked_sub(s.len()).ok_or(core::fmt::Error)?;
+                Ok(())
+            }
+        }
+
+        for depth in [3usize, usize::MAX] {
+            let path = AncestorPath::try_from(depth).unwrap();
+            for capacity in [0, 3] {
+                let mut writer = BoundedWriter(capacity);
+                assert_eq!(
+                    core::fmt::write(&mut writer, format_args!("{path}")),
+                    Err(core::fmt::Error)
+                );
+            }
         }
     }
 
