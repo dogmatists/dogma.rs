@@ -98,6 +98,21 @@ pub(crate) mod staged {
         }
     }
 
+    /// Borrows an ASCII IRI as a URI without allocating or encoding.
+    ///
+    /// Returns `UriError::Invalid(None)` for non-ASCII input, leaving the IRI
+    /// unchanged. Percent-encoded non-ASCII data is accepted as written.
+    impl<'a> TryFrom<&'a Iri<'_>> for Uri<'a> {
+        type Error = UriError;
+
+        fn try_from(iri: &'a Iri<'_>) -> UriResult<Self> {
+            iri.as_iri_str()
+                .as_uri()
+                .map(Self::Borrowed)
+                .ok_or(UriError::Invalid(None))
+        }
+    }
+
     impl Uri<'_> {
         /// Borrows the validated URI without allocating.
         pub fn as_uri_str(&self) -> &UriStr {
@@ -294,6 +309,37 @@ pub(crate) mod staged {
                 assert!(matches!(iri, Iri::Borrowed(_)));
                 assert_eq!(iri.as_str(), uri.as_str());
                 assert_eq!(iri.as_str().as_ptr(), uri.as_str().as_ptr());
+            }
+        }
+
+        #[test]
+        fn checked_iri_borrowing_preserves_storage_and_spelling() {
+            for text in ["HTTPS://EXAMPLE.com/a/../%c3%a9?#", "urn:example:%FF"] {
+                for iri in [Iri::try_from(text).unwrap(), text.parse().unwrap()] {
+                    let uri = Uri::try_from(&iri).unwrap();
+                    assert!(matches!(uri, Uri::Borrowed(_)));
+                    assert_eq!(uri.as_str(), text);
+                    assert_eq!(uri.as_str().as_ptr(), iri.as_str().as_ptr());
+                    assert_eq!(iri.as_str(), text);
+                }
+            }
+        }
+
+        #[test]
+        fn checked_iri_borrowing_rejects_unicode_without_encoding() {
+            for text in [
+                "https://usér@example.com/",
+                "https://例.example/",
+                "https://example.com/café",
+                "https://example.com/?q=é",
+                "https://example.com/#é",
+            ] {
+                for iri in [Iri::try_from(text).unwrap(), text.parse().unwrap()] {
+                    let pointer = iri.as_str().as_ptr();
+                    assert!(matches!(Uri::try_from(&iri), Err(UriError::Invalid(None))));
+                    assert_eq!(iri.as_str(), text);
+                    assert_eq!(iri.as_str().as_ptr(), pointer);
+                }
             }
         }
 
