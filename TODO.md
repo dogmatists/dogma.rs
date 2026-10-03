@@ -11,8 +11,8 @@ relative to the repository root.
   coding; an unchecked goal is not a request to implement its whole section.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
-- The current enhancement focus is IRIs/URIs. Start with URI-01's staged error
-  types.
+- The current enhancement focus is IRIs/URIs. Continue with URI-01's first
+  remaining substep.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -27,7 +27,6 @@ relative to the repository root.
   crate-private replacements before switching public aliases. Each substep is
   a separate atomic change; URI-02's encoder must precede filesystem adapters
   and activation.
-  - [ ] Stage distinct URI errors, result alias, and gated diagnostics.
   - [ ] Stage the URI enum, strict constructors, and borrowed views.
   - [ ] Add ownership conversion, cloning, and identity `to_uri()`.
   - [ ] Add formatting and ownership-independent comparison/hash traits.
