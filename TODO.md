@@ -19,11 +19,6 @@ relative to the repository root.
 
 ## Features, compatibility, and release tooling
 
-- [ ] **FEAT-01: Make `FEATURES` report the enabled feature set accurately.**
-  `features.rs` omits `std`, `alloc`, `serde`, integrations, and umbrella flags
-  despite its documentation promising the enabled set. Synchronize it with
-  `lib/dogma/Cargo.toml` and add a suitable consistency check.
-
 - [ ] **FEAT-02: Make identifier dependencies optional.**
   `cargo tree -p dogma --no-default-features --edges normal` still includes
   `iri-string` and `known-schemes`. In `lib/dogma/Cargo.toml`, attach these
