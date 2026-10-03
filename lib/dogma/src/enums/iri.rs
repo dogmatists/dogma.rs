@@ -201,10 +201,15 @@ impl Iri<'_> {
         self.as_iri_str().scheme_str()
     }
 
+    /// Returns whether an authority is present, including an empty one.
     pub fn has_authority(&self) -> bool {
         self.authority_str().is_some()
     }
 
+    /// Borrows the authority's components, or returns `None` if absent.
+    ///
+    /// An empty authority still produces `Some`. Component spelling is
+    /// preserved; the view also stores the scheme returned by [`Self::scheme`].
     pub fn authority(&self) -> Option<IriAuthority<'_>> {
         IriAuthority::try_from(self).ok()
     }
@@ -213,6 +218,9 @@ impl Iri<'_> {
         self.as_iri_str().authority_components()
     }
 
+    /// Borrows the authority without its leading `//`, without percent decoding.
+    ///
+    /// Returns `None` if absent and `Some("")` if present but empty.
     pub fn authority_str(&self) -> Option<&str> {
         self.as_iri_str().authority_str()
     }
@@ -226,18 +234,27 @@ impl Iri<'_> {
         path.strip_prefix('/').map(|remainder| remainder.split('/'))
     }
 
+    /// Returns whether a query delimiter is present, even with no query text.
     pub fn has_query(&self) -> bool {
         self.query_str().is_some()
     }
 
+    /// Borrows the query without `?`, preserving escapes and literal `+` signs.
+    ///
+    /// Returns `None` if absent and `Some("")` if empty. Does not parse query
+    /// parameters or apply form decoding.
     pub fn query_str(&self) -> Option<&str> {
         self.as_iri_str().query_str()
     }
 
+    /// Returns whether a fragment delimiter is present, even with no text.
     pub fn has_fragment(&self) -> bool {
         self.fragment_str().is_some()
     }
 
+    /// Borrows the fragment without `#`, without percent decoding.
+    ///
+    /// Returns `None` if absent and `Some("")` if present but empty.
     pub fn fragment_str(&self) -> Option<&str> {
         self.as_iri_str().fragment_str()
     }
