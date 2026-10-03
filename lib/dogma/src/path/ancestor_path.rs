@@ -385,6 +385,29 @@ mod tests {
 
     #[cfg(feature = "camino")]
     #[test]
+    fn camino_path_buffers_preserve_canonical_ancestor_paths() {
+        for (input, expected) in [
+            ("..", "../"),
+            ("./..//../", "../../"),
+            (r"..\..", "../../"),
+            (r".\../..\..\", "../../../"),
+        ] {
+            let ancestor = AncestorPath::from_str(input).unwrap();
+            for path in [
+                ancestor.to_path_buf(),
+                ancestor.clone().into_path_buf(),
+                camino::Utf8PathBuf::from(ancestor.clone()),
+            ] {
+                // Path equality ignores trailing separators; compare raw text.
+                assert_eq!(path.as_str(), expected);
+                assert!(path.is_relative());
+                assert_eq!(AncestorPath::try_from(path).unwrap(), ancestor);
+            }
+        }
+    }
+
+    #[cfg(feature = "camino")]
+    #[test]
     fn from_camino_paths_uses_native_components() {
         let windows_parents = if cfg!(windows) {
             Ok(AncestorPath::DEPTH_2)
