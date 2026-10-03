@@ -225,10 +225,30 @@ impl Iri<'_> {
         self.as_iri_str().authority_str()
     }
 
+    /// Borrows the path component, preserving Unicode, escapes, and dot segments.
+    ///
+    /// The path may be empty or rootless. This does not convert to a filesystem
+    /// path, percent-decode, or normalize separators.
     pub fn path(&self) -> &str {
         self.as_iri_str().path_str()
     }
 
+    /// Splits a slash-prefixed path after removing exactly one leading `/`.
+    ///
+    /// Returns `None` for an empty or rootless path. Splits only at literal
+    /// slashes: `%2F` stays within a segment. Repeated and trailing slashes yield
+    /// empty segments; `/` yields one empty segment. Dot segments are preserved.
+    /// The iterator borrows the path without allocating or decoding it.
+    ///
+    /// ```
+    /// use dogma::Iri;
+    ///
+    /// let iri = Iri::try_from("https://example.com/a%2Fb//../").unwrap();
+    /// let segments: Vec<_> = iri.path_segments().unwrap().collect();
+    /// assert_eq!(segments, ["a%2Fb", "", "..", ""]);
+    /// assert!(Iri::try_from("urn:example:item").unwrap()
+    ///     .path_segments().is_none());
+    /// ```
     pub fn path_segments(&self) -> Option<Split<'_, char>> {
         let path = self.path();
         path.strip_prefix('/').map(|remainder| remainder.split('/'))
