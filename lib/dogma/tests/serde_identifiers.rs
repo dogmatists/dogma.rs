@@ -4,6 +4,42 @@
 
 extern crate alloc;
 
+#[cfg(feature = "uri")]
+mod uri {
+    use alloc::string::String;
+    use dogma::{Iri, Uri};
+    use serde_test::{assert_ser_tokens, Token};
+
+    #[test]
+    fn serialize_uri_as_a_string_independently_of_ownership() {
+        for text in [
+            "https://example.com/",
+            "https://%C3%A9@%E4%BE%8B.example/caf%C3%A9?q=%E6%9D%B1%E4%BA%AC#%C3%A9",
+            "HTTPS://EXAMPLE.com/a/../%c3%a9?x=%FF+#",
+            "urn:example:value",
+        ] {
+            let input = String::from(text);
+            for uri in [
+                Uri::try_from(input.as_str()).unwrap(),
+                text.parse().unwrap(),
+            ] {
+                assert_ser_tokens(&uri, &[Token::Str(text)]);
+                assert_eq!(uri.as_str(), text);
+            }
+        }
+    }
+
+    #[test]
+    fn serialize_encoded_uri_as_ascii() {
+        let iri = Iri::try_from("https://example.com/café").unwrap();
+        assert_ser_tokens(
+            &iri.to_uri(),
+            &[Token::Str("https://example.com/caf%C3%A9")],
+        );
+        assert_eq!(iri.as_str(), "https://example.com/café");
+    }
+}
+
 #[cfg(feature = "iri")]
 mod iri {
     use alloc::string::String;

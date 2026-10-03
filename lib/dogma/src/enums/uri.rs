@@ -23,6 +23,8 @@ use iri_string::{
 /// and relative references. Spelling is preserved without normalization.
 /// Equality, lexicographic ordering, and hashing use the exact string,
 /// independently of ownership.
+/// With `serde`, both ownership forms serialize as the original ASCII string,
+/// without enum variant tags, normalization, or percent decoding.
 ///
 /// # Migrating from the former IRI alias
 ///
@@ -323,6 +325,13 @@ impl fmt::Debug for Uri<'_> {
 impl fmt::Display for Uri<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Display::fmt(self.as_uri_str(), f)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for Uri<'_> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
     }
 }
 

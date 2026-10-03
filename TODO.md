@@ -25,7 +25,6 @@ relative to the repository root.
   deserialized input. Test both ownership forms, invalid input, Unicode, and
   percent escapes under `no_std` plus `alloc`. Keep enum variant tags out of
   the wire format.
-  - [ ] Serialize URI strings.
   - [ ] Deserialize and validate owned URI strings.
 
 - [ ] **SERDE-03: Define serialization for `AncestorPath`.**
