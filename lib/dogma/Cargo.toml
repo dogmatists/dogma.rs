@@ -43,6 +43,7 @@ uuid = ["dep:dogma-uuid"]
 # Interop:
 camino = ["std", "dogma-path/camino"]
 clap = ["std", "dogma-uri?/clap"]
+iri-string = ["uri", "dogma-uri/iri-string"]
 miette = ["std", "dogma-uri?/miette"]
 serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde", "dogma-uuid?/serde"]
 url = ["uri", "dogma-uri/url"]

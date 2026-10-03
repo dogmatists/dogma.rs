@@ -12,6 +12,12 @@
 //! `url::Url`. Converting to a URL applies WHATWG normalization (including
 //! IDNA host conversion); converting back validates its serialized spelling,
 //! since WHATWG URLs can contain syntax rejected by RFC URIs and IRIs.
+//!
+//! Enable `iri-string` for outbound conversions to its validated string types.
+//! Borrowing and moving owned strings are zero-copy; copying a borrowed value
+//! into an owned string allocates. Existing inbound conversions and typed
+//! accessors are always available with the corresponding identifier feature,
+//! since `iri-string` also supplies the underlying storage and validation.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -58,3 +64,7 @@ pub use uri_authority::*;
 #[cfg(feature = "url")]
 #[path = "interop/url.rs"]
 mod interop_url;
+
+#[cfg(feature = "iri-string")]
+#[path = "interop/iri_string.rs"]
+mod interop_iri_string;
