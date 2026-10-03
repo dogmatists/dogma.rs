@@ -6,6 +6,16 @@ extern crate std;
 use crate::{Iri, IriScheme};
 use iri_string::components::AuthorityComponents;
 
+/// A borrowed view of an IRI's authority, with its interpreted scheme.
+///
+/// Available with `iri`. Construct via [`Iri::authority`] or `TryFrom<&Iri>`;
+/// the latter returns `Err(())` only when the authority is absent. An empty
+/// authority is valid. Component strings borrow the original IRI and preserve
+/// their spelling; the stored scheme uses [`Iri::scheme`]. Equality and hashing
+/// include both the scheme and the authority components.
+///
+/// Accessors perform no network operations. With `std`, `ToSocketAddrs` can
+/// resolve the host and supply a scheme-default port.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct IriAuthority<'a> {
     scheme: IriScheme,
@@ -90,15 +100,43 @@ impl<'a> IriAuthority<'a> {
         }
     }
 
+    /// Borrows the host as written, including brackets around IP literals.
+    ///
+    /// May be empty. Preserves case, Unicode, and percent escapes; does not
+    /// perform DNS resolution, percent decoding, or IDNA conversion.
     pub fn host_str(&self) -> &str {
         self.components.host()
     }
 
+    /// Parses an explicit nonempty port in `0..=65535`.
+    ///
+    /// Returns `None` for absent, empty, or out-of-range ports. Does not supply
+    /// a scheme default; use [`Self::port_str`] to distinguish those cases.
+    ///
+    /// ```
+    /// use dogma::Iri;
+    ///
+    /// for (text, raw, port) in [
+    ///     ("https://example.com/", None, None),
+    ///     ("https://example.com:/", Some(""), None),
+    ///     ("https://example.com:00443/", Some("00443"), Some(443)),
+    ///     ("https://example.com:65536/", Some("65536"), None),
+    /// ] {
+    ///     let iri = Iri::try_from(text).unwrap();
+    ///     let authority = iri.authority().unwrap();
+    ///     assert_eq!(authority.port_str(), raw);
+    ///     assert_eq!(authority.port(), port);
+    /// }
+    /// ```
     pub fn port(&self) -> Option<u16> {
         self.port_str()
             .and_then(|port_str| port_str.parse::<u16>().ok())
     }
 
+    /// Borrows the explicit port without its leading `:`, preserving zeros.
+    ///
+    /// Returns `None` if absent and `Some("")` if empty. IRI syntax permits
+    /// digit strings outside the `u16` range; this accessor preserves them.
     pub fn port_str(&self) -> Option<&str> {
         self.components.port()
     }
