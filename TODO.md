@@ -19,11 +19,6 @@ relative to the repository root.
 
 ## Features, compatibility, and release tooling
 
-- [ ] **FEAT-03: Give the `structs` feature meaningful semantics.**
-  `structs = []` alone exposes no concrete types and produces an unused
-  `structs::*` re-export warning. Define which types this group enables and
-  align `lib/dogma/Cargo.toml`, `lib.rs`, and `structs.rs` consistently.
-
 - [ ] **META-02: Correct stale README installation/integration details.**
   Installation examples still select 0.1 rather than the current release line.
   The "all features enabled" example actually selects default features, which

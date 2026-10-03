@@ -27,7 +27,7 @@ iri = ["alloc", "dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
 
 # Structs:
-structs = []
+structs = ["iri", "uri"]
 
 # Traits:
 traits = ["collection", "countable", "labeled", "named"]
