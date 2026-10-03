@@ -3,23 +3,23 @@
 /// A trait for collections that may be countable.
 pub trait MaybeCountable {
     /// Returns the number of elements in the collection, if known.
-    fn count(&self) -> Option<usize> {
+    fn maybe_count(&self) -> Option<usize> {
         None // the default
     }
 
     /// Checks whether the collection is countable.
     fn is_countable(&self) -> bool {
-        self.count().is_some()
+        self.maybe_count().is_some()
     }
 
     /// Checks whether the collection is empty, if known.
-    fn is_empty(&self) -> Option<bool> {
-        self.count().map(|count| count == 0)
+    fn maybe_is_empty(&self) -> Option<bool> {
+        self.maybe_count().map(|count| count == 0)
     }
 
     /// Checks whether the collection is nonempty, if known.
-    fn is_nonempty(&self) -> Option<bool> {
-        self.is_empty().map(|result| !result)
+    fn maybe_is_nonempty(&self) -> Option<bool> {
+        self.maybe_is_empty().map(|result| !result)
     }
 }
 
@@ -29,6 +29,6 @@ impl serde::Serialize for dyn MaybeCountable + '_ {
     where
         S: serde::Serializer,
     {
-        self.count().serialize(serializer)
+        self.maybe_count().serialize(serializer)
     }
 }

@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Iri::to_uri()` now borrows ASCII input and encodes Unicode as UTF-8 percent
   escapes, including hostnames without IDNA conversion. URI filesystem
   construction likewise produces ASCII file URIs.
+- **Breaking:** prefix optional `Maybe*` methods with `maybe_` to avoid method
+  ambiguity with `Named`, `Labeled`, and `Countable`:
+  - `MaybeNamed::name()` becomes `maybe_name()`.
+  - `MaybeLabeled::label()` becomes `maybe_label()`.
+  - `MaybeCountable::count()` becomes `maybe_count()`, `is_empty()` becomes
+    `maybe_is_empty()`, and `is_nonempty()` becomes `maybe_is_nonempty()`.
 
 ## 0.2.2 - 2026-09-27
 ### Fixed

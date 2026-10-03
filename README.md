@@ -78,7 +78,7 @@ struct UserProfile {
 }
 
 impl MaybeNamed for UserProfile {
-    fn name(&self) -> Option<Cow<str>> {
+    fn maybe_name(&self) -> Option<Cow<str>> {
         self.display_name.as_ref().map(Cow::from)
     }
 }

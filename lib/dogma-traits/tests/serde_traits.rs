@@ -21,7 +21,7 @@ mod named {
     struct MaybeBorrowed<'a>(Option<&'a str>);
 
     impl MaybeNamed for MaybeBorrowed<'_> {
-        fn name(&self) -> Option<Cow<'_, str>> {
+        fn maybe_name(&self) -> Option<Cow<'_, str>> {
             self.0.map(Cow::Borrowed)
         }
     }
@@ -66,7 +66,7 @@ mod labeled {
     struct MaybeBorrowed<'a>(Option<&'a str>);
 
     impl MaybeLabeled for MaybeBorrowed<'_> {
-        fn label(&self) -> Option<Cow<'_, str>> {
+        fn maybe_label(&self) -> Option<Cow<'_, str>> {
             self.0.map(Cow::Borrowed)
         }
     }
@@ -110,7 +110,7 @@ mod countable {
     struct MaybeBorrowed<'a>(Option<&'a [u8]>);
 
     impl MaybeCountable for MaybeBorrowed<'_> {
-        fn count(&self) -> Option<usize> {
+        fn maybe_count(&self) -> Option<usize> {
             self.0.map(<[u8]>::len)
         }
     }

@@ -83,13 +83,13 @@ struct UserProfile {
 }
 
 impl MaybeNamed for UserProfile {
-    fn name(&self) -> Option<Cow<'_, str>> {
+    fn maybe_name(&self) -> Option<Cow<'_, str>> {
         self.display_name.as_ref().map(Cow::from)
     }
 }
 
 let profile = UserProfile { display_name: Some("Ada".into()) };
-assert!(matches!(profile.name(), Some(Cow::Borrowed("Ada"))));
-assert_eq!(UserProfile { display_name: None }.name(), None);
+assert!(matches!(profile.maybe_name(), Some(Cow::Borrowed("Ada"))));
+assert_eq!(UserProfile { display_name: None }.maybe_name(), None);
 # }
 ```
