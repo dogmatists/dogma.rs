@@ -12,6 +12,18 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  check-format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
   check-features:
     name: Check feature combinations
     runs-on: ubuntu-latest

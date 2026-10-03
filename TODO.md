@@ -61,8 +61,8 @@ relative to the repository root.
   Test real examples when adding them; `lib/dogma/examples/` currently contains
   only `.gitkeep`.
 
-- [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
-  Add CI checks for rustfmt, Clippy with `-D warnings`, and rustdoc with
+- [ ] **QA-03: Enforce Clippy and clean documentation in CI.**
+  Add CI checks for Clippy with `-D warnings` and rustdoc with
   `RUSTDOCFLAGS="-D warnings"`; the current all-feature builds pass locally.
   Stable rustfmt's warning about nightly-only `imports_granularity` is known.
 
