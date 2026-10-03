@@ -27,7 +27,6 @@ relative to the repository root.
   crate-private replacements before switching public aliases. Each substep is
   a separate atomic change; URI-02's encoder must precede filesystem adapters
   and activation.
-  - [ ] Stage the URI authority wrapper and shared component construction.
   - [ ] Add `std`-gated URI filesystem adapters with native path coverage.
   - [ ] Stage a distinct Clap parser returning `Uri<'static>`.
   - [ ] Activate URI/error/authority/parser replacements and `Iri::to_uri()`

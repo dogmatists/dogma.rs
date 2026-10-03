@@ -11,6 +11,7 @@ pub(crate) mod staged {
         uri_error::staged::{UriError, UriResult},
         Iri, UriScheme,
     };
+    use crate::structs::uri_authority::staged::UriAuthority;
     use alloc::string::String;
     use core::{
         cmp::Ordering,
@@ -187,6 +188,11 @@ pub(crate) mod staged {
         /// Reports whether an authority is present, even if empty.
         pub fn has_authority(&self) -> bool {
             self.authority_str().is_some()
+        }
+
+        /// Borrows the encoded authority, if present, directly from this URI.
+        pub fn authority(&self) -> Option<UriAuthority<'_>> {
+            UriAuthority::try_from(self).ok()
         }
 
         pub(crate) fn authority_components(&self) -> Option<AuthorityComponents<'_>> {

@@ -6,6 +6,6 @@ mod iri_authority;
 pub use iri_authority::*;
 
 #[cfg(feature = "uri")]
-mod uri_authority;
+pub(crate) mod uri_authority;
 #[cfg(feature = "uri")]
 pub use uri_authority::*;

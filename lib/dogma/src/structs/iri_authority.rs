@@ -17,15 +17,17 @@ impl<'a, 'b> TryFrom<&'a Iri<'b>> for IriAuthority<'a> {
 
     fn try_from(iri: &'a Iri<'b>) -> Result<Self, Self::Error> {
         iri.authority_components()
-            .map(|components| IriAuthority {
-                scheme: iri.scheme(),
-                components,
-            })
+            .map(|components| Self::from_components(iri.scheme(), components))
             .ok_or(())
     }
 }
 
-impl IriAuthority<'_> {
+impl<'a> IriAuthority<'a> {
+    /// Builds an authority borrowing the original identifier's components.
+    pub(crate) fn from_components(scheme: IriScheme, components: AuthorityComponents<'a>) -> Self {
+        Self { scheme, components }
+    }
+
     /// See: <https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1>
     /// See: <https://datatracker.ietf.org/doc/html/rfc7230#section-2.7.1>
     pub fn userinfo(&self) -> Option<&str> {

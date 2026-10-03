@@ -17,7 +17,7 @@ mod iri_error;
 pub use iri_error::*;
 
 #[cfg(feature = "uri")]
-mod uri;
+pub(crate) mod uri;
 #[cfg(feature = "uri")]
 pub use uri::*;
 
