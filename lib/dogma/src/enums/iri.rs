@@ -25,6 +25,8 @@ use iri_string::{
 ///
 /// Equality, ordering, and hashing use the exact IRI string, independently of
 /// ownership. Ordering is lexicographic; no normalization is performed.
+/// With `serde`, both ownership forms serialize as the original string, without
+/// enum variant tags, normalization, or percent decoding.
 #[derive(Clone)]
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
@@ -430,6 +432,13 @@ impl fmt::Display for Iri<'_> {
             Iri::Borrowed(iri) => iri.fmt(f),
             Iri::Owned(iri) => iri.fmt(f),
         }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for Iri<'_> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
     }
 }
 

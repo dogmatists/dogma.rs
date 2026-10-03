@@ -21,13 +21,10 @@ relative to the repository root.
 ## Identifier APIs and serialization
 
 - [ ] **SERDE-02: Serialize and deserialize identifier values.**
-  The `serde` feature currently does not implement either trait for `Iri`.
-  Start with `enums/iri.rs`: use a string wire representation independent of
-  ownership, and validate deserialized input. Serialization and deserialization
-  can be separate atomic steps. Test both ownership forms, invalid input,
-  Unicode, and percent escapes under `no_std` plus `alloc`. Support the distinct
-  URI type too. Keep enum variant tags out of the wire format.
-  - [ ] Serialize IRI strings.
+  Use a string wire representation independent of ownership, and validate
+  deserialized input. Test both ownership forms, invalid input, Unicode, and
+  percent escapes under `no_std` plus `alloc`. Keep enum variant tags out of
+  the wire format.
   - [ ] Deserialize and validate owned IRI strings.
   - [ ] Serialize URI strings.
   - [ ] Deserialize and validate owned URI strings.
