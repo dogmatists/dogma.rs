@@ -12,7 +12,7 @@ relative to the repository root.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
 - The current enhancement focus is IRIs/URIs. Start with URI-01's staged error
-  types. PATH-01 is the highest-priority non-IRI correctness fix.
+  types.
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -69,17 +69,9 @@ relative to the repository root.
 - [ ] **SERDE-03: Define serialization for `AncestorPath`.**
   Location: `path/ancestor_path.rs`. Choose and document a wire representation
   before adding implementations. Preserve the nonzero-depth invariant; test
-  round trips and invalid values. Numeric input handling depends on PATH-01.
+  round trips and invalid values.
 
 ## Paths and collection traits
-
-- [ ] **PATH-01: Return an error for zero ancestor depth instead of panicking.**
-  `path/ancestor_path.rs::TryFrom<usize>` calls
-  `NonZeroUsize::new(0).unwrap()` in its error branch, so
-  `AncestorPath::try_from(0usize)` always panics. Its `NonZeroUsize` error type
-  also misrepresents the failure. Delegate to `NonZeroUsize::try_from` with its
-  error type, or introduce an appropriate depth error. Cover 0, 1, and large
-  representable depths without trying to allocate their formatted paths.
 
 - [ ] **PATH-02: Stream ancestor-path formatting.**
   `path/ancestor_path.rs::Display` allocates an intermediate string with

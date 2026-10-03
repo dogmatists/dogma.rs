@@ -97,13 +97,11 @@ impl From<NonZeroUsize> for AncestorPath {
 }
 
 impl TryFrom<usize> for AncestorPath {
-    type Error = NonZeroUsize;
+    type Error = core::num::TryFromIntError;
 
+    /// Creates an ancestor path with the given depth, returning an error for zero.
     fn try_from(depth: usize) -> Result<Self, Self::Error> {
-        if depth == 0 {
-            return Err(NonZeroUsize::new(0).unwrap());
-        }
-        Ok(AncestorPath(NonZeroUsize::new(depth).unwrap()))
+        NonZeroUsize::try_from(depth).map(Self)
     }
 }
 
@@ -271,6 +269,19 @@ impl TryFrom<&camino::Utf8Path> for AncestorPath {
 mod tests {
     use super::*;
     use core::str::FromStr;
+
+    #[test]
+    fn try_from_usize_rejects_zero() {
+        assert!(AncestorPath::try_from(0usize).is_err());
+    }
+
+    #[test]
+    fn try_from_usize_preserves_nonzero_depths() {
+        for depth in [1usize, 2, usize::MAX / 2, usize::MAX] {
+            let path = AncestorPath::try_from(depth).unwrap();
+            assert_eq!(path.depth(), depth);
+        }
+    }
 
     #[test]
     fn from_str_posix_basic() {
