@@ -9,7 +9,7 @@ pub type Uri<'a> = Iri<'a>; // TODO
 pub(crate) mod staged {
     use crate::enums::{
         uri_error::staged::{UriError, UriResult},
-        UriScheme,
+        Iri, UriScheme,
     };
     use alloc::string::String;
     use core::{
@@ -78,6 +78,23 @@ pub(crate) mod staged {
     impl From<UriString> for Uri<'static> {
         fn from(uri: UriString) -> Self {
             Self::Owned(uri)
+        }
+    }
+
+    /// Converts a URI to an IRI without copying or changing its spelling.
+    impl<'a> From<Uri<'a>> for Iri<'a> {
+        fn from(uri: Uri<'a>) -> Self {
+            match uri {
+                Uri::Borrowed(uri) => Self::Borrowed(uri.as_ref()),
+                Uri::Owned(uri) => Self::Owned(uri.into()),
+            }
+        }
+    }
+
+    /// Borrows either ownership form as an IRI without allocating.
+    impl<'a> From<&'a Uri<'_>> for Iri<'a> {
+        fn from(uri: &'a Uri<'_>) -> Self {
+            Self::Borrowed(uri.as_iri_str())
         }
     }
 
@@ -245,6 +262,39 @@ pub(crate) mod staged {
 
         fn representations(text: &str) -> [Uri<'_>; 2] {
             [Uri::try_from(text).unwrap(), text.parse().unwrap()]
+        }
+
+        #[test]
+        fn into_iri_preserves_ownership_and_storage() {
+            let input = String::from("HTTPS://EXAMPLE.com/a/../%C3%A9?#");
+            let iri = {
+                let uri = Uri::try_from(input.as_str()).unwrap();
+                Iri::from(uri)
+            };
+            assert!(matches!(iri, Iri::Borrowed(_)));
+            assert_eq!(iri.as_str(), input);
+            assert_eq!(iri.as_str().as_ptr(), input.as_ptr());
+
+            let owned: Iri<'static> = {
+                let uri: Uri<'static> = input.parse().unwrap();
+                let pointer = uri.as_str().as_ptr();
+                let iri = Iri::from(uri);
+                assert!(matches!(iri, Iri::Owned(_)));
+                assert_eq!(iri.as_str().as_ptr(), pointer);
+                iri
+            };
+            drop(input);
+            assert_eq!(owned.as_str(), "HTTPS://EXAMPLE.com/a/../%C3%A9?#");
+        }
+
+        #[test]
+        fn iri_views_borrow_both_uri_ownership_forms() {
+            for uri in representations("https://example.com/%2f") {
+                let iri = Iri::from(&uri);
+                assert!(matches!(iri, Iri::Borrowed(_)));
+                assert_eq!(iri.as_str(), uri.as_str());
+                assert_eq!(iri.as_str().as_ptr(), uri.as_str().as_ptr());
+            }
         }
 
         #[test]
