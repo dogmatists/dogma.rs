@@ -28,7 +28,6 @@ relative to the repository root.
   a separate atomic change; URI-02's encoder must precede filesystem adapters
   and activation.
   - [ ] Add `std`-gated URI filesystem adapters with native path coverage.
-  - [ ] Stage a distinct Clap parser returning `Uri<'static>`.
   - [ ] Activate URI/error/authority/parser replacements and `Iri::to_uri()`
     together, with public API tests, migration rustdoc, and a changelog entry.
 
