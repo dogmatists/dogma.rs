@@ -1,7 +1,7 @@
 # Dogma.rs
 
 [![License](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://unlicense.org)
-[![Compatibility](https://img.shields.io/badge/rust-1.70%2B-blue)](https://rust-lang.org)
+[![Compatibility](https://img.shields.io/badge/rust-1.97%2B-blue)](https://rust-lang.org)
 [![Package](https://img.shields.io/crates/v/dogma)](https://crates.io/crates/dogma)
 [![Documentation](https://docs.rs/dogma/badge.svg)](https://docs.rs/dogma/)
 
@@ -16,7 +16,7 @@ and `CollectionMut` traits for Rust.
 
 ## 🛠️ Prerequisites
 
-- [Rust](https://rust-lang.org) 1.70+
+- [Rust](https://rust-lang.org) 1.97+
 
 ## ⬇️ Installation
 

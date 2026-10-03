@@ -92,12 +92,6 @@ relative to the repository root.
   `structs::*` re-export warning. Define which types this group enables and
   align `lib/dogma/Cargo.toml`, `lib.rs`, and `structs.rs` consistently.
 
-- [ ] **META-01: Align MSRV declarations with Rust 1.97.**
-  Root `Cargo.toml` and the README still advertise 1.70, while `AGENTS.md`
-  specifies 1.97. Update the manifest and the README badge/prerequisite
-  narrowly. Existing code uses newer APIs, including const `Option::unwrap`
-  and `ErrorKind::InvalidFilename`.
-
 - [ ] **META-02: Correct stale README installation/integration details.**
   Installation examples still select 0.1 rather than the current release line.
   The "all features enabled" example actually selects default features, which
@@ -148,8 +142,7 @@ relative to the repository root.
   only `.gitkeep`.
 
 - [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
-  First address META-01. Strict Clippy currently fails; beyond stale
-  MSRV diagnostics, findings include redundant closures, needless `Ok(...?)`,
+  Strict Clippy findings include redundant closures, needless `Ok(...?)`,
   `ok_or_else(|| ())`, decimal `from_str_radix`, and manual separator matching.
   Clean these up in bounded patches before enabling warning-as-error checks.
   Stable rustfmt's warning about nightly-only `imports_granularity` is known.
