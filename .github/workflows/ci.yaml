@@ -48,6 +48,24 @@ jobs:
         env:
           RUSTDOCFLAGS: "-D warnings"
         run: cargo doc -p dogma --all-features --no-deps
+  check-package:
+    name: Check packaged doctests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+      - name: Package crate
+        run: cargo package -p dogma
+      - name: Test packaged documentation
+        run: |
+          manifest="target/package/dogma-$(< VERSION)/Cargo.toml"
+          cargo test --manifest-path "$manifest" --doc
+          cargo test --manifest-path "$manifest" --doc --all-features
+          cargo test --manifest-path "$manifest" --doc --no-default-features
+          cargo test --manifest-path "$manifest" --doc \
+            --no-default-features --features named
   check-features:
     name: Check feature combinations
     runs-on: ubuntu-latest

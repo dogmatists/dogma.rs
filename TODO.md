@@ -40,10 +40,6 @@ relative to the repository root.
   Test real examples when adding them; `lib/dogma/examples/` currently contains
   only `.gitkeep`.
 
-- [ ] **QA-04: Verify published-package doctests in CI.**
-  Test the extracted package as well as the checkout. A successful
-  `cargo package` alone does not exercise doctest documentation inputs.
-
 ## Validation for implementation work
 
 Run from the repository root, as required by `AGENTS.md`:
