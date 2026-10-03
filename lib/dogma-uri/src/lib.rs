@@ -28,6 +28,12 @@
 //! escapes. Decoding happens once and preserves literal `+`. Display names,
 //! recipient lists, authorities, queries (even empty), and fragments are rejected
 //! rather than discarded. Unicode mailboxes are supported without IDNA mapping.
+//!
+//! `uriparse` enables `std` and checked conversions with `uriparse::URI`.
+//! Its component-based representation can change spelling (for example, scheme
+//! case, ports, and empty authority paths). Conversion back serializes those
+//! components into an owned identifier. Non-ASCII IRIs are rejected; call
+//! `Iri::to_uri()` first when percent encoding is desired.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -88,3 +94,7 @@ mod interop_fluent_uri;
 mod interop_email_address;
 #[cfg(feature = "email-address")]
 pub use interop_email_address::MailtoError;
+
+#[cfg(feature = "uriparse")]
+#[path = "interop/uriparse.rs"]
+mod interop_uriparse;

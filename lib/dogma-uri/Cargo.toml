@@ -28,6 +28,7 @@ iri-string = ["dep:iri-string", "uri"]
 miette = ["dep:miette", "std"]
 serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
 url = ["dep:url", "uri"]
+uriparse = ["dep:uriparse", "uri", "std"]
 
 [dependencies]
 clap = { workspace = true, optional = true }
@@ -38,6 +39,7 @@ known-schemes = { workspace = true, optional = true }
 miette = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
+uriparse = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde_test.workspace = true

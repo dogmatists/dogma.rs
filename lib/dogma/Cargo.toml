@@ -49,6 +49,7 @@ iri-string = ["uri", "dogma-uri/iri-string"]
 miette = ["std", "dogma-uri?/miette"]
 serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde", "dogma-uuid?/serde"]
 url = ["uri", "dogma-uri/url"]
+uriparse = ["std", "uri", "dogma-uri/uriparse"]
 
 [dependencies]
 dogma-traits = { workspace = true, optional = true }
