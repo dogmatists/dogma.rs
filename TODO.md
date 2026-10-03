@@ -61,10 +61,6 @@ relative to the repository root.
   Test real examples when adding them; `lib/dogma/examples/` currently contains
   only `.gitkeep`.
 
-- [ ] **QA-03: Enforce clean documentation in CI.**
-  Add a CI check for rustdoc with
-  `RUSTDOCFLAGS="-D warnings"`; the current all-feature builds pass locally.
-
 - [ ] **QA-04: Verify published-package doctests in CI.**
   After DOC-01, test the extracted package as well as the checkout. A successful
   `cargo package` alone does not exercise the broken README doctest include.

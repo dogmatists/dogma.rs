@@ -36,6 +36,18 @@ jobs:
           components: clippy
       - name: Check Clippy
         run: cargo clippy -p dogma --all-targets --all-features -- -D warnings
+  check-docs:
+    name: Check documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc -p dogma --all-features --no-deps
   check-features:
     name: Check feature combinations
     runs-on: ubuntu-latest
