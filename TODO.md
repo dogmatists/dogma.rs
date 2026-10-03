@@ -145,9 +145,9 @@ relative to the repository root.
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.
   Cover native POSIX/Windows path conversions as well as string parsing.
-  Useful property tests include bounded ancestor-depth round trips and
-  identifier/path encoding round trips. Test real examples when adding them;
-  `lib/dogma/examples/` currently contains only `.gitkeep`.
+  Useful property tests include identifier/path encoding round trips.
+  Test real examples when adding them; `lib/dogma/examples/` currently contains
+  only `.gitkeep`.
 
 - [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
   First address META-01 and DOC-03. Strict Clippy currently fails; beyond stale

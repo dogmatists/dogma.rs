@@ -300,6 +300,21 @@ mod tests {
     }
 
     #[test]
+    fn bounded_depths_round_trip_through_posix_and_windows_strings() {
+        for depth in 1usize..=256 {
+            let path = AncestorPath::try_from(depth).unwrap();
+            let posix = path.to_string();
+            let windows = posix.replace('/', "\\");
+
+            for input in [&posix, &windows] {
+                let parsed = AncestorPath::from_str(input).unwrap();
+                assert_eq!(parsed, path, "input: {input:?}");
+                assert_eq!(parsed.to_string(), posix);
+            }
+        }
+    }
+
+    #[test]
     fn display_propagates_write_errors_at_any_depth() {
         struct BoundedWriter(usize);
 
