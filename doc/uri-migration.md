@@ -12,29 +12,31 @@ crate split these implementations lived in `lib/dogma/src/`.
 ## Crate split
 
 URI/IRI implementations, authority types, errors, Serde support, and Clap/Miette
-integrations now belong to `dogma-uri`. Use `dogma_uri::{Iri, Uri}` directly, or
-`dogma::uri::{Iri, Uri}` through the umbrella. Existing `dogma::{Iri, Uri}`,
-`dogma::enums`, and `dogma::structs` exports refer to the same types.
+interop now belong to `dogma-uri`. Use `dogma_uri::{Iri, Uri}` directly, or
+`dogma::uri::{Iri, Uri}` through the umbrella. The top-level
+`dogma::{Iri, Uri}` exports refer to the same types. `dogma-uri` uses flat,
+type-focused source modules and exports types at its root; the former `enums`
+and `structs` namespaces are gone.
 Diagnostic codes retain their `dogma::...` names.
 
 General-purpose traits moved to `dogma-traits`; ancestor paths and their Camino
-integration moved to `dogma-path`. `dogma-uuid` is a placeholder. All are separate
+interop moved to `dogma-path`. `dogma-uuid` is a placeholder. All are separate
 workspace crates with no dependency on the umbrella. The umbrella forwards its
 existing feature flags and adds `path` and `uuid`; `alloc` still enables paths.
 Use package-local documentation and tests in the crate owning each API.
 
 ## Pre-migration coupling
 
-- `enums/uri.rs` aliases `Uri` to `Iri`, inheriting IRI constructors, variants,
+- `uri.rs` aliases `Uri` to `Iri`, inheriting IRI constructors, variants,
   methods, and trait implementations. Unicode input is therefore accepted.
-- `enums/uri_error.rs` aliases both `UriError` and `UriResult` to IRI types.
-  `structs/uri_authority.rs` likewise aliases `UriAuthority` to `IriAuthority`.
-- `enums/iri.rs::to_uri()` returns a clone typed as `Uri`. Replacing the alias
+- `uri_error.rs` aliases both `UriError` and `UriResult` to IRI types.
+  `uri_authority.rs` likewise aliases `UriAuthority` to `IriAuthority`.
+- `iri.rs::to_uri()` returns a clone typed as `Uri`. Replacing the alias
   makes that implementation fail to compile.
-- `enums/integrations/clap.rs` is included by the IRI module. Its
+- `interop/clap.rs` is included by the IRI module. Its
   `UriValueParser` alias has `TypedValueParser::Value = Iri<'static>`.
-- `uri` enables `iri`, which enables `alloc`. `enums.rs`, `structs.rs`, and
-  `lib.rs` gate the exports.
+- `uri` enables `iri`, which enables `alloc` in the original crate. Identifier
+  feature gates control exports, now collected directly in `lib.rs`.
 - Serde is forwarded to dependencies but has no dogma identifier impls.
   Miette derives diagnostics on IRI errors; Camino currently serves path APIs.
   Upstream `IriScheme` aliases `UriScheme`, which can remain shared.
@@ -142,7 +144,7 @@ impls. Each step includes focused regression coverage.
 
 In `dogma-uri`, keep `default = ["all", "std"]` and `uri = ["iri"]`; allocation
 is implicit. Every identifier module and export must use its identifier gate;
-filesystem/network and optional integrations keep their existing gates.
+filesystem/network and optional interop keep their existing gates.
 Preserve `no_std` and `deny(unsafe_code)`. Identifier dependencies are optional
 and activated by `iri`. Serde support was added after URI activation:
 identifiers use plain strings and deserialization validates into owned values.

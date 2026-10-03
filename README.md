@@ -95,7 +95,7 @@ https://docs.rs/dogma/
 - [`Named`], [`MaybeNamed`]
 - [`Labeled`], [`MaybeLabeled`]
 
-### Integrations
+### Interoperability
 
 Crate (Feature) | Version | Usage | Summary
 :--- | :--- | :--- | :---

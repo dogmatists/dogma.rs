@@ -48,7 +48,6 @@ fn path_reexports_preserve_type_identity() {
 fn iri_reexports_preserve_type_identity() {
     let iri: dogma::uri::Iri<'_> = dogma::Iri::try_from("https://example.com/café").unwrap();
     let _: &dogma_uri::Iri<'_> = &iri;
-    let _: &dogma::enums::Iri<'_> = &iri;
     #[cfg(feature = "std")]
     assert!(matches!(
         dogma::Iri::try_from(std::path::Path::new("relative")),

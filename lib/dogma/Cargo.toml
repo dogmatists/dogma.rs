@@ -40,7 +40,7 @@ named = ["alloc", "dep:dogma-traits", "dogma-traits/named"]
 path = ["dep:dogma-path"]
 uuid = ["dep:dogma-uuid"]
 
-# Integrations:
+# Interop:
 camino = ["std", "dogma-path/camino"]
 clap = ["std", "dogma-uri?/clap"]
 miette = ["std", "dogma-uri?/miette"]

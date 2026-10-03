@@ -3,8 +3,7 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-use crate::enums::{Iri, UriError, UriResult, UriScheme};
-use crate::structs::UriAuthority;
+use crate::{Iri, UriAuthority, UriError, UriResult, UriScheme};
 use alloc::string::String;
 use core::{
     cmp::Ordering,

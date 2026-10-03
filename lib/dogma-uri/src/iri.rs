@@ -4,13 +4,10 @@
 extern crate std;
 
 #[cfg(feature = "std")]
-use crate::enums::IriToPathError;
+use crate::IriToPathError;
 #[cfg(feature = "uri")]
-use crate::enums::Uri;
-use crate::{
-    enums::{IriError, IriScheme},
-    structs::IriAuthority,
-};
+use crate::Uri;
+use crate::{IriAuthority, IriError, IriScheme};
 use alloc::string::String;
 use core::{
     cmp::Ordering,
@@ -500,7 +497,7 @@ impl serde::Serialize for Iri<'_> {
 }
 
 #[cfg(feature = "clap")]
-include!("integrations/clap.rs");
+include!("interop/clap.rs");
 
 #[cfg(feature = "serde")]
 impl<'de> serde::Deserialize<'de> for Iri<'_> {

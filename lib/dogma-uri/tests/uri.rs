@@ -9,8 +9,8 @@ use dogma_uri::{Iri, Uri, UriAuthority, UriError, UriResult};
 
 #[test]
 fn public_uri_constructors_are_strict() {
-    let uri: dogma_uri::enums::Uri<'_> = Uri::try_from("https://example.com/%C3%A9").unwrap();
-    let authority: dogma_uri::structs::UriAuthority<'_> = UriAuthority::try_from(&uri).unwrap();
+    let uri = Uri::try_from("https://example.com/%C3%A9").unwrap();
+    let authority = UriAuthority::try_from(&uri).unwrap();
     assert_eq!(authority.host_str(), "example.com");
     let borrowed: UriResult<Uri<'_>> = Uri::try_from("https://example.com/café");
     assert!(matches!(borrowed, Err(UriError::Invalid(None))));

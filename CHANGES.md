@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split implementations into `dogma-traits`, `dogma-path`, and `dogma-uri`;
   add the `dogma-uuid` placeholder. `dogma` re-exports these crates as namespaces
   and preserves its existing type exports and feature flags.
+- **Breaking:** remove the `dogma::enums` and `dogma::structs` namespaces.
+  Use `dogma::uri` or the top-level type exports instead.
+- **Breaking:** flatten `dogma-uri` source modules and remove its `enums` and
+  `structs` namespaces. Import types directly from `dogma_uri`.
 - **Breaking:** `Uri`, `UriError`, `UriAuthority`, and `UriValueParser` are
   distinct from their IRI counterparts. URI parsing rejects Unicode; use
   `Iri::to_uri()` to percent-encode it. This requires a breaking release.

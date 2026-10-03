@@ -32,17 +32,18 @@
 # Workspace
 - Rust 2021 crates live in `lib/<crate>/`: `dogma` is the umbrella;
   `dogma-traits` owns collection/count/name/label traits; `dogma-path` owns
-  `AncestorPath` and `FromPathError`; `dogma-uri` owns URI/IRI types in `enums/`
-  and `structs/`; `dogma-uuid` is a placeholder with no UUID API yet.
+  `AncestorPath` and `FromPathError`; `dogma-uri` owns URI/IRI types in flat,
+  type-focused source modules; `dogma-uuid` is a placeholder with no UUID API yet.
 - Root `Cargo.toml` owns shared metadata/dependencies. Keep package and internal
   dependency versions aligned with `VERSION`; internal defaults stay disabled.
 - Component crates are independent of the umbrella. Move behavior tests with
   their implementation; umbrella tests check re-exports and feature forwarding.
 - Keep manifests, module gates, and umbrella feature forwarding consistent.
-  `dogma::{traits,path,uri,uuid}` re-export crates; existing type/group exports
-  remain. The umbrella's compatibility `alloc` feature enables `path`.
+  `dogma::{traits,path,uri,uuid}` re-export crates alongside top-level types.
+  Neither the umbrella nor `dogma-uri` has `enums`/`structs` namespaces; those
+  feature flags are compatibility aliases. The umbrella's `alloc` enables `path`.
 - Preserve `#![deny(unsafe_code)]`. Gate filesystem/network APIs on `std`
-  and optional integrations on their named features.
+  and optional interop on the corresponding features.
 - `all` includes `serde` where supported. `dogma-path` owns `camino`;
   `dogma-uri` owns `clap`/`miette`. `dogma-path` and `dogma-uri` assume allocation;
   `dogma-traits` has an explicit `alloc` feature. UUID has only `all`/`std`.

@@ -33,7 +33,7 @@ Paths below are relative to the repository root. Implementations live in
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion
-  errors. Extend rustdoc in `lib/dogma-uri/src/{enums,structs}/`,
+  errors. Extend rustdoc in `lib/dogma-uri/src/`,
   `lib/dogma-path/src/`, and `lib/dogma-traits/src/` in small patches. Keep
   examples usable directly from each component crate and through the umbrella.
 
@@ -69,7 +69,7 @@ cargo +1.97.0 check -p dogma-uri --no-default-features --features iri \
 
 Install that target for Rust 1.97 if needed. Check affected crates individually
 to avoid workspace feature unification hiding missing gates. Also check `uri`
-and affected integrations with defaults disabled, including their forwarding
+and affected interop features with defaults disabled, including their forwarding
 through `dogma`, when changing APIs or gates. For lint/documentation cleanup
 tasks, use:
 
