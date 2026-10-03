@@ -6,11 +6,25 @@ extern crate std;
 #[allow(unused)]
 use crate::prelude::{fmt, format, String};
 
+/// A result whose error is an [`IriError`]. Available with `iri`.
 pub type IriResult<T> = core::result::Result<T, IriError>;
 
+/// An error validating an [`Iri`](crate::Iri) or converting a native path to one.
+///
+/// Available with `iri`; native path variants require `std`. Path conversion
+/// checks syntax and Unicode representation without accessing the filesystem.
+/// With `miette`, this type also supplies diagnostic codes and help text.
+///
+/// Optional payloads retain rejected input when available. Display includes
+/// that input when present. No variant exposes an underlying error source.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
 pub enum IriError {
+    /// The input does not satisfy IRI syntax.
+    ///
+    /// Converting an owned string retains it in `Some`; validating a borrowed
+    /// string or using [`str::parse`] returns `None`, without copying the input.
+    /// Upstream validation details are not retained.
     #[cfg_attr(
         feature = "miette",
         diagnostic(
@@ -21,6 +35,10 @@ pub enum IriError {
     )]
     Invalid(Option<String>),
 
+    /// The native path is not absolute on the current platform.
+    ///
+    /// Path-to-IRI conversion retains the rejected path in `Some` and does not
+    /// resolve it against the working directory. Requires `std`.
     #[cfg(feature = "std")]
     #[cfg_attr(
         feature = "miette",
@@ -32,6 +50,11 @@ pub enum IriError {
     )]
     PathIsRelative(Option<std::path::PathBuf>),
 
+    /// The native path cannot be represented as Unicode.
+    ///
+    /// Path-to-IRI conversion retains the rejected path in `Some`, preserving
+    /// its native encoding rather than replacing invalid characters.
+    /// Requires `std`.
     #[cfg(feature = "std")]
     #[cfg_attr(
         feature = "miette",
@@ -44,6 +67,9 @@ pub enum IriError {
     PathNotUnicode(Option<std::path::PathBuf>),
 
     /// A Windows verbatim or device namespace prefix cannot be represented.
+    ///
+    /// Retains the rejected path. Requires `std`; emitted by Windows path
+    /// conversion after checking that the path is absolute and Unicode.
     #[cfg(feature = "std")]
     PathPrefixUnsupported(std::path::PathBuf),
 }
