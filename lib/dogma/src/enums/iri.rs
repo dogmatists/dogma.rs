@@ -9,12 +9,14 @@ use crate::enums::IriToPathError;
 use crate::enums::Uri;
 use crate::{
     enums::{IriError, IriScheme},
-    prelude::{fmt, str::Split, FromStr, String},
     structs::IriAuthority,
 };
+use alloc::string::String;
 use core::{
     cmp::Ordering,
+    fmt,
     hash::{Hash, Hasher},
+    str::{FromStr, Split},
 };
 use iri_string::{
     components::AuthorityComponents,

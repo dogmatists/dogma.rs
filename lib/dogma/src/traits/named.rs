@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::prelude::Cow;
+use alloc::borrow::Cow;
 
 /// A trait for objects that have a name.
 pub trait Named {

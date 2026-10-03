@@ -10,9 +10,6 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
-#[doc(hidden)]
-pub mod prelude;
-
 #[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
 pub mod enums;
 #[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]

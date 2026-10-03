@@ -1,9 +1,12 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
+use alloc::{
+    collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque},
+    vec::Vec,
+};
 
 #[cfg(feature = "std")]
-use crate::prelude::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 /// Reports a collection's item count and whether it is empty.
 ///

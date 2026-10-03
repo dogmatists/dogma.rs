@@ -3,8 +3,10 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-#[allow(unused)]
-use crate::prelude::{fmt, format, String};
+#[cfg(feature = "miette")]
+use alloc::format;
+use alloc::string::String;
+use core::fmt;
 
 /// A result whose error is an [`IriError`]. Available with `iri`.
 pub type IriResult<T> = core::result::Result<T, IriError>;

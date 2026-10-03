@@ -1,10 +1,13 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::Collection;
-use crate::prelude::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, Vec, VecDeque};
+use alloc::{
+    collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque},
+    vec::Vec,
+};
 
 #[cfg(feature = "std")]
-use crate::prelude::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
 /// A collection whose items can all be removed.
 ///
