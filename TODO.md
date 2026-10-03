@@ -17,13 +17,6 @@ relative to the repository root.
 - Preserve `no_std`, `deny(unsafe_code)`, and feature gates. Prefer module/type
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
-## Identifier APIs and serialization
-
-- [ ] **SERDE-03: Define serialization for `AncestorPath`.**
-  The documented wire representation is a positive integer depth.
-  Add deserialization in `path/ancestor_path.rs`, preserving the nonzero-depth
-  invariant; test round trips, invalid values, and platform-size limits.
-
 ## Features, compatibility, and release tooling
 
 - [ ] **FEAT-01: Make `FEATURES` report the enabled feature set accurately.**

@@ -33,6 +33,8 @@ use core::num::NonZeroUsize;
 /// path string or a tagged object. For example, `../../` serializes as `2`.
 /// This keeps serialized size independent of the number of parent components.
 /// Valid depths are `1..=usize::MAX` on the receiving platform.
+/// Deserialization rejects zero, negative and out-of-range integers, and
+/// non-integer representations. It does not allocate a path string.
 ///
 /// ```
 /// use dogma::{AncestorPath, FromPathError};
@@ -58,6 +60,13 @@ impl Default for AncestorPath {
 impl serde::Serialize for AncestorPath {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for AncestorPath {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        NonZeroUsize::deserialize(deserializer).map(Self)
     }
 }
 
