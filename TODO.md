@@ -25,7 +25,6 @@ relative to the repository root.
   deserialized input. Test both ownership forms, invalid input, Unicode, and
   percent escapes under `no_std` plus `alloc`. Keep enum variant tags out of
   the wire format.
-  - [ ] Deserialize and validate owned IRI strings.
   - [ ] Serialize URI strings.
   - [ ] Deserialize and validate owned URI strings.
 
@@ -45,8 +44,7 @@ relative to the repository root.
   `cargo tree -p dogma --no-default-features --edges normal` still includes
   `iri-string` and `known-schemes`. In `lib/dogma/Cargo.toml`, attach these
   dependencies to the identifier features and use weak dependency-feature
-  forwarding where appropriate (`dependency?/feature`). Make required Serde
-  allocation features explicit instead of relying on transitive activation.
+  forwarding where appropriate (`dependency?/feature`).
   Verify trait-only builds, especially `named,serde` and `labeled,serde`, as
   well as the identifier/integration matrix.
 

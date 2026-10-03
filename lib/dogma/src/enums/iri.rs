@@ -27,6 +27,8 @@ use iri_string::{
 /// ownership. Ordering is lexicographic; no normalization is performed.
 /// With `serde`, both ownership forms serialize as the original string, without
 /// enum variant tags, normalization, or percent decoding.
+/// Deserialization validates the string and always returns an owned IRI,
+/// independently of the deserializer's input lifetime.
 #[derive(Clone)]
 pub enum Iri<'a> {
     Borrowed(&'a IriStr),
@@ -444,6 +446,14 @@ impl serde::Serialize for Iri<'_> {
 
 #[cfg(feature = "clap")]
 include!("integrations/clap.rs");
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Iri<'_> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let text = <String as serde::Deserialize<'de>>::deserialize(deserializer)?;
+        Iri::try_from(text).map_err(serde::de::Error::custom)
+    }
+}
 
 #[cfg(test)]
 mod tests {

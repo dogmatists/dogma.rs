@@ -54,7 +54,7 @@ known-schemes = { version = "0.2", default-features = false, features = [
 miette = { version = "7.6", default-features = false, features = [
     "derive",
 ], optional = true }
-serde = { version = "1", default-features = false, optional = true }
+serde = { version = "1", default-features = false, features = ["alloc"], optional = true }
 #stability = "0.2"
 
 [dev-dependencies]
