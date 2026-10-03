@@ -186,6 +186,26 @@ pub(crate) mod staged {
             self.clone()
         }
 
+        /// Decodes a file URI into an absolute native filesystem path.
+        ///
+        /// Uses [`Iri::to_path`]'s platform-specific authority and path rules.
+        /// Percent escapes are decoded exactly once as UTF-8; `+` is literal.
+        /// Unsupported schemes, authorities, queries, fragments, invalid UTF-8,
+        /// NUL bytes, and encoded native separators return `None`.
+        #[cfg(feature = "std")]
+        pub fn to_path(&self) -> Option<std::path::PathBuf> {
+            self.try_to_path().ok()
+        }
+
+        /// Decodes a file URI using [`Self::to_path`]'s rules with error details.
+        ///
+        /// Returns the shared [`crate::IriToPathError`] describing the component
+        /// or path data that prevents conversion.
+        #[cfg(feature = "std")]
+        pub fn try_to_path(&self) -> Result<std::path::PathBuf, crate::IriToPathError> {
+            Iri::from(self).try_to_path()
+        }
+
         /// Returns the scheme, matching names case-insensitively.
         ///
         /// Unknown scheme names are lowercased. See [`Self::scheme_str`] for
@@ -343,6 +363,79 @@ pub(crate) mod staged {
                 assert_eq!(uri.authority_str(), Some(""));
                 assert!(!uri.has_query());
                 assert!(!uri.has_fragment());
+                assert_eq!(
+                    uri.try_to_path().unwrap().as_os_str(),
+                    std::ffi::OsStr::new(path)
+                );
+            }
+        }
+
+        #[cfg(all(feature = "std", not(windows)))]
+        #[test]
+        fn to_posix_path_decodes_once_for_both_ownership_forms() {
+            for (text, expected) in [
+                ("file:/tmp/data", "/tmp/data"),
+                ("FiLe://LoCaLhOsT/tmp/a%20b", "/tmp/a b"),
+                ("file:///caf%C3%A9/%E6%9D%B1%E4%BA%AC", "/café/東京"),
+                ("file:///tmp/%252F%255C%2500", "/tmp/%2F%5C%00"),
+                ("file:///tmp/a%5Cb", r"/tmp/a\b"),
+                ("file:///tmp/a+b%2Bc", "/tmp/a+b+c"),
+                ("file:///tmp/a%23b%3Fc", "/tmp/a#b?c"),
+                ("file:///tmp/./dir/../file", "/tmp/./dir/../file"),
+            ] {
+                for uri in representations(text) {
+                    for path in [uri.to_path().unwrap(), uri.try_to_path().unwrap()] {
+                        assert!(path.is_absolute());
+                        assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected));
+                    }
+                    assert_eq!(uri.as_str(), text);
+                }
+            }
+        }
+
+        #[cfg(feature = "std")]
+        #[test]
+        fn to_path_preserves_shared_conversion_errors() {
+            use crate::IriToPathError as Error;
+            for (text, expected) in [
+                ("https://example.com/data", Error::UnsupportedScheme),
+                (
+                    "file://user@remote.example/share/data",
+                    Error::UnsupportedAuthority,
+                ),
+                ("file:///C:/Temp/data?", Error::UnsupportedQuery),
+                ("file:///C:/Temp/data#", Error::UnsupportedFragment),
+                ("file:", Error::PathNotAbsolute),
+                ("file:relative/path", Error::PathNotAbsolute),
+                ("file:///C:/Temp/%FF", Error::InvalidEncoding),
+                ("file:///C:/Temp/%C3", Error::InvalidEncoding),
+                ("file:///C:/Temp/%00", Error::NulByte),
+                ("file:///C:/Temp/a%2fb", Error::EncodedSeparator),
+            ] {
+                for uri in representations(text) {
+                    assert_eq!(uri.try_to_path(), Err(expected), "{text}");
+                    assert!(uri.to_path().is_none());
+                }
+            }
+        }
+
+        #[cfg(all(feature = "std", not(windows)))]
+        #[test]
+        fn to_posix_path_rejects_nonlocal_authorities() {
+            for text in [
+                "file://remote.example/share/data",
+                "file://localhost:80/tmp/data",
+                "file://127.0.0.1/tmp/data",
+                "file://[::1]/tmp/data",
+                "file://local%68ost/tmp/data",
+            ] {
+                for uri in representations(text) {
+                    assert_eq!(
+                        uri.try_to_path(),
+                        Err(crate::IriToPathError::UnsupportedAuthority)
+                    );
+                    assert!(uri.to_path().is_none());
+                }
             }
         }
 
