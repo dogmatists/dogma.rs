@@ -31,7 +31,7 @@ use core::num::NonZeroUsize;
 ///
 /// With `serde`, the wire representation is the positive integer depth, not a
 /// path string or a tagged object. For example, `../../` serializes as `2`.
-/// This keeps serialized size independent of the number of parent components.
+/// The integer's encoded size depends on the format; no path string is built.
 /// Valid depths are `1..=usize::MAX` on the receiving platform.
 /// Deserialization rejects zero, negative and out-of-range integers, and
 /// non-integer representations. It does not allocate a path string.

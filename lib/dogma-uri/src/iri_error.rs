@@ -117,7 +117,10 @@ impl From<iri_string::types::CreationError<String>> for IriError {
     }
 }
 
-/// An error returned by [`Iri::try_to_path`](crate::Iri::try_to_path).
+/// An error converting a file URI or IRI to a native filesystem path.
+///
+/// Returned by [`Iri::try_to_path`](crate::Iri::try_to_path) and, with `uri`,
+/// `Uri::try_to_path`. Requires `std`.
 #[cfg(feature = "std")]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "miette", derive(miette::Diagnostic))]

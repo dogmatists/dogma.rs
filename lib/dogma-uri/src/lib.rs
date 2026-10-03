@@ -7,6 +7,10 @@
 //! String operations work with `no_std` and allocation. Filesystem and network
 //! operations require `std`; Clap and Miette interop is opt-in.
 //! The compatibility `enums` and `structs` features each enable both identifiers.
+//! `all` selects the default identifier and Serde features, not every interop.
+//! The six conversion features below each enable both `iri` and `uri` and are
+//! opt-in. `url`, `iri-string`, and `fluent-uri` support `no_std` with allocation;
+//! `email-address`, `uriparse`, and `iref` enable `std`.
 //!
 //! The opt-in `url` feature enables checked conversions to and from
 //! `url::Url`. Converting to a URL applies WHATWG normalization (including
