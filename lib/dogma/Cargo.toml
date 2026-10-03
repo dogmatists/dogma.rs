@@ -45,6 +45,7 @@ camino = ["std", "dogma-path/camino"]
 clap = ["std", "dogma-uri?/clap"]
 miette = ["std", "dogma-uri?/miette"]
 serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde", "dogma-uuid?/serde"]
+url = ["uri", "dogma-uri/url"]
 
 [dependencies]
 dogma-traits = { workspace = true, optional = true }

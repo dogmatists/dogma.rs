@@ -7,6 +7,11 @@
 //! String operations work with `no_std` and allocation. Filesystem and network
 //! operations require `std`; Clap and Miette interop is opt-in.
 //! The compatibility `enums` and `structs` features each enable both identifiers.
+//!
+//! The opt-in `url` feature enables checked conversions to and from
+//! `url::Url`. Converting to a URL applies WHATWG normalization (including
+//! IDNA host conversion); converting back validates its serialized spelling,
+//! since WHATWG URLs can contain syntax rejected by RFC URIs and IRIs.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -49,3 +54,7 @@ pub use uri_error::*;
 mod uri_authority;
 #[cfg(feature = "uri")]
 pub use uri_authority::*;
+
+#[cfg(feature = "url")]
+#[path = "interop/url.rs"]
+mod interop_url;
