@@ -51,8 +51,7 @@ relative to the repository root.
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion
-  errors. For `AncestorPath`, document depth constants and relative/absolute
-  predicates. Extend rustdoc in `enums/`, `structs/`, and `path/` in small patches.
+  errors. Extend rustdoc in `enums/`, `structs/`, and `path/` in small patches.
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.

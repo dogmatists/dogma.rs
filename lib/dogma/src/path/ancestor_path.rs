@@ -71,25 +71,39 @@ impl<'de> serde::Deserialize<'de> for AncestorPath {
 }
 
 impl AncestorPath {
+    /// One parent-directory component (`../`), also the default value.
     pub const DEPTH_1: Self = Self(NonZeroUsize::new(1).unwrap());
+    /// Two parent-directory components (`../../`).
     pub const DEPTH_2: Self = Self(NonZeroUsize::new(2).unwrap());
+    /// Three parent-directory components.
     pub const DEPTH_3: Self = Self(NonZeroUsize::new(3).unwrap());
+    /// Four parent-directory components.
     pub const DEPTH_4: Self = Self(NonZeroUsize::new(4).unwrap());
+    /// Five parent-directory components.
     pub const DEPTH_5: Self = Self(NonZeroUsize::new(5).unwrap());
+    /// Six parent-directory components.
     pub const DEPTH_6: Self = Self(NonZeroUsize::new(6).unwrap());
+    /// Seven parent-directory components.
     pub const DEPTH_7: Self = Self(NonZeroUsize::new(7).unwrap());
+    /// Eight parent-directory components.
     pub const DEPTH_8: Self = Self(NonZeroUsize::new(8).unwrap());
+    /// Nine parent-directory components.
     pub const DEPTH_9: Self = Self(NonZeroUsize::new(9).unwrap());
 
-    /// The minimum depth of an ancestor path is 1.
+    /// Returns the number of parent-directory components, in `1..=usize::MAX`.
+    ///
+    /// This is the stored lexical depth, independent of the filesystem or the
+    /// number of ancestors available from a particular working directory.
     pub const fn depth(&self) -> usize {
         self.0.get()
     }
 
+    /// Always returns `false`: an ancestor path has no root or drive prefix.
     pub const fn is_absolute(&self) -> bool {
         false
     }
 
+    /// Always returns `true`: parent-directory components form a relative path.
     pub const fn is_relative(&self) -> bool {
         true
     }
