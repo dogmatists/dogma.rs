@@ -16,12 +16,13 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["enums", "serde", "structs"]
-std = ["iri-string?/std", "known-schemes?/std", "serde?/std", "url?/std"]
+std = ["fluent-uri?/std", "iri-string?/std", "known-schemes?/std", "serde?/std", "url?/std"]
 enums = ["iri", "uri"]
 iri = ["dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
 structs = ["iri", "uri"]
 clap = ["dep:clap", "known-schemes?/clap", "std"]
+fluent-uri = ["dep:fluent-uri", "uri"]
 iri-string = ["dep:iri-string", "uri"]
 miette = ["dep:miette", "std"]
 serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
@@ -29,6 +30,7 @@ url = ["dep:url", "uri"]
 
 [dependencies]
 clap = { workspace = true, optional = true }
+fluent-uri = { workspace = true, optional = true }
 iri-string = { workspace = true, optional = true }
 known-schemes = { workspace = true, optional = true }
 miette = { workspace = true, optional = true }

@@ -28,6 +28,7 @@ dogma-uri = { version = "0.2.2", path = "lib/dogma-uri", default-features = fals
 dogma-uuid = { version = "0.2.2", path = "lib/dogma-uuid", default-features = false }
 camino = { version = "1.2", default-features = false }
 clap = { version = "4.5", default-features = false, features = ["std"] }
+fluent-uri = { version = "0.4.1", default-features = false, features = ["alloc"] }
 iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
 known-schemes = { version = "0.2", default-features = false, features = ["iri-string"] }
 miette = { version = "7.6", default-features = false, features = ["derive"] }

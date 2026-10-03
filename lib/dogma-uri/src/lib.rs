@@ -18,6 +18,10 @@
 //! into an owned string allocates. Existing inbound conversions and typed
 //! accessors are always available with the corresponding identifier feature,
 //! since `iri-string` also supplies the underlying storage and validation.
+//!
+//! The `fluent-uri` feature provides checked, spelling-preserving conversions
+//! between matching URI/IRI types, for both borrowed and owned strings. Each
+//! destination validates the input; owned conversions reuse string storage.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -68,3 +72,7 @@ mod interop_url;
 #[cfg(feature = "iri-string")]
 #[path = "interop/iri_string.rs"]
 mod interop_iri_string;
+
+#[cfg(feature = "fluent-uri")]
+#[path = "interop/fluent_uri.rs"]
+mod interop_fluent_uri;
