@@ -16,7 +16,7 @@ pub trait MaybeNamed {
 }
 
 #[cfg(feature = "serde")]
-impl serde::Serialize for dyn MaybeNamed {
+impl serde::Serialize for dyn MaybeNamed + '_ {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

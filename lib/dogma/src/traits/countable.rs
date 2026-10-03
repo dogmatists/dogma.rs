@@ -17,7 +17,7 @@ pub trait Countable {
 }
 
 #[cfg(feature = "serde")]
-impl serde::Serialize for dyn Countable {
+impl serde::Serialize for dyn Countable + '_ {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

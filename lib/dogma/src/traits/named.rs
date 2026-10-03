@@ -9,7 +9,7 @@ pub trait Named {
 }
 
 #[cfg(feature = "serde")]
-impl serde::Serialize for dyn Named {
+impl serde::Serialize for dyn Named + '_ {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

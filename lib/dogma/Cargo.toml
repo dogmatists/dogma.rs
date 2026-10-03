@@ -56,3 +56,6 @@ miette = { version = "7.6", default-features = false, features = [
 ], optional = true }
 serde = { version = "1", default-features = false, optional = true }
 #stability = "0.2"
+
+[dev-dependencies]
+serde_test = "1"

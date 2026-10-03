@@ -39,15 +39,6 @@ relative to the repository root.
   - [ ] Wire the public method during URI-01 activation, with conversion rustdoc
     and public tests for both ownership forms.
 
-- [ ] **SERDE-01: Support non-`'static` serializable trait objects.**
-  The six `impl serde::Serialize for dyn ...` implementations in `traits/`
-  implicitly require `'static`: `Named`, `MaybeNamed`, `Labeled`,
-  `MaybeLabeled`, `Countable`, and `MaybeCountable`. Passing a borrowed
-  `&dyn Named` to a generic `T: serde::Serialize + ?Sized` function fails with
-  E0521. Use lifetime-general implementations such as `dyn Named + '_` and
-  test genuinely borrowed implementors with defaults disabled, enabling
-  `named,serde` or the corresponding trait feature plus `serde`.
-
 - [ ] **SERDE-02: Serialize and deserialize identifier values.**
   The `serde` feature currently does not implement either trait for `Iri`.
   Start with `enums/iri.rs`: use a string wire representation independent of
