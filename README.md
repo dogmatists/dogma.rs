@@ -26,18 +26,18 @@ and `CollectionMut` traits for Rust.
 cargo add dogma
 ```
 
-### Installation in `Cargo.toml` (with all features enabled)
+### Installation in `Cargo.toml` (with default features enabled)
 
 ```toml
 [dependencies]
-dogma = "0.1"
+dogma = "0.2"
 ```
 
 ### Installation in `Cargo.toml` (with only specific features enabled)
 
 ```toml
 [dependencies]
-dogma = { version = "0.1", default-features = false, features = ["traits"] }
+dogma = { version = "0.2", default-features = false, features = ["traits"] }
 ```
 
 ## 👉 Examples
@@ -99,7 +99,7 @@ https://docs.rs/dogma/
 
 Crate (Feature) | Version | Usage | Summary
 :--- | :--- | :--- | :---
-[clap]] &nbsp;<sub>(`"clap"`)</sub> | 4.5 | [![clap](https://docs.rs/clap/badge.svg)](https://docs.rs/clap/) | Derives `clap::builder::TypedValueParser`
+[clap] &nbsp;<sub>(`"clap"`)</sub> | 4.5 | [![clap](https://docs.rs/clap/badge.svg)](https://docs.rs/clap/) | Derives `clap::builder::TypedValueParser`
 [miette] &nbsp;<sub>(`"miette"`)</sub> | 7.6 | [![miette](https://docs.rs/miette/badge.svg)](https://docs.rs/miette/) | Enhances `dogma::{IriError, UriError}`
 [serde] &nbsp;<sub>(`"serde"`)</sub> | 1 | [![serde](https://docs.rs/serde/badge.svg)](https://docs.rs/serde/) | Derives `serde::{Serialize, Deserialize}`
 <img width="220" height="1"/> | <img width="110" height="1"/> | <img width="100" height="1"/> | &nbsp;

@@ -19,12 +19,6 @@ relative to the repository root.
 
 ## Features, compatibility, and release tooling
 
-- [ ] **META-02: Correct stale README installation/integration details.**
-  Installation examples still select 0.1 rather than the current release line.
-  The "all features enabled" example actually selects default features, which
-  exclude opt-in integrations. Correct these statements and the `[clap]]` link
-  typo without expanding the README. Keep release metadata aligned with VERSION.
-
 - [ ] **REL-01: Make version bumping target explicit fields.**
   `Rakefile` globally replaces the old version in all matching tracked files,
   including historical `CHANGES.md` headings. Update VERSION and workspace
