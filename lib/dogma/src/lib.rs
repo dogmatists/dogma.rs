@@ -18,9 +18,6 @@ pub mod enums;
 #[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
 pub use enums::*;
 
-mod features;
-pub use features::*;
-
 #[cfg(any(feature = "iri", feature = "uri"))]
 pub mod structs;
 #[cfg(any(feature = "iri", feature = "uri"))]

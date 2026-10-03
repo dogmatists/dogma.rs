@@ -13,8 +13,4 @@ fn structs_feature_exposes_both_authority_types() {
     let uri_authority: dogma::structs::UriAuthority<'_> =
         dogma::UriAuthority::try_from(&uri).unwrap();
     assert_eq!(uri_authority.host_str(), "example.com");
-
-    for feature in ["structs", "iri", "uri", "alloc"] {
-        assert!(dogma::FEATURES.contains(&feature));
-    }
 }

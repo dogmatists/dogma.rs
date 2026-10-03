@@ -35,8 +35,8 @@
 - Under `lib/dogma/src/`: `traits/` holds collection/count/name/label traits;
   `enums/` and `structs/` wrap `iri-string` and `known-schemes`; `path/` holds
   `AncestorPath` and `FromPathError`.
-- Keep feature dependencies in the crate manifest, module/re-export gates in
-  `lib.rs` and group modules, and `features.rs::FEATURES` consistent.
+- Keep feature dependencies in the crate manifest consistent with module and
+  re-export gates in `lib.rs` and group modules.
 - Preserve `#![deny(unsafe_code)]`. Gate filesystem/network APIs on `std`
   and optional integrations on their named features.
 - `all` includes `serde`; `--all-features` also enables opt-in integrations

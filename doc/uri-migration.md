@@ -19,7 +19,7 @@ Rust source paths below are relative to `lib/dogma/src/`.
 - `enums/integrations/clap.rs` is included by the IRI module. Its
   `UriValueParser` alias has `TypedValueParser::Value = Iri<'static>`.
 - `uri` enables `iri`, which enables `alloc`. `enums.rs`, `structs.rs`, and
-  `lib.rs` gate the exports; `features.rs` already reports both identifiers.
+  `lib.rs` gate the exports.
 - Serde is forwarded to dependencies but has no dogma identifier impls.
   Miette derives diagnostics on IRI errors; Camino currently serves path APIs.
   Upstream `IriScheme` aliases `UriScheme`, which can remain shared.
