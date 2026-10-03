@@ -316,6 +316,29 @@ mod tests {
 
     #[cfg(feature = "std")]
     #[test]
+    fn std_path_buffers_preserve_canonical_ancestor_paths() {
+        for (input, expected) in [
+            ("..", "../"),
+            ("./..//../", "../../"),
+            (r"..\..", "../../"),
+            (r".\../..\..\", "../../../"),
+        ] {
+            let ancestor = AncestorPath::from_str(input).unwrap();
+            for path in [
+                ancestor.to_std_path_buf(),
+                ancestor.clone().into_std_path_buf(),
+                std::path::PathBuf::from(ancestor.clone()),
+            ] {
+                // Path equality ignores trailing separators; compare raw text.
+                assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected));
+                assert!(path.is_relative());
+                assert_eq!(AncestorPath::try_from(path).unwrap(), ancestor);
+            }
+        }
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
     fn from_std_paths_uses_native_components() {
         let windows_parents = if cfg!(windows) {
             Ok(AncestorPath::DEPTH_2)

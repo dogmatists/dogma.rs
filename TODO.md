@@ -145,7 +145,7 @@ relative to the repository root.
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.
   Cover remaining native POSIX/Windows conversions and string parsing;
-  for `AncestorPath`, focus on std path-buffer output and Camino adapters.
+  for `AncestorPath`, focus on Camino adapters.
   Useful property tests include identifier/path encoding round trips.
   Test real examples when adding them; `lib/dogma/examples/` currently contains
   only `.gitkeep`.
