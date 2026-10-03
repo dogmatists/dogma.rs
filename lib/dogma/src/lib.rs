@@ -4,45 +4,30 @@
 #![no_std]
 #![deny(unsafe_code)]
 
-#[cfg(feature = "alloc")]
-extern crate alloc;
+#[cfg(feature = "iri")]
+pub use dogma_uri as uri;
+#[cfg(feature = "iri")]
+pub use dogma_uri::*;
 
-#[cfg(feature = "std")]
-extern crate std;
-
-#[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
-pub mod enums;
-#[cfg(any(feature = "enums", any(feature = "iri", feature = "uri")))]
-pub use enums::*;
-
-#[cfg(any(feature = "iri", feature = "uri"))]
-pub mod structs;
-#[cfg(any(feature = "iri", feature = "uri"))]
-pub use structs::*;
-
-/// Common traits for objects.
 #[cfg(any(
-    feature = "traits",
-    any(
-        feature = "collection",
-        feature = "countable",
-        feature = "labeled",
-        feature = "named"
-    )
+    feature = "collection",
+    feature = "countable",
+    feature = "labeled",
+    feature = "named"
 ))]
-pub mod traits;
+pub use dogma_traits as traits;
 #[cfg(any(
-    feature = "traits",
-    any(
-        feature = "collection",
-        feature = "countable",
-        feature = "labeled",
-        feature = "named"
-    )
+    feature = "collection",
+    feature = "countable",
+    feature = "labeled",
+    feature = "named"
 ))]
-pub use traits::*;
+pub use dogma_traits::*;
 
-#[cfg(feature = "alloc")]
-pub mod path;
-#[cfg(feature = "alloc")]
-pub use path::*;
+#[cfg(feature = "path")]
+pub use dogma_path as path;
+#[cfg(feature = "path")]
+pub use dogma_path::*;
+
+#[cfg(feature = "uuid")]
+pub use dogma_uuid as uuid;

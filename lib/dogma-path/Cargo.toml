@@ -1,0 +1,28 @@
+[package]
+name = "dogma-path"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Ancestor paths and path conversion errors."
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+publish.workspace = true
+
+[features]
+default = ["all", "std"]
+all = ["serde"]
+std = ["serde?/std"]
+camino = ["dep:camino", "std"]
+serde = ["dep:serde"]
+
+[dependencies]
+camino = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_test.workspace = true

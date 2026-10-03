@@ -35,7 +35,7 @@ jobs:
         with:
           components: clippy
       - name: Check Clippy
-        run: cargo clippy -p dogma --all-targets --all-features -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
   check-docs:
     name: Check documentation
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
       - name: Check documentation
         env:
           RUSTDOCFLAGS: "-D warnings"
-        run: cargo doc -p dogma --all-features --no-deps
+        run: cargo doc --workspace --all-features --no-deps
   check-package:
     name: Check packaged doctests
     runs-on: ubuntu-latest
@@ -56,16 +56,29 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Rust
         uses: dtolnay/rust-toolchain@1.97.0
-      - name: Package crate
-        run: cargo package -p dogma
+      - name: Package workspace
+        run: cargo package --workspace
       - name: Test packaged documentation
         run: |
-          manifest="target/package/dogma-$(< VERSION)/Cargo.toml"
-          cargo test --manifest-path "$manifest" --doc
-          cargo test --manifest-path "$manifest" --doc --all-features
-          cargo test --manifest-path "$manifest" --doc --no-default-features
-          cargo test --manifest-path "$manifest" --doc \
-            --no-default-features --features named
+          version=$(< VERSION)
+          components=(dogma-traits dogma-path dogma-uri dogma-uuid)
+          patches=()
+          # Resolve unpublished siblings from the extracted packages, not checkout.
+          for package in "${components[@]}"; do
+            path="$PWD/target/package/$package-$version"
+            patches+=(--config "patch.crates-io.$package.path=\"$path\"")
+          done
+          for package in "${components[@]}" dogma; do
+            manifest="target/package/$package-$version/Cargo.toml"
+            args=(--manifest-path "$manifest" --doc)
+            if [[ "$package" == dogma ]]; then
+              args+=("${patches[@]}")
+            fi
+            cargo test "${args[@]}"
+            cargo test "${args[@]}" --all-features
+            cargo test "${args[@]}" --no-default-features
+            cargo test "${args[@]}" --no-default-features --features all
+          done
   check-features:
     name: Check feature combinations
     runs-on: ubuntu-latest
@@ -77,25 +90,48 @@ jobs:
         with:
           targets: thumbv7em-none-eabihf
       - name: Check without default features
-        run: cargo check -p dogma --no-default-features
-      - name: Check individual features
+        run: |
+          cargo check --workspace --no-default-features
+          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+            cargo check -p "$package" --no-default-features
+            cargo check -p "$package" --no-default-features --features all
+          done
+      - name: Check umbrella features
         run: |
           for feature in all alloc std unstable enums iri uri structs traits \
-            collection countable labeled named camino clap miette serde; do
+            collection countable labeled named path uuid camino clap miette serde; do
             cargo check -p dogma --no-default-features --features "$feature"
           done
+      - name: Check component features
+        run: |
+          for feature in alloc std collection countable labeled named serde; do
+            cargo check -p dogma-traits --no-default-features --features "$feature"
+          done
+          for feature in std camino serde; do
+            cargo check -p dogma-path --no-default-features --features "$feature"
+          done
+          for feature in std enums structs iri uri clap miette serde; do
+            cargo check -p dogma-uri --no-default-features --features "$feature"
+          done
+          cargo check -p dogma-uuid --no-default-features --features std
       - name: Check identifier feature combinations
         run: |
-          for identifier in iri uri all; do
-            for feature in alloc std camino clap miette serde; do
-              cargo check -p dogma --no-default-features \
-                --features "$identifier,$feature"
+          for package in dogma dogma-uri; do
+            for identifier in iri uri all; do
+              for feature in std clap miette serde; do
+                cargo check -p "$package" --no-default-features \
+                  --features "$identifier,$feature"
+              done
             done
           done
       - name: Check no_std target
         run: |
+          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+            cargo check -p "$package" --no-default-features --features all \
+              --target thumbv7em-none-eabihf
+          done
           for feature in iri uri all; do
-            cargo check -p dogma --no-default-features --features "$feature" \
+            cargo check -p dogma-uri --no-default-features --features "$feature" \
               --target thumbv7em-none-eabihf
           done
   build-ubuntu:
@@ -113,17 +149,21 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
       - name: Build
-        run: cargo build
+        run: cargo build --workspace
       - name: Build examples
-        run: cargo build --examples
+        run: cargo build --workspace --examples
       - name: Run tests
-        run: cargo test
+        run: cargo test --workspace
       - name: Run all-feature tests
-        run: cargo test -p dogma --all-features
+        run: cargo test --workspace --all-features
+      - name: Run no_std tests
+        run: cargo test --workspace --no-default-features --features all
       - name: Run minimal-feature IRI tests
-        run: cargo test -p dogma --no-default-features --features iri,std --lib
+        run: cargo test -p dogma-uri --no-default-features --features iri,std
       - name: Run minimal-feature URI tests
-        run: cargo test -p dogma --no-default-features --features uri,std --lib
+        run: cargo test -p dogma-uri --no-default-features --features uri,std
+      - name: Run umbrella forwarding tests
+        run: cargo test -p dogma --no-default-features --features all,camino,clap,miette
   build-windows:
     name: Build on Windows (${{ matrix.toolchain }})
     runs-on: windows-latest
@@ -139,14 +179,18 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
       - name: Build
-        run: cargo build
+        run: cargo build --workspace
       - name: Build examples
-        run: cargo build --examples
+        run: cargo build --workspace --examples
       - name: Run tests
-        run: cargo test
+        run: cargo test --workspace
       - name: Run all-feature tests
-        run: cargo test -p dogma --all-features
+        run: cargo test --workspace --all-features
+      - name: Run no_std tests
+        run: cargo test --workspace --no-default-features --features all
       - name: Run minimal-feature IRI tests
-        run: cargo test -p dogma --no-default-features --features iri,std --lib
+        run: cargo test -p dogma-uri --no-default-features --features iri,std
       - name: Run minimal-feature URI tests
-        run: cargo test -p dogma --no-default-features --features uri,std --lib
+        run: cargo test -p dogma-uri --no-default-features --features uri,std
+      - name: Run umbrella forwarding tests
+        run: cargo test -p dogma --no-default-features --features all,camino,clap,miette

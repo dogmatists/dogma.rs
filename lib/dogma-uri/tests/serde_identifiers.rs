@@ -7,7 +7,7 @@ extern crate alloc;
 #[cfg(feature = "uri")]
 mod uri {
     use alloc::string::String;
-    use dogma::{Iri, Uri};
+    use dogma_uri::{Iri, Uri};
     use serde::Deserialize;
     use serde_test::{assert_de_tokens, assert_de_tokens_error, assert_ser_tokens, Token};
 
@@ -110,7 +110,7 @@ mod uri {
 #[cfg(feature = "iri")]
 mod iri {
     use alloc::string::String;
-    use dogma::Iri;
+    use dogma_uri::Iri;
     use serde::Deserialize;
     use serde_test::{assert_de_tokens, assert_de_tokens_error, assert_ser_tokens, Token};
 

@@ -6,7 +6,7 @@
 /// Returned by its [`FromStr`](core::str::FromStr) implementation.
 /// Validation is lexical: neither variant indicates a filesystem lookup failure.
 /// The error retains no input path and has no underlying error source.
-/// Available with the `alloc` feature.
+/// Available without `std`.
 #[cfg_attr(
     feature = "std",
     doc = "\nAlso returned when converting a [`std::path::Path`] into an ancestor path."

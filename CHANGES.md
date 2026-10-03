@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   deserialization validates input and produces owned identifiers.
 
 ### Changed
+- Split implementations into `dogma-traits`, `dogma-path`, and `dogma-uri`;
+  add the `dogma-uuid` placeholder. `dogma` re-exports these crates as namespaces
+  and preserves its existing type exports and feature flags.
 - **Breaking:** `Uri`, `UriError`, `UriAuthority`, and `UriValueParser` are
   distinct from their IRI counterparts. URI parsing rejects Unicode; use
   `Iri::to_uri()` to percent-encode it. This requires a breaking release.

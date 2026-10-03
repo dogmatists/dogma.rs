@@ -243,7 +243,9 @@ impl Iri<'_> {
     /// The iterator borrows the path without allocating or decoding it.
     ///
     /// ```
-    /// use dogma::Iri;
+    /// # extern crate alloc;
+    /// use alloc::vec::Vec;
+    /// use dogma_uri::Iri;
     ///
     /// let iri = Iri::try_from("https://example.com/a%2Fb//../").unwrap();
     /// let segments: Vec<_> = iri.path_segments().unwrap().collect();
@@ -294,7 +296,7 @@ impl Iri<'_> {
     ///
     /// ```
     /// # #[cfg(feature = "uri")] {
-    /// let iri = dogma::Iri::try_from("https://example.com/café").unwrap();
+    /// let iri = dogma_uri::Iri::try_from("https://example.com/café").unwrap();
     /// assert_eq!(iri.to_uri().as_str(), "https://example.com/caf%C3%A9");
     /// # }
     /// ```

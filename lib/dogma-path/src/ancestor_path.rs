@@ -24,7 +24,7 @@ use core::num::NonZeroUsize;
 /// path components. In particular, `..\..` is accepted as two parents on Windows
 /// but rejected as a named component on POSIX systems.
 ///
-/// Available with `alloc`. Native standard-library path conversions and
+/// Requires allocation. Native standard-library path conversions and
 /// filesystem queries require `std`; Camino conversions require `camino`.
 ///
 /// # Serialization
@@ -37,7 +37,7 @@ use core::num::NonZeroUsize;
 /// non-integer representations. It does not allocate a path string.
 ///
 /// ```
-/// use dogma::{AncestorPath, FromPathError};
+/// use dogma_path::{AncestorPath, FromPathError};
 ///
 /// let path: AncestorPath = r".\..\..".parse().unwrap();
 /// assert_eq!(path.depth(), 2);

@@ -1,5 +1,20 @@
 // This is free and unencumbered software released into the public domain.
 
+//! General-purpose naming, labeling, counting, and collection traits.
+//!
+//! Each trait family has its own feature: `named`, `labeled`, `countable`, or
+//! `collection`. All are enabled by default, along with `serde` and `std`.
+//! Counting traits need no allocation; other families use `alloc`.
+//! Hash-map and hash-set implementations additionally require `std`.
+
+#![no_std]
+#![deny(unsafe_code)]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
+
 #[cfg(feature = "collection")]
 mod collection;
 #[cfg(feature = "collection")]

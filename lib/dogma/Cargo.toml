@@ -16,46 +16,43 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["enums", "serde", "structs", "traits"]
-alloc = []
-std = ["alloc", "iri-string?/std", "known-schemes?/std", "serde?/std"]
+all = ["enums", "path", "serde", "structs", "traits", "uuid"]
+alloc = ["path", "dogma-traits?/alloc"]
+std = ["alloc", "dogma-path?/std", "dogma-traits?/std", "dogma-uri?/std", "dogma-uuid?/std"]
 unstable = []
 
 # Enums:
-enums = ["iri", "uri"]
-iri = ["alloc", "dep:iri-string", "dep:known-schemes"]
-uri = ["iri"]
+enums = ["iri", "uri", "dogma-uri/enums"]
+iri = ["alloc", "dep:dogma-uri", "dogma-uri/iri"]
+uri = ["iri", "dogma-uri/uri"]
 
 # Structs:
-structs = ["iri", "uri"]
+structs = ["iri", "uri", "dogma-uri/structs"]
 
 # Traits:
 traits = ["collection", "countable", "labeled", "named"]
-collection = ["alloc"]
-countable = []
-labeled = ["alloc"]
-named = ["alloc"]
+collection = ["alloc", "dep:dogma-traits", "dogma-traits/collection"]
+countable = ["dep:dogma-traits", "dogma-traits/countable"]
+labeled = ["alloc", "dep:dogma-traits", "dogma-traits/labeled"]
+named = ["alloc", "dep:dogma-traits", "dogma-traits/named"]
+
+# Other component crates:
+path = ["dep:dogma-path"]
+uuid = ["dep:dogma-uuid"]
 
 # Integrations:
-camino = ["dep:camino", "std"]
-clap = ["dep:clap", "known-schemes?/clap", "std"]
-miette = ["dep:miette", "std"]
-serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
+camino = ["std", "dogma-path/camino"]
+clap = ["std", "dogma-uri?/clap"]
+miette = ["std", "dogma-uri?/miette"]
+serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde"]
 
 [dependencies]
-camino = { version = "1.2", default-features = false, optional = true }
-clap = { version = "4.5", default-features = false, features = [
-    "std",
-], optional = true }
-iri-string = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
-known-schemes = { version = "0.2", default-features = false, features = [
-    "iri-string",
-], optional = true }
-miette = { version = "7.6", default-features = false, features = [
-    "derive",
-], optional = true }
-serde = { version = "1", default-features = false, features = ["alloc"], optional = true }
-#stability = "0.2"
+dogma-traits = { workspace = true, optional = true }
+dogma-path = { workspace = true, optional = true }
+dogma-uri = { workspace = true, optional = true }
+dogma-uuid = { workspace = true, optional = true }
 
 [dev-dependencies]
-serde_test = "1"
+serde_test.workspace = true
+clap.workspace = true
+miette.workspace = true

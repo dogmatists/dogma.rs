@@ -10,7 +10,7 @@ version = "0.2.2"
 authors = ["Arto Bendiken"]
 edition = "2021"
 rust-version = "1.97"
-description = "Provides `Named`, `MaybeNamed`, `Labeled`, `MaybeLabeled`, `Collection`, and `CollectionMut` traits."
+description = "Shared traits, paths, and identifiers for Rust."
 #documentation = "https://docs.rs/dogma/"
 readme = true
 homepage = "https://github.com/dogmatists/dogma.rs"
@@ -21,7 +21,22 @@ categories = ["data-structures", "rust-patterns", "no-std"]
 publish = true
 
 [workspace.dependencies]
-dogma = { path = "lib/dogma" }
+dogma = { version = "0.2.2", path = "lib/dogma", default-features = false }
+dogma-traits = { version = "0.2.2", path = "lib/dogma-traits", default-features = false }
+dogma-path = { version = "0.2.2", path = "lib/dogma-path", default-features = false }
+dogma-uri = { version = "0.2.2", path = "lib/dogma-uri", default-features = false }
+dogma-uuid = { version = "0.2.2", path = "lib/dogma-uuid", default-features = false }
+camino = { version = "1.2", default-features = false }
+clap = { version = "4.5", default-features = false, features = ["std"] }
+iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
+known-schemes = { version = "0.2", default-features = false, features = ["iri-string"] }
+miette = { version = "7.6", default-features = false, features = ["derive"] }
+serde = { version = "1", default-features = false, features = ["alloc"] }
+serde_test = "1"
 
 [patch.crates-io]
 dogma = { path = "lib/dogma" }
+dogma-traits = { path = "lib/dogma-traits" }
+dogma-path = { path = "lib/dogma-path" }
+dogma-uri = { path = "lib/dogma-uri" }
+dogma-uuid = { path = "lib/dogma-uuid" }

@@ -79,7 +79,7 @@ impl<'a> IriAuthority<'a> {
     /// `Some("")` when the colon has no following text.
     ///
     /// ```
-    /// use dogma::Iri;
+    /// use dogma_uri::Iri;
     ///
     /// let iri = Iri::try_from("https://alice%3Abob:secret:extra@example.com/")
     ///     .unwrap();
@@ -114,7 +114,7 @@ impl<'a> IriAuthority<'a> {
     /// a scheme default; use [`Self::port_str`] to distinguish those cases.
     ///
     /// ```
-    /// use dogma::Iri;
+    /// use dogma_uri::Iri;
     ///
     /// for (text, raw, port) in [
     ///     ("https://example.com/", None, None),

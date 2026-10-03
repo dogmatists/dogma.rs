@@ -1,8 +1,8 @@
 // This is free and unencumbered software released into the public domain.
 
-#![cfg(all(feature = "alloc", feature = "serde"))]
+#![cfg(feature = "serde")]
 
-use dogma::AncestorPath;
+use dogma_path::AncestorPath;
 use serde::{de::value, Deserialize};
 use serde_test::{assert_ser_tokens, assert_tokens, Token};
 

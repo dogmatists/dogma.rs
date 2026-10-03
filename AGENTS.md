@@ -30,35 +30,41 @@
 - After making changes to a crate, as a last step run `cargo doc` on it.
 
 # Workspace
-- The sole crate is `lib/dogma` (Rust 2021). Root `Cargo.toml` owns shared
-  package metadata; keep release versions aligned with `VERSION`.
-- Under `lib/dogma/src/`: `traits/` holds collection/count/name/label traits;
-  `enums/` and `structs/` wrap `iri-string` and `known-schemes`; `path/` holds
-  `AncestorPath` and `FromPathError`.
-- Keep feature dependencies in the crate manifest consistent with module and
-  re-export gates in `lib.rs` and group modules.
+- Rust 2021 crates live in `lib/<crate>/`: `dogma` is the umbrella;
+  `dogma-traits` owns collection/count/name/label traits; `dogma-path` owns
+  `AncestorPath` and `FromPathError`; `dogma-uri` owns URI/IRI types in `enums/`
+  and `structs/`; `dogma-uuid` is a placeholder with no UUID API yet.
+- Root `Cargo.toml` owns shared metadata/dependencies. Keep package and internal
+  dependency versions aligned with `VERSION`; internal defaults stay disabled.
+- Component crates are independent of the umbrella. Move behavior tests with
+  their implementation; umbrella tests check re-exports and feature forwarding.
+- Keep manifests, module gates, and umbrella feature forwarding consistent.
+  `dogma::{traits,path,uri,uuid}` re-export crates; existing type/group exports
+  remain. The umbrella's compatibility `alloc` feature enables `path`.
 - Preserve `#![deny(unsafe_code)]`. Gate filesystem/network APIs on `std`
   and optional integrations on their named features.
-- `all` includes `serde`; `--all-features` also enables opt-in integrations
-  (`camino`, `clap`, `miette`). Check affected features with defaults disabled.
-- URI types currently alias IRI types; `Iri::to_uri()` currently just clones.
+- `all` includes `serde` where supported. `dogma-path` owns `camino`;
+  `dogma-uri` owns `clap`/`miette`. `dogma-path` and `dogma-uri` assume allocation;
+  `dogma-traits` has an explicit `alloc` feature. UUID has only `all`/`std`.
+- URI and IRI types are distinct. `Iri::to_uri()` borrows ASCII or encodes Unicode.
 
 # Checks
 For Rust changes, run from the repository root:
 
 ```sh
 cargo fmt --all -- --check
-cargo test -p dogma
-cargo test -p dogma --all-features
-cargo check -p dogma --no-default-features
-cargo check -p dogma --no-default-features --features all
-cargo doc -p dogma --all-features --no-deps
+cargo test --workspace
+cargo test --workspace --all-features
+cargo check --workspace --no-default-features
+cargo check --workspace --no-default-features --features all
+cargo doc --workspace --all-features --no-deps
 ```
 
-- Unit tests are in `lib/dogma/src/enums/iri.rs`,
-  `lib/dogma/src/structs/iri_authority.rs`, and
-  `lib/dogma/src/path/ancestor_path.rs`; README doctests run via `lib.rs`.
-  Cover POSIX and Windows inputs for path changes.
+- Also check affected crates individually with defaults disabled: workspace
+  feature unification can hide missing gates. Cover POSIX and Windows paths.
+- Doctests use package-local inputs. `cargo package --workspace` verifies
+  interdependent packages; test extracted doctests with sibling package patches
+  as in CI, without depending on published versions of the new crates.
 - `.github/workflows/ci.yaml` builds, builds examples, and tests on Ubuntu
-  and Windows.
+  and Windows; it also checks minimal features and a bare-metal `no_std` target.
 - Stable rustfmt warns about the nightly-only `imports_granularity` setting.

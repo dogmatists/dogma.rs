@@ -1,0 +1,36 @@
+[package]
+name = "dogma-uri"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Validated URI and IRI types, authorities, and conversions."
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+publish.workspace = true
+
+[features]
+default = ["all", "std"]
+all = ["enums", "serde", "structs"]
+std = ["iri-string?/std", "known-schemes?/std", "serde?/std"]
+enums = ["iri", "uri"]
+iri = ["dep:iri-string", "dep:known-schemes"]
+uri = ["iri"]
+structs = ["iri", "uri"]
+clap = ["dep:clap", "known-schemes?/clap", "std"]
+miette = ["dep:miette", "std"]
+serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
+
+[dependencies]
+clap = { workspace = true, optional = true }
+iri-string = { workspace = true, optional = true }
+known-schemes = { workspace = true, optional = true }
+miette = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_test.workspace = true

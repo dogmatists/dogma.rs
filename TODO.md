@@ -1,8 +1,9 @@
 # Enhancement backlog
 
 Recheck the code before starting an item.
-Rust source paths below are relative to `lib/dogma/src/`; other paths are
-relative to the repository root.
+Paths below are relative to the repository root. Implementations live in
+`lib/dogma-{traits,path,uri}/src/`; `lib/dogma` is the umbrella and
+`lib/dogma-uuid` is a placeholder.
 
 ## Working method
 
@@ -21,24 +22,28 @@ relative to the repository root.
 
 - [ ] **REL-01: Make version bumping target explicit fields.**
   `Rakefile` globally replaces the old version in all matching tracked files,
-  including historical `CHANGES.md` headings. Update VERSION and workspace
-  package metadata deliberately, preserve history, and add a new changelog
-  entry for a new release. Let Cargo refresh its lockfile through normal
-  commands. Verify the bump behavior on fixtures before using it for a release.
+  including historical `CHANGES.md` headings. Update VERSION, workspace package
+  metadata, and internal dependency versions deliberately; preserve history
+  and add a new changelog entry for a new release. Let Cargo refresh its lockfile
+  through normal commands. Verify the bump behavior on fixtures before using it
+  for a release.
 
 ## Documentation and verification
 
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion
-  errors. Extend rustdoc in `enums/`, `structs/`, and `path/` in small patches.
+  errors. Extend rustdoc in `lib/dogma-uri/src/{enums,structs}/`,
+  `lib/dogma-path/src/`, and `lib/dogma-traits/src/` in small patches. Keep
+  examples usable directly from each component crate and through the umbrella.
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.
   Cover remaining native POSIX/Windows conversions and string parsing.
   Useful property tests include identifier/path encoding round trips.
-  Test real examples when adding them; `lib/dogma/examples/` currently contains
-  only `.gitkeep`.
+  Put behavior tests in the owning crate; keep umbrella tests focused on
+  re-exports and feature forwarding. Test real examples when adding them;
+  `lib/dogma/examples/` currently contains only `.gitkeep`.
 
 ## Validation for implementation work
 
@@ -46,27 +51,29 @@ Run from the repository root, as required by `AGENTS.md`:
 
 ```sh
 cargo fmt --all -- --check
-cargo test -p dogma
-cargo test -p dogma --all-features
-cargo check -p dogma --no-default-features
-cargo check -p dogma --no-default-features --features all
-cargo doc -p dogma --all-features --no-deps
+cargo test --workspace
+cargo test --workspace --all-features
+cargo check --workspace --no-default-features
+cargo check --workspace --no-default-features --features all
+cargo doc --workspace --all-features --no-deps
 ```
 
 Run additional relevant checks before the final documentation build. For IRI
 changes, useful targeted commands are:
 
 ```sh
-cargo +1.97.0 test -p dogma --no-default-features --features iri --lib
-cargo +1.97.0 check -p dogma --no-default-features --features iri \
+cargo +1.97.0 test -p dogma-uri --no-default-features --features iri
+cargo +1.97.0 check -p dogma-uri --no-default-features --features iri \
   --target thumbv7em-none-eabihf
 ```
 
-Install that target for Rust 1.97 if needed. Also check `uri` and affected
-integrations with defaults disabled when changing their APIs or gates. For the
-lint/documentation cleanup tasks, use:
+Install that target for Rust 1.97 if needed. Check affected crates individually
+to avoid workspace feature unification hiding missing gates. Also check `uri`
+and affected integrations with defaults disabled, including their forwarding
+through `dogma`, when changing APIs or gates. For lint/documentation cleanup
+tasks, use:
 
 ```sh
-cargo clippy -p dogma --all-targets --all-features -- -D warnings
-RUSTDOCFLAGS="-D warnings" cargo doc -p dogma --all-features --no-deps
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps
 ```

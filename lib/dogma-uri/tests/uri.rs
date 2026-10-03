@@ -5,12 +5,12 @@
 extern crate alloc;
 
 use alloc::string::String;
-use dogma::{Iri, Uri, UriAuthority, UriError, UriResult};
+use dogma_uri::{Iri, Uri, UriAuthority, UriError, UriResult};
 
 #[test]
 fn public_uri_constructors_are_strict() {
-    let uri: dogma::enums::Uri<'_> = Uri::try_from("https://example.com/%C3%A9").unwrap();
-    let authority: dogma::structs::UriAuthority<'_> = UriAuthority::try_from(&uri).unwrap();
+    let uri: dogma_uri::enums::Uri<'_> = Uri::try_from("https://example.com/%C3%A9").unwrap();
+    let authority: dogma_uri::structs::UriAuthority<'_> = UriAuthority::try_from(&uri).unwrap();
     assert_eq!(authority.host_str(), "example.com");
     let borrowed: UriResult<Uri<'_>> = Uri::try_from("https://example.com/café");
     assert!(matches!(borrowed, Err(UriError::Invalid(None))));
@@ -81,7 +81,7 @@ fn public_file_uri_round_trip() {
 #[test]
 fn public_clap_parser_returns_uri() {
     use clap::builder::TypedValueParser;
-    use dogma::{UriScheme, UriValueParser};
+    use dogma_uri::{UriScheme, UriValueParser};
     fn assert_output<P: TypedValueParser<Value = Uri<'static>>>() {}
     assert_output::<UriValueParser>();
     let matches = clap::Command::new("test")

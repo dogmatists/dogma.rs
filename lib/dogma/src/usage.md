@@ -1,4 +1,22 @@
-Common naming, labeling, and collection traits, plus IRI and URI types.
+Umbrella crate for shared traits, paths, and identifiers.
+
+The component crates are re-exported as namespaces:
+
+- `dogma::traits` is `dogma-traits`: naming, labeling, counting, and collections.
+- `dogma::path` is `dogma-path`: ancestor paths and conversion errors.
+- `dogma::uri` is `dogma-uri`: validated URIs, IRIs, and authority components.
+- `dogma::uuid` is `dogma-uuid`: a placeholder for future UUID support.
+
+Existing top-level type exports, such as `dogma::Named` and `dogma::Iri`, and
+the `enums` and `structs` namespaces are also available. Component crates can
+be used directly without depending on the umbrella.
+
+Default features enable all components, Serde support, and `std`. Disable
+defaults for `no_std`, then select `all` or individual features (`traits`,
+`named`, `labeled`, `countable`, `collection`, `path`, `iri`, `uri`, `uuid`).
+The compatibility `alloc` feature enables `path`, as it did before the split.
+`std` and optional integrations are forwarded to enabled component crates;
+`camino` enables native path support, while `clap` and `miette` extend identifiers.
 
 The naming examples below require the `named` feature, enabled by default.
 

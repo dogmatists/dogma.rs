@@ -6,7 +6,22 @@ Native filesystem coverage passed on Windows (Rust 1.97 and stable) in
 [CI run 37115521648](https://github.com/dogmatists/dogma.rs/actions/runs/37115521648)
 before activation.
 The audited baseline is dogma 0.2.2, iri-string 0.7.8, and known-schemes 0.2.0.
-Rust source paths below are relative to `lib/dogma/src/`.
+Rust source paths below are now relative to `lib/dogma-uri/src/`; before the
+crate split these implementations lived in `lib/dogma/src/`.
+
+## Crate split
+
+URI/IRI implementations, authority types, errors, Serde support, and Clap/Miette
+integrations now belong to `dogma-uri`. Use `dogma_uri::{Iri, Uri}` directly, or
+`dogma::uri::{Iri, Uri}` through the umbrella. Existing `dogma::{Iri, Uri}`,
+`dogma::enums`, and `dogma::structs` exports refer to the same types.
+Diagnostic codes retain their `dogma::...` names.
+
+General-purpose traits moved to `dogma-traits`; ancestor paths and their Camino
+integration moved to `dogma-path`. `dogma-uuid` is a placeholder. All are separate
+workspace crates with no dependency on the umbrella. The umbrella forwards its
+existing feature flags and adds `path` and `uuid`; `alloc` still enables paths.
+Use package-local documentation and tests in the crate owning each API.
 
 ## Pre-migration coupling
 
@@ -125,8 +140,8 @@ impls. Each step includes focused regression coverage.
 
 ## Feature and verification boundaries
 
-Keep `default = ["all", "std"]`, `uri = ["iri"]`, and the current allocation
-requirements. Every staged module and export must use its identifier gate;
+In `dogma-uri`, keep `default = ["all", "std"]` and `uri = ["iri"]`; allocation
+is implicit. Every identifier module and export must use its identifier gate;
 filesystem/network and optional integrations keep their existing gates.
 Preserve `no_std` and `deny(unsafe_code)`. Identifier dependencies are optional
 and activated by `iri`. Serde support was added after URI activation:
@@ -135,10 +150,11 @@ identifiers use plain strings and deserialization validates into owned values.
 For implementation commits, run the root checks in `AGENTS.md`, with the
 documentation build last. Additionally run Rust 1.97 library tests with defaults
 disabled for `iri` and `uri`; check `uri` on `thumbv7em-none-eabihf`. Exercise
-affected combinations of each identifier with `std`, `clap`, `miette`, `camino`,
-and `serde` independently. Use `--lib` for minimal-feature tests until DOC-02
-fixes the unrelated README doctests. The filesystem step also requires native
-Windows CI evidence; a cross-compiled check alone does not verify path behavior.
+affected combinations of each identifier with `std`, `clap`, `miette`, and
+`serde` independently in `dogma-uri` and through the `dogma` umbrella. Camino
+checks now belong to `dogma-path`. Doctests work with minimal features and in
+extracted packages. The filesystem step also requires native Windows CI
+evidence; a cross-compiled check alone does not verify path behavior.
 
 Upstream contracts: [borrowed IRI conversion][iri-str],
 [owned IRI conversion][iri-string], and [URI views][uri-str].
