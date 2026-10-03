@@ -1,11 +1,14 @@
 # Validated URI migration
 
-Design for URI-01 and URI-02. The contracts below describe the planned API;
-the current public URI types still alias their IRI counterparts.
+Migration record for URI-01 and URI-02. The validated URI API is now active;
+the contracts below describe the implemented API. Publish in a breaking release.
+Native filesystem coverage passed on Windows (Rust 1.97 and stable) in
+[CI run 37115521648](https://github.com/dogmatists/dogma.rs/actions/runs/37115521648)
+before activation.
 The audited baseline is dogma 0.2.2, iri-string 0.7.8, and known-schemes 0.2.0.
 Rust source paths below are relative to `lib/dogma/src/`.
 
-## Current coupling
+## Pre-migration coupling
 
 - `enums/uri.rs` aliases `Uri` to `Iri`, inheriting IRI constructors, variants,
   methods, and trait implementations. Unicode input is therefore accepted.
@@ -65,7 +68,7 @@ Rust source paths below are relative to `lib/dogma/src/`.
   `Uri<'static>`. Preserve scheme filtering and Clap error kinds while rejecting
   Unicode URI input. Gate it on both `uri` and `clap`.
 
-## Compiling migration steps
+## Completed migration sequence
 
 Build replacement types in crate-private staging submodules of the existing
 URI modules. Keep public aliases until activation, so preparatory commits can

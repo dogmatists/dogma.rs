@@ -11,8 +11,7 @@ relative to the repository root.
   coding; an unchecked goal is not a request to implement its whole section.
 - Each change should be suitable for one atomic commit. Create commits only
   when explicitly requested.
-- The current enhancement focus is IRIs/URIs. Continue with URI-01's first
-  remaining substep.
+- The current enhancement focus is identifier serialization (SERDE-02).
 - Add meaningful regression coverage alongside behavior changes. After
   verification, remove fully completed items and retain only remaining substeps
   for partial work.
@@ -21,31 +20,17 @@ relative to the repository root.
 
 ## Identifier APIs and serialization
 
-- [ ] **URI-01: Introduce a genuinely validated URI type.**
-  Follow the [migration plan](doc/uri-migration.md) for contracts, source audit,
-  compiling sequence, caller migration, and per-step verification. Prepare
-  crate-private replacements before switching public aliases. Each substep is
-  a separate atomic change; URI-02's encoder must precede filesystem adapters
-  and activation.
-  - [ ] Add `std`-gated URI filesystem adapters with native path coverage.
-    - [ ] Verify native Windows CI evidence before activation.
-  - [ ] Activate URI/error/authority/parser replacements and `Iri::to_uri()`
-    together, with public API tests, migration rustdoc, and a changelog entry.
-
-- [ ] **URI-02: Implement real IRI-to-URI conversion.**
-  `enums/iri.rs::to_uri()` only clones. Follow the encoding contract in the
-  [migration plan](doc/uri-migration.md): borrow ASCII input, otherwise use
-  upstream percent-encoding, including Unicode hostnames without IDNA.
-  - [ ] Wire the public method during URI-01 activation, with conversion rustdoc
-    and public tests for both ownership forms.
-
 - [ ] **SERDE-02: Serialize and deserialize identifier values.**
   The `serde` feature currently does not implement either trait for `Iri`.
   Start with `enums/iri.rs`: use a string wire representation independent of
   ownership, and validate deserialized input. Serialization and deserialization
   can be separate atomic steps. Test both ownership forms, invalid input,
   Unicode, and percent escapes under `no_std` plus `alloc`. Support the distinct
-  URI type when URI-01 lands. Keep enum variant tags out of the wire format.
+  URI type too. Keep enum variant tags out of the wire format.
+  - [ ] Serialize IRI strings.
+  - [ ] Deserialize and validate owned IRI strings.
+  - [ ] Serialize URI strings.
+  - [ ] Deserialize and validate owned URI strings.
 
 - [ ] **SERDE-03: Define serialization for `AncestorPath`.**
   Location: `path/ancestor_path.rs`. Choose and document a wire representation

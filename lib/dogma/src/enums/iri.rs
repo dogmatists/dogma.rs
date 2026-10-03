@@ -224,9 +224,26 @@ impl Iri<'_> {
         self.as_iri_str().fragment_str()
     }
 
+    /// Encodes this IRI as an ASCII URI without changing the source.
+    ///
+    /// ASCII input is borrowed, regardless of this IRI's ownership. Non-ASCII
+    /// characters become UTF-8 percent escapes in an owned URI, including in
+    /// hostnames; this does not perform IDNA/Punycode conversion. Existing
+    /// escapes, case, and dot segments are preserved.
+    ///
+    /// Use [`Uri::into_owned`] for a `'static` result, or `Uri::try_from(&iri)`
+    /// for strict borrowing that rejects Unicode rather than encoding it.
+    /// Requires the `uri` feature.
+    ///
+    /// ```
+    /// # #[cfg(feature = "uri")] {
+    /// let iri = dogma::Iri::try_from("https://example.com/café").unwrap();
+    /// assert_eq!(iri.to_uri().as_str(), "https://example.com/caf%C3%A9");
+    /// # }
+    /// ```
     #[cfg(feature = "uri")]
     pub fn to_uri(&self) -> Uri<'_> {
-        self.clone() // TODO
+        super::uri::encode_iri(self)
     }
 
     /// Returns the percent-decoded path component of a file IRI.

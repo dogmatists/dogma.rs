@@ -3,7 +3,7 @@
 extern crate alloc;
 
 #[cfg(feature = "uri")]
-pub type UriValueParser = IriValueParser;
+pub use uri::UriValueParser;
 
 #[derive(Clone, Debug)]
 #[non_exhaustive]
@@ -37,13 +37,11 @@ impl clap::builder::TypedValueParser for IriValueParser {
     }
 }
 
-// Remove the staging module and its dead-code allowance at URI activation.
 #[cfg(feature = "uri")]
-#[allow(dead_code)]
-pub(crate) mod staged {
+mod uri {
     extern crate std;
 
-    use crate::{enums::uri::staged::Uri, UriScheme};
+    use crate::{Uri, UriScheme};
 
     /// Parses strict ASCII URIs into owned values, optionally filtering schemes.
     #[derive(Clone, Debug)]

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Changed
+- **Breaking:** `Uri`, `UriError`, `UriAuthority`, and `UriValueParser` are
+  distinct from their IRI counterparts. URI parsing rejects Unicode; use
+  `Iri::to_uri()` to percent-encode it. This requires a breaking release.
+- `Iri::to_uri()` now borrows ASCII input and encodes Unicode as UTF-8 percent
+  escapes, including hostnames without IDNA conversion. URI filesystem
+  construction likewise produces ASCII file URIs.
+
 ## 0.2.2 - 2026-09-27
 ### Fixed
 - Fix `--no-default-features` builds
