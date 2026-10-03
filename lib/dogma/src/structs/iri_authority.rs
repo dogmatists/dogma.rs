@@ -21,7 +21,7 @@ impl<'a, 'b> TryFrom<&'a Iri<'b>> for IriAuthority<'a> {
                 scheme: iri.scheme(),
                 components,
             })
-            .ok_or_else(|| ())
+            .ok_or(())
     }
 }
 
@@ -62,7 +62,7 @@ impl IriAuthority<'_> {
 
     pub fn port(&self) -> Option<u16> {
         self.port_str()
-            .and_then(|port_str| u16::from_str_radix(port_str, 10).ok())
+            .and_then(|port_str| port_str.parse::<u16>().ok())
     }
 
     pub fn port_str(&self) -> Option<&str> {

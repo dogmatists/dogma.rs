@@ -142,9 +142,8 @@ relative to the repository root.
   only `.gitkeep`.
 
 - [ ] **QA-03: Enforce formatting, Clippy, and clean documentation in CI.**
-  Strict Clippy findings include redundant closures, needless `Ok(...?)`,
-  `ok_or_else(|| ())`, decimal `from_str_radix`, and manual separator matching.
-  Clean these up in bounded patches before enabling warning-as-error checks.
+  Add CI checks for rustfmt, Clippy with `-D warnings`, and rustdoc with
+  `RUSTDOCFLAGS="-D warnings"`; the current all-feature builds pass locally.
   Stable rustfmt's warning about nightly-only `imports_granularity` is known.
 
 - [ ] **QA-04: Verify published-package doctests in CI.**

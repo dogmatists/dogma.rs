@@ -64,7 +64,7 @@ impl<'a> TryFrom<&'a str> for Iri<'a> {
 
     fn try_from(iri_str: &'a str) -> Result<Self, Self::Error> {
         IriStr::new(iri_str)
-            .map(|iri_str| Iri::Borrowed(iri_str))
+            .map(Iri::Borrowed)
             .map_err(|error| error.into())
     }
 }
@@ -74,7 +74,7 @@ impl TryFrom<String> for Iri<'static> {
 
     fn try_from(iri_string: String) -> Result<Self, Self::Error> {
         IriString::try_from(iri_string)
-            .map(|iri_string| Iri::Owned(iri_string))
+            .map(Iri::Owned)
             .map_err(|error| error.into())
     }
 }

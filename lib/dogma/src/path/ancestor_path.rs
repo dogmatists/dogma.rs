@@ -171,7 +171,7 @@ impl core::str::FromStr for AncestorPath {
 
         let mut depth: usize = 0;
         // Split on both '/' and '\\' to support POSIX and Windows separators
-        for comp in input.split(|c| c == '/' || c == '\\') {
+        for comp in input.split(['/', '\\']) {
             if comp.is_empty() {
                 // ignore duplicate or trailing slashes
                 continue;
