@@ -24,6 +24,18 @@ jobs:
           components: rustfmt
       - name: Check formatting
         run: cargo fmt --all -- --check
+  check-clippy:
+    name: Check Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          components: clippy
+      - name: Check Clippy
+        run: cargo clippy -p dogma --all-targets --all-features -- -D warnings
   check-features:
     name: Check feature combinations
     runs-on: ubuntu-latest
