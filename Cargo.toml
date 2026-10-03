@@ -6,11 +6,11 @@ default-members = ["lib/*"]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Arto Bendiken"]
 edition = "2021"
 rust-version = "1.97"
-description = "Shared traits, paths, and identifiers for Rust."
+description = "Shared traits and identifier types for Rust."
 #documentation = "https://docs.rs/dogma/"
 readme = true
 homepage = "https://github.com/dogmatists/dogma.rs"
@@ -21,11 +21,11 @@ categories = ["data-structures", "rust-patterns", "no-std"]
 publish = true
 
 [workspace.dependencies]
-dogma = { version = "0.2.2", path = "lib/dogma", default-features = false }
-dogma-traits = { version = "0.2.2", path = "lib/dogma-traits", default-features = false }
-dogma-path = { version = "0.2.2", path = "lib/dogma-path", default-features = false }
-dogma-uri = { version = "0.2.2", path = "lib/dogma-uri", default-features = false }
-dogma-uuid = { version = "0.2.2", path = "lib/dogma-uuid", default-features = false }
+dogma = { version = "0.3.0", path = "lib/dogma", default-features = false }
+dogma-traits = { version = "0.3.0", path = "lib/dogma-traits", default-features = false }
+dogma-path = { version = "0.3.0", path = "lib/dogma-path", default-features = false }
+dogma-uri = { version = "0.3.0", path = "lib/dogma-uri", default-features = false }
+dogma-uuid = { version = "0.3.0", path = "lib/dogma-uuid", default-features = false }
 camino = { version = "1.2", default-features = false }
 clap = { version = "4.5", default-features = false, features = ["std"] }
 email_address = { version = "0.2.9", default-features = false }

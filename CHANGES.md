@@ -5,19 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Added
-- Serialize `Iri` and `Uri` as plain strings with the `serde` feature;
-  deserialization validates input and produces owned identifiers.
-
+## 0.3.0 - 2026-10-03
 ### Changed
 - Split implementations into `dogma-traits`, `dogma-path`, and `dogma-uri`;
-  add the `dogma-uuid` placeholder. `dogma` re-exports these crates as namespaces
+  add the new `dogma-uuid`. `dogma` re-exports these crates as namespaces
   and preserves its existing type exports and feature flags.
 - **Breaking:** remove the `dogma::enums` and `dogma::structs` namespaces.
   Use `dogma::uri` or the top-level type exports instead.
-- **Breaking:** flatten `dogma-uri` source modules and remove its `enums` and
-  `structs` namespaces. Import types directly from `dogma_uri`.
 - **Breaking:** `Uri`, `UriError`, `UriAuthority`, and `UriValueParser` are
   distinct from their IRI counterparts. URI parsing rejects Unicode; use
   `Iri::to_uri()` to percent-encode it. This requires a breaking release.
@@ -30,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `MaybeLabeled::label()` becomes `maybe_label()`.
   - `MaybeCountable::count()` becomes `maybe_count()`, `is_empty()` becomes
     `maybe_is_empty()`, and `is_nonempty()` becomes `maybe_is_nonempty()`.
+### Added
+- `dogma::uri`: `Uri`, `UriError`, `UriAuthority`, `UriValueParser`
+- `dogma::uuid`: `Uuid`
 
 ## 0.2.2 - 2026-09-27
 ### Fixed

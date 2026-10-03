@@ -162,7 +162,7 @@ dependencies = [
 
 [[package]]
 name = "dogma"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "clap",
  "dogma-path",
@@ -175,7 +175,7 @@ dependencies = [
 
 [[package]]
 name = "dogma-path"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "camino",
  "serde",
@@ -184,7 +184,7 @@ dependencies = [
 
 [[package]]
 name = "dogma-traits"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "serde",
  "serde_test",
@@ -192,7 +192,7 @@ dependencies = [
 
 [[package]]
 name = "dogma-uri"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "clap",
  "email_address",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "dogma-uuid"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "serde",
  "serde_test",
