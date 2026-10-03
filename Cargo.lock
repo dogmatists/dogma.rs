@@ -195,6 +195,7 @@ name = "dogma-uri"
 version = "0.2.2"
 dependencies = [
  "clap",
+ "email_address",
  "fluent-uri",
  "iri-string",
  "known-schemes",
@@ -212,6 +213,12 @@ dependencies = [
  "serde_test",
  "uuid",
 ]
+
+[[package]]
+name = "email_address"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e079f19b08ca6239f47f8ba8509c11cf3ea30095831f7fed61441475edd8c449"
 
 [[package]]
 name = "equivalent"

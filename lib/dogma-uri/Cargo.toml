@@ -22,6 +22,7 @@ iri = ["dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
 structs = ["iri", "uri"]
 clap = ["dep:clap", "known-schemes?/clap", "std"]
+email-address = ["dep:email_address", "uri", "std"]
 fluent-uri = ["dep:fluent-uri", "uri"]
 iri-string = ["dep:iri-string", "uri"]
 miette = ["dep:miette", "std"]
@@ -30,6 +31,7 @@ url = ["dep:url", "uri"]
 
 [dependencies]
 clap = { workspace = true, optional = true }
+email_address = { workspace = true, optional = true }
 fluent-uri = { workspace = true, optional = true }
 iri-string = { workspace = true, optional = true }
 known-schemes = { workspace = true, optional = true }

@@ -22,6 +22,12 @@
 //! The `fluent-uri` feature provides checked, spelling-preserving conversions
 //! between matching URI/IRI types, for both borrowed and owned strings. Each
 //! destination validates the input; owned conversions reuse string storage.
+//!
+//! `email-address` enables `std` and single-mailbox `mailto:` conversions with
+//! `email_address::EmailAddress`. Both identifiers encode UTF-8 as ASCII percent
+//! escapes. Decoding happens once and preserves literal `+`. Display names,
+//! recipient lists, authorities, queries (even empty), and fragments are rejected
+//! rather than discarded. Unicode mailboxes are supported without IDNA mapping.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -76,3 +82,9 @@ mod interop_iri_string;
 #[cfg(feature = "fluent-uri")]
 #[path = "interop/fluent_uri.rs"]
 mod interop_fluent_uri;
+
+#[cfg(feature = "email-address")]
+#[path = "interop/email_address.rs"]
+mod interop_email_address;
+#[cfg(feature = "email-address")]
+pub use interop_email_address::MailtoError;
