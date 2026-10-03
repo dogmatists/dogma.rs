@@ -16,7 +16,7 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["enums", "serde", "structs"]
-std = ["fluent-uri?/std", "iri-string?/std", "known-schemes?/std", "serde?/std", "url?/std"]
+std = ["fluent-uri?/std", "iref?/std", "iri-string?/std", "known-schemes?/std", "serde?/std", "url?/std"]
 enums = ["iri", "uri"]
 iri = ["dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
@@ -24,6 +24,8 @@ structs = ["iri", "uri"]
 clap = ["dep:clap", "known-schemes?/clap", "std"]
 email-address = ["dep:email_address", "uri", "std"]
 fluent-uri = ["dep:fluent-uri", "uri"]
+# iref 4.3 enables thiserror/std even with its defaults disabled.
+iref = ["dep:iref", "uri", "std"]
 iri-string = ["dep:iri-string", "uri"]
 miette = ["dep:miette", "std"]
 serde = ["dep:serde", "iri-string?/serde", "known-schemes?/serde"]
@@ -34,6 +36,7 @@ uriparse = ["dep:uriparse", "uri", "std"]
 clap = { workspace = true, optional = true }
 email_address = { workspace = true, optional = true }
 fluent-uri = { workspace = true, optional = true }
+iref = { workspace = true, optional = true }
 iri-string = { workspace = true, optional = true }
 known-schemes = { workspace = true, optional = true }
 miette = { workspace = true, optional = true }

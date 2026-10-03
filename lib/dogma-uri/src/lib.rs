@@ -34,6 +34,12 @@
 //! case, ports, and empty authority paths). Conversion back serializes those
 //! components into an owned identifier. Non-ASCII IRIs are rejected; call
 //! `Iri::to_uri()` first when percent encoding is desired.
+//!
+//! `iref` enables `std` and checked conversions with its borrowed and owned
+//! URI/IRI types. Conversions preserve spelling, borrow without allocating, and
+//! reuse owned storage. Unlike Dogma's exact-string comparison, `iref` compares
+//! identifiers modulo normalization; conversion does not change either rule.
+//! Upstream's owned buffers and transitive dependencies currently require `std`.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -98,3 +104,7 @@ pub use interop_email_address::MailtoError;
 #[cfg(feature = "uriparse")]
 #[path = "interop/uriparse.rs"]
 mod interop_uriparse;
+
+#[cfg(feature = "iref")]
+#[path = "interop/iref.rs"]
+mod interop_iref;
