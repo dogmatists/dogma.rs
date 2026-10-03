@@ -20,9 +20,9 @@ relative to the repository root.
 ## Identifier APIs and serialization
 
 - [ ] **SERDE-03: Define serialization for `AncestorPath`.**
-  Location: `path/ancestor_path.rs`. Choose and document a wire representation
-  before adding implementations. Preserve the nonzero-depth invariant; test
-  round trips and invalid values.
+  The documented wire representation is a positive integer depth.
+  Add deserialization in `path/ancestor_path.rs`, preserving the nonzero-depth
+  invariant; test round trips, invalid values, and platform-size limits.
 
 ## Features, compatibility, and release tooling
 

@@ -27,6 +27,13 @@ use core::num::NonZeroUsize;
 /// Available with `alloc`. Native standard-library path conversions and
 /// filesystem queries require `std`; Camino conversions require `camino`.
 ///
+/// # Serialization
+///
+/// With `serde`, the wire representation is the positive integer depth, not a
+/// path string or a tagged object. For example, `../../` serializes as `2`.
+/// This keeps serialized size independent of the number of parent components.
+/// Valid depths are `1..=usize::MAX` on the receiving platform.
+///
 /// ```
 /// use dogma::{AncestorPath, FromPathError};
 ///
@@ -44,6 +51,13 @@ pub struct AncestorPath(NonZeroUsize);
 impl Default for AncestorPath {
     fn default() -> Self {
         Self::DEPTH_1
+    }
+}
+
+#[cfg(feature = "serde")]
+impl serde::Serialize for AncestorPath {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.0.serialize(serializer)
     }
 }
 
