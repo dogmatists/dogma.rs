@@ -27,7 +27,6 @@ relative to the repository root.
   crate-private replacements before switching public aliases. Each substep is
   a separate atomic change; URI-02's encoder must precede filesystem adapters
   and activation.
-  - [ ] Add ownership conversion, cloning, and identity `to_uri()`.
   - [ ] Add formatting and ownership-independent comparison/hash traits.
   - [ ] Add scheme and raw component accessors.
   - [ ] Add URI-to-IRI conversions and strict checked IRI borrowing.

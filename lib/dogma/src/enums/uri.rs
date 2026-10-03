@@ -16,6 +16,7 @@ pub(crate) mod staged {
     ///
     /// Construction requires a scheme and rejects Unicode, malformed escapes,
     /// and relative references. Spelling is preserved without normalization.
+    #[derive(Clone)]
     pub enum Uri<'a> {
         Borrowed(&'a UriStr),
         Owned(UriString),
@@ -85,6 +86,23 @@ pub(crate) mod staged {
         pub fn as_str(&self) -> &str {
             self.as_uri_str().as_str()
         }
+
+        /// Converts this URI into an owned value with a `'static` lifetime.
+        ///
+        /// Borrowed strings are copied; owned strings move without allocating.
+        pub fn into_owned(self) -> Uri<'static> {
+            match self {
+                Self::Borrowed(uri) => Uri::Owned(uri.into()),
+                Self::Owned(uri) => Uri::Owned(uri),
+            }
+        }
+
+        /// Clones this URI, preserving its spelling and ownership form.
+        ///
+        /// Borrowed strings remain borrowed; owned strings are copied.
+        pub fn to_uri(&self) -> Uri<'_> {
+            self.clone()
+        }
     }
 
     impl AsRef<str> for Uri<'_> {
@@ -96,6 +114,47 @@ pub(crate) mod staged {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn into_owned_outlives_borrowed_input() {
+            let text = "https://example.com/caf%C3%A9?lang=fr#top";
+            let owned: Uri<'static> = {
+                let input = String::from(text);
+                Uri::try_from(input.as_str()).unwrap().into_owned()
+            };
+            assert!(matches!(owned, Uri::Owned(_)));
+            assert_eq!(owned.as_str(), text);
+        }
+
+        #[test]
+        fn into_owned_reuses_owned_allocation() {
+            let input: Uri<'_> = "https://example.com/%2f".parse().unwrap();
+            let pointer = input.as_str().as_ptr();
+            let owned: Uri<'static> = input.into_owned();
+            assert!(matches!(owned, Uri::Owned(_)));
+            assert_eq!(owned.as_str(), "https://example.com/%2f");
+            assert_eq!(owned.as_str().as_ptr(), pointer);
+        }
+
+        #[test]
+        fn cloning_and_identity_conversion_preserve_ownership() {
+            let text = "HTTPS://example.com/a/../%2f?#";
+            let borrowed = Uri::try_from(text).unwrap();
+            for copy in [borrowed.clone(), borrowed.to_uri()] {
+                assert!(matches!(copy, Uri::Borrowed(_)));
+                assert_eq!(copy.as_str(), text);
+                assert_eq!(copy.as_str().as_ptr(), borrowed.as_str().as_ptr());
+            }
+            let owned: Uri<'_> = text.parse().unwrap();
+            for copy in [owned.clone(), owned.to_uri()] {
+                assert!(matches!(copy, Uri::Owned(_)));
+                assert_eq!(copy.as_str(), text);
+                assert_ne!(copy.as_str().as_ptr(), owned.as_str().as_ptr());
+            }
+            let cloned: Uri<'static> = owned.clone();
+            drop(owned);
+            assert_eq!(cloned.as_str(), text);
+        }
 
         #[test]
         fn strict_constructors_reject_invalid_uris() {
