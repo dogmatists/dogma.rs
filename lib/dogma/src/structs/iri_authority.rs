@@ -28,12 +28,21 @@ impl<'a> IriAuthority<'a> {
         Self { scheme, components }
     }
 
-    /// See: <https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1>
-    /// See: <https://datatracker.ietf.org/doc/html/rfc7230#section-2.7.1>
+    /// Borrows user information without the trailing `@`, preserving escapes.
+    ///
+    /// Returns `None` if absent and `Some("")` for an empty user-info component.
+    /// No percent decoding or authentication is performed.
+    /// See <https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1>.
     pub fn userinfo(&self) -> Option<&str> {
         self.components.userinfo()
     }
 
+    /// Splits user information at the first literal `:`, without decoding.
+    ///
+    /// Returns `None` if user information is absent. If no colon is present,
+    /// returns the whole user-info string and an empty password; unlike
+    /// [`Self::password`], this does not distinguish a missing password from an
+    /// empty one. Later colons belong to the password; `%3A` is not a delimiter.
     pub fn username_and_password(&self) -> Option<(&str, &str)> {
         match self.userinfo() {
             None => None,
@@ -42,6 +51,10 @@ impl<'a> IriAuthority<'a> {
         }
     }
 
+    /// Borrows user information before the first literal `:`, or all of it.
+    ///
+    /// Returns `None` only when user information is absent. An empty username
+    /// is returned as `Some("")`; percent escapes remain encoded.
     pub fn username(&self) -> Option<&str> {
         match self.userinfo() {
             None => None,
@@ -50,6 +63,25 @@ impl<'a> IriAuthority<'a> {
         }
     }
 
+    /// Borrows user information after the first literal `:`, without decoding.
+    ///
+    /// Returns `None` when user information or the colon is absent, and
+    /// `Some("")` when the colon has no following text.
+    ///
+    /// ```
+    /// use dogma::Iri;
+    ///
+    /// let iri = Iri::try_from("https://alice%3Abob:secret:extra@example.com/")
+    ///     .unwrap();
+    /// let authority = iri.authority().unwrap();
+    /// assert_eq!(authority.username(), Some("alice%3Abob"));
+    /// assert_eq!(authority.password(), Some("secret:extra"));
+    ///
+    /// let iri = Iri::try_from("https://alice@example.com/").unwrap();
+    /// let authority = iri.authority().unwrap();
+    /// assert_eq!(authority.password(), None);
+    /// assert_eq!(authority.username_and_password(), Some(("alice", "")));
+    /// ```
     pub fn password(&self) -> Option<&str> {
         match self.userinfo() {
             None => None,
