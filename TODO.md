@@ -73,17 +73,11 @@ relative to the repository root.
 
 ## Paths and collection traits
 
-- [ ] **COLL-01: Support custom hashers in collection traits.**
-  `traits/collection.rs` and `traits/collection_mut.rs` implement traits only
-  for default-hasher `HashMap`/`HashSet`. Generalize over the hasher parameter.
-  A map using `BuildHasherDefault<DefaultHasher>` currently fails a
-  `Collection` bound. Check both immutable and mutable trait implementations.
-
 - [ ] **COLL-02: Remove unnecessary collection bounds.**
-  In the same two files, keep only bounds actually required by delegated
-  `len`, `is_empty`, and `clear` methods. Audit `Ord`, `Eq`, and `Hash` bounds
-  on heap/tree/hash collections; generic read-only operations should not need
-  insertion-related bounds.
+  In `traits/collection.rs` and `traits/collection_mut.rs`, keep only bounds
+  actually required by delegated `len`, `is_empty`, and `clear` methods. Audit
+  `Ord`, `Eq`, and `Hash` bounds on heap/tree/hash collections; generic read-only
+  operations should not need insertion-related bounds.
 
 ## Features, compatibility, and release tooling
 

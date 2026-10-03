@@ -127,9 +127,9 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
     }
 }
 
-// Implementation for `HashSet<T>`
+// Implementation for `HashSet<T, S>`
 #[cfg(feature = "std")]
-impl<T: Eq + Hash> Collection for HashSet<T> {
+impl<T: Eq + Hash, S> Collection for HashSet<T, S> {
     type Item = T;
 
     fn len(&self) -> usize {
@@ -141,9 +141,9 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
     }
 }
 
-// Implementation for `HashMap<K, V>`
+// Implementation for `HashMap<K, V, S>`
 #[cfg(feature = "std")]
-impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
+impl<K: Eq + Hash, V, S> Collection for HashMap<K, V, S> {
     type Item = (K, V);
 
     fn len(&self) -> usize {
