@@ -74,6 +74,19 @@ pub(crate) mod staged {
 
     impl core::error::Error for UriError {}
 
+    #[cfg(feature = "std")]
+    impl UriError {
+        /// Preserves errors from the shared IRI filesystem constructor.
+        pub(crate) fn from_iri(error: crate::IriError) -> Self {
+            match error {
+                crate::IriError::Invalid(input) => Self::Invalid(input),
+                crate::IriError::PathIsRelative(path) => Self::PathIsRelative(path),
+                crate::IriError::PathNotUnicode(path) => Self::PathNotUnicode(path),
+                crate::IriError::PathPrefixUnsupported(path) => Self::PathPrefixUnsupported(path),
+            }
+        }
+    }
+
     impl fmt::Display for UriError {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             match self {
@@ -116,6 +129,41 @@ pub(crate) mod staged {
         use super::*;
         use alloc::string::ToString;
         use iri_string::types::{UriStr, UriString};
+
+        #[cfg(feature = "std")]
+        #[test]
+        fn filesystem_error_translation_preserves_variants_and_payloads() {
+            use crate::IriError;
+
+            assert!(matches!(
+                UriError::from_iri(IriError::Invalid(None)),
+                UriError::Invalid(None)
+            ));
+            let input = String::from("invalid input");
+            let pointer = input.as_ptr();
+            let UriError::Invalid(Some(input)) = UriError::from_iri(IriError::Invalid(Some(input)))
+            else {
+                panic!("expected an owned invalid-input error");
+            };
+            assert_eq!(input, "invalid input");
+            assert_eq!(input.as_ptr(), pointer);
+
+            for path in [None, Some(std::path::PathBuf::from("original/path"))] {
+                assert!(
+                    matches!(UriError::from_iri(IriError::PathIsRelative(path.clone())),
+                    UriError::PathIsRelative(original) if original == path)
+                );
+                assert!(
+                    matches!(UriError::from_iri(IriError::PathNotUnicode(path.clone())),
+                    UriError::PathNotUnicode(original) if original == path)
+                );
+            }
+            let path = std::path::PathBuf::from(r"\\?\C:\original");
+            assert!(
+                matches!(UriError::from_iri(IriError::PathPrefixUnsupported(path.clone())),
+                UriError::PathPrefixUnsupported(original) if original == path)
+            );
+        }
 
         #[test]
         fn validation_errors_preserve_only_owned_input() {

@@ -28,6 +28,11 @@ relative to the repository root.
   a separate atomic change; URI-02's encoder must precede filesystem adapters
   and activation.
   - [ ] Add `std`-gated URI filesystem adapters with native path coverage.
+    - [ ] Add absolute-path construction with POSIX regression coverage.
+    - [ ] Add path decoding with POSIX regression coverage.
+    - [ ] Add native Windows drive/UNC and rejection coverage, and run minimal
+      URI filesystem tests in CI.
+    - [ ] Verify native Windows CI evidence before activation.
   - [ ] Activate URI/error/authority/parser replacements and `Iri::to_uri()`
     together, with public API tests, migration rustdoc, and a changelog entry.
 
