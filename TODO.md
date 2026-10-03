@@ -2,8 +2,7 @@
 
 Recheck the code before starting an item.
 Paths below are relative to the repository root. Implementations live in
-`lib/dogma-{traits,path,uri}/src/`; `lib/dogma` is the umbrella and
-`lib/dogma-uuid` is a placeholder.
+`lib/dogma-{traits,path,uri,uuid}/src/`; `lib/dogma` is the umbrella.
 
 ## Working method
 

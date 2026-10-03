@@ -31,3 +31,5 @@ pub use dogma_path::*;
 
 #[cfg(feature = "uuid")]
 pub use dogma_uuid as uuid;
+#[cfg(feature = "uuid")]
+pub use dogma_uuid::*;

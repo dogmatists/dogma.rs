@@ -4,7 +4,7 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-description = "Placeholder for future UUID types and operations."
+description = "Universally unique identifiers and lossless byte conversions."
 readme.workspace = true
 homepage.workspace = true
 repository.workspace = true
@@ -15,5 +15,26 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = []
-std = []
+all = ["alloc", "serde"]
+alloc = []
+std = ["alloc", "uuid/std", "serde?/std"]
+arbitrary = ["uuid/arbitrary"]
+atomic = ["uuid/atomic"]
+borsh = ["uuid/borsh"]
+bytemuck = ["uuid/bytemuck"]
+serde = ["dep:serde", "uuid/serde"]
+v1 = ["uuid/v1"]
+v3 = ["uuid/v3"]
+v4 = ["uuid/v4"]
+v5 = ["uuid/v5"]
+v6 = ["uuid/v6"]
+v7 = ["uuid/v7"]
+v8 = ["uuid/v8"]
+zerocopy = ["uuid/zerocopy"]
+
+[dependencies]
+serde = { workspace = true, optional = true }
+uuid.workspace = true
+
+[dev-dependencies]
+serde_test.workspace = true

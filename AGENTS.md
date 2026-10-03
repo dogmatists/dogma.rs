@@ -33,7 +33,7 @@
 - Rust 2021 crates live in `lib/<crate>/`: `dogma` is the umbrella;
   `dogma-traits` owns collection/count/name/label traits; `dogma-path` owns
   `AncestorPath` and `FromPathError`; `dogma-uri` owns URI/IRI types in flat,
-  type-focused source modules; `dogma-uuid` is a placeholder with no UUID API yet.
+  type-focused source modules; `dogma-uuid` owns `Uuid` and byte conversions.
 - Root `Cargo.toml` owns shared metadata/dependencies. Keep package and internal
   dependency versions aligned with `VERSION`; internal defaults stay disabled.
 - Component crates are independent of the umbrella. Move behavior tests with
@@ -46,7 +46,8 @@
   and optional interop on the corresponding features.
 - `all` includes `serde` where supported. `dogma-path` owns `camino`;
   `dogma-uri` owns `clap`/`miette`. `dogma-path` and `dogma-uri` assume allocation;
-  `dogma-traits` has an explicit `alloc` feature. UUID has only `all`/`std`.
+  `dogma-traits` has an explicit `alloc` feature. `dogma-uuid` forwards UUID
+  interop/version features; its `all` enables `alloc` and `serde`.
 - URI and IRI types are distinct. `Iri::to_uri()` borrows ASCII or encodes Unicode.
 
 # Checks

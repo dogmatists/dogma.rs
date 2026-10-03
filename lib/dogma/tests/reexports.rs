@@ -80,9 +80,26 @@ fn uri_namespace_exposes_the_component_api() {
     }
 }
 
-// A placeholder has no values to exercise, but its namespace must be exported.
 #[cfg(feature = "uuid")]
-const _: () = {
-    #[allow(unused_imports)]
-    use dogma::uuid;
-};
+#[test]
+fn uuid_reexports_preserve_type_identity() {
+    let id: dogma::uuid::Uuid = dogma::Uuid::from_bytes([0; 16]);
+    let _: &dogma_uuid::Uuid = &id;
+    assert_eq!(id.into_bytes(), [0; 16]);
+    #[cfg(feature = "alloc")]
+    {
+        extern crate alloc;
+        let bytes: alloc::vec::Vec<u8> = id.into();
+        assert_eq!(bytes.as_slice(), &[0; 16]);
+    }
+    #[cfg(feature = "serde")]
+    {
+        use serde_test::Configure;
+        serde_test::assert_tokens(
+            &id.readable(),
+            &[serde_test::Token::Str(
+                "00000000-0000-0000-0000-000000000000",
+            )],
+        );
+    }
+}

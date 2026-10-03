@@ -17,7 +17,7 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["enums", "path", "serde", "structs", "traits", "uuid"]
-alloc = ["path", "dogma-traits?/alloc"]
+alloc = ["path", "dogma-traits?/alloc", "dogma-uuid?/alloc"]
 std = ["alloc", "dogma-path?/std", "dogma-traits?/std", "dogma-uri?/std", "dogma-uuid?/std"]
 unstable = []
 
@@ -44,7 +44,7 @@ uuid = ["dep:dogma-uuid"]
 camino = ["std", "dogma-path/camino"]
 clap = ["std", "dogma-uri?/clap"]
 miette = ["std", "dogma-uri?/miette"]
-serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde"]
+serde = ["dogma-path?/serde", "dogma-traits?/serde", "dogma-uri?/serde", "dogma-uuid?/serde"]
 
 [dependencies]
 dogma-traits = { workspace = true, optional = true }
