@@ -61,6 +61,39 @@ fn default_and_ordering_use_byte_values() {
     assert!(Uuid::from(high) < Uuid::from([0xff; 16]));
 }
 
+#[cfg(feature = "v4")]
+#[test]
+fn random_generation_sets_version_and_variant() {
+    let first = Uuid::new_v4();
+    let second = Uuid::new_v4();
+    assert_ne!(first, second);
+    for id in [first, second] {
+        assert_eq!(id.as_bytes()[6] >> 4, 4);
+        assert_eq!(id.as_bytes()[8] >> 6, 0b10);
+    }
+}
+
+#[cfg(all(feature = "v7", feature = "std"))]
+#[test]
+fn time_ordered_generation_uses_current_unix_milliseconds() {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    let before = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let first = Uuid::now_v7();
+    let second = Uuid::now_v7();
+    let after = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    assert!(first < second);
+    for id in [first, second] {
+        let bytes = id.as_bytes();
+        assert_eq!(bytes[6] >> 4, 7);
+        assert_eq!(bytes[8] >> 6, 0b10);
+        let mut timestamp = [0; 8];
+        timestamp[2..].copy_from_slice(&bytes[..6]);
+        let millis = u128::from(u64::from_be_bytes(timestamp));
+        assert!((before.as_millis()..=after.as_millis()).contains(&millis));
+    }
+}
+
 #[cfg(feature = "serde")]
 #[test]
 fn serde_uses_untagged_text_or_bytes() {

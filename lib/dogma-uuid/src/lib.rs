@@ -26,14 +26,18 @@
 //! enabled by `std`. `serde` supports human-readable UUID strings and compact
 //! binary serialization.
 //!
+//! `v4` enables `Uuid::new_v4()` for random identifiers. `v7` together with `std`
+//! enables `Uuid::now_v7()` for time-ordered identifiers using the current time.
+//! Enable `js` for generation on `wasm32-unknown-unknown` using JavaScript.
+//!
 //! # Compatibility
 //!
 //! Lossless [`From`] conversions support interoperability with [`::uuid::Uuid`].
-//! The `std`, `arbitrary`, `atomic`, `borsh`, `bytemuck`, `serde`, `v1`, `v3`,
+//! The `std`, `arbitrary`, `atomic`, `borsh`, `bytemuck`, `js`, `serde`, `v1`, `v3`,
 //! `v4`, `v5`, `v6`, `v7`, `v8`, and `zerocopy` features are forwarded to the
-//! `uuid` crate. Apart from `serde`, these optional integrations and generation
-//! APIs are currently accessed through that type. Random generation features
-//! require a target supported by its random source; upstream configuration
+//! `uuid` crate. Other generation APIs and integrations apart from `serde` are
+//! currently accessed through that type. Random generation features require a
+//! target supported by its random source; upstream configuration
 //! requirements also apply to experimental integrations such as `zerocopy`.
 
 #![no_std]

@@ -5,7 +5,7 @@ use core::fmt;
 /// A 128-bit universally unique identifier.
 ///
 /// UUIDs are stored by value and are cheap to copy. All 128-bit patterns are
-/// accepted: construction does not validate a version or variant, generate
+/// accepted: byte conversion does not validate a version or variant, generate
 /// randomness, or guarantee uniqueness. The default value is the all-zero
 /// (nil) UUID.
 ///
@@ -23,6 +23,32 @@ use core::fmt;
 pub struct Uuid(::uuid::Uuid);
 
 impl Uuid {
+    /// Generates a random version 4 UUID.
+    ///
+    /// Requires `v4` and a supported random source. Enable `js` when targeting
+    /// `wasm32-unknown-unknown`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the random source fails.
+    #[cfg(feature = "v4")]
+    pub fn new_v4() -> Self {
+        Self(::uuid::Uuid::new_v4())
+    }
+
+    /// Generates a time-ordered version 7 UUID using the current Unix time.
+    ///
+    /// Requires `v7`, `std`, and a supported random source. Enable `js` when
+    /// targeting `wasm32-unknown-unknown`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the random source fails.
+    #[cfg(all(feature = "v7", feature = "std"))]
+    pub fn now_v7() -> Self {
+        Self(::uuid::Uuid::now_v7())
+    }
+
     /// Constructs an identifier from 16 bytes in network byte order.
     ///
     /// Every bit is preserved, without validating or changing the version or
