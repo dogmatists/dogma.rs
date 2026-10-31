@@ -3,14 +3,14 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-use crate::{Iri, IriScheme};
+use crate::{Iri, IriScheme, MissingAuthorityError};
 use iri_string::components::AuthorityComponents;
 
 /// A borrowed view of an IRI's authority, with its interpreted scheme.
 ///
 /// Available with `iri`. Construct via [`Iri::authority`] or `TryFrom<&Iri>`;
-/// the latter returns `Err(())` only when the authority is absent. An empty
-/// authority is valid. Component strings borrow the original IRI and preserve
+/// the latter returns [`MissingAuthorityError`] only when the authority is
+/// absent. An empty authority is valid. Component strings borrow the original IRI and preserve
 /// their spelling; the stored scheme uses [`Iri::scheme`]. Equality and hashing
 /// include both the scheme and the authority components.
 ///
@@ -23,12 +23,12 @@ pub struct IriAuthority<'a> {
 }
 
 impl<'a, 'b> TryFrom<&'a Iri<'b>> for IriAuthority<'a> {
-    type Error = ();
+    type Error = MissingAuthorityError;
 
     fn try_from(iri: &'a Iri<'b>) -> Result<Self, Self::Error> {
         iri.authority_components()
             .map(|components| Self::from_components(iri.scheme(), components))
-            .ok_or(())
+            .ok_or(MissingAuthorityError)
     }
 }
 
@@ -235,6 +235,18 @@ mod tests {
     use crate::Iri;
     use core::net::{Ipv6Addr, SocketAddr};
     use std::{io::ErrorKind, net::ToSocketAddrs};
+
+    #[test]
+    fn try_from_reports_missing_authorities() {
+        use crate::{IriAuthority, MissingAuthorityError};
+        use alloc::string::ToString;
+        let iri = Iri::try_from("urn:example:value").unwrap();
+        assert_eq!(IriAuthority::try_from(&iri), Err(MissingAuthorityError));
+        let error: &dyn core::error::Error = &MissingAuthorityError;
+        assert_eq!(error.to_string(), "identifier has no authority component");
+        let iri = Iri::try_from("file:///path").unwrap();
+        assert_eq!(IriAuthority::try_from(&iri).unwrap().host_str(), "");
+    }
 
     #[test]
     fn socket_addrs_reject_out_of_range_ports() {

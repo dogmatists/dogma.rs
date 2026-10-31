@@ -105,6 +105,11 @@ mod iri_authority;
 #[cfg(feature = "iri")]
 pub use iri_authority::*;
 
+#[cfg(feature = "iri")]
+mod missing_authority_error;
+#[cfg(feature = "iri")]
+pub use missing_authority_error::*;
+
 #[cfg(feature = "uri")]
 mod uri;
 #[cfg(feature = "uri")]

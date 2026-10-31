@@ -3,7 +3,7 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-use crate::{IriAuthority, Uri};
+use crate::{IriAuthority, MissingAuthorityError, Uri};
 
 /// An encoded authority borrowing its components from a validated URI.
 ///
@@ -13,12 +13,12 @@ use crate::{IriAuthority, Uri};
 pub struct UriAuthority<'a>(IriAuthority<'a>);
 
 impl<'a> TryFrom<&'a Uri<'_>> for UriAuthority<'a> {
-    type Error = ();
+    type Error = MissingAuthorityError;
 
     fn try_from(uri: &'a Uri<'_>) -> Result<Self, Self::Error> {
         uri.authority_components()
             .map(|components| Self(IriAuthority::from_components(uri.scheme(), components)))
-            .ok_or(())
+            .ok_or(MissingAuthorityError)
     }
 }
 
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn authority_distinguishes_empty_and_absent_components() {
         for uri in representations("urn:example:value") {
-            assert_eq!(UriAuthority::try_from(&uri), Err(()));
+            assert_eq!(UriAuthority::try_from(&uri), Err(MissingAuthorityError));
             assert!(uri.authority().is_none());
         }
         for (text, userinfo, pair, password, port, number) in [

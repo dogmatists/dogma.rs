@@ -69,12 +69,6 @@ Items marked **Breaking** belong in the next minor release, with a
   `maybe_` prefixes solved. Decide whether to rename, deprecate, or document
   the split, record the decision in rustdoc, and remove the FIXME.
 
-- [ ] **API-07: Replace the `()` error of the authority `TryFrom` impls.**
-  **Breaking.** `TryFrom<&Iri>` for `IriAuthority` and `TryFrom<&Uri>` for
-  `UriAuthority` fail with `()`, which does not implement `Error` and does
-  not work well with `?`. Use a named zero-sized error, or point callers to
-  `authority()`.
-
 ## Documentation
 
 - [ ] **DOC-04: Document public API behavior incrementally.**

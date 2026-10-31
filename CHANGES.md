@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dogma::uri::*`, replacing `dogma::iri_error::*` and `dogma::uri_error::*`.
   `IriError::PathPrefixUnsupported` and every `IriToPathError` variant
   (`dogma::iri::to_path::*`) now have codes, help text, and URLs.
+- **Breaking:** `TryFrom<&Iri>` for `IriAuthority` and `TryFrom<&Uri>` for
+  `UriAuthority` fail with the new `MissingAuthorityError` instead of `()`.
 - **Breaking:** Upgrade `known-schemes` to 0.3. `IriScheme::Other` and
   `UriScheme::Other` now hold an `OtherScheme` (re-exported by `dogma-uri`),
   which is only constructed by parsing and is always lowercase; scheme parsing
