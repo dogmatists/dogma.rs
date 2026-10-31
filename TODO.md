@@ -43,10 +43,6 @@ Items marked **Breaking** belong in the next minor release, with a
   `check` target runs only `cargo test`: align it with the checks in
   `AGENTS.md` or remove it.
 
-- [ ] **PKG-03: Decide what the umbrella's `unstable` feature is for.**
-  `lib/dogma/Cargo.toml` defines `unstable = []`, but no code uses it. Either
-  document it as reserved or remove it in the next breaking release.
-
 ## API features and ergonomics
 
 - [ ] **IDN-03: Have `Uri` accessors delegate to `Iri` ones.**

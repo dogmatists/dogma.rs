@@ -19,7 +19,9 @@ defaults for `no_std`, then select `all` or individual features (`traits`,
 `named`, `labeled`, `countable`, `collection`, `path`, `iri`, `uri`, `uuid`).
 The `alloc` feature enables `path` and forwards allocation support to enabled
 trait and UUID components. The compatibility `enums` and `structs` features both
-enable `iri` and `uri`; they do not introduce additional namespaces.
+enable `iri` and `uri`; they do not introduce additional namespaces. The
+`unstable` feature is reserved for future APIs exempt from semver guarantees
+and currently enables nothing.
 
 `std` and `serde` are forwarded to enabled components. Optional interop features
 are selected separately from `all`:

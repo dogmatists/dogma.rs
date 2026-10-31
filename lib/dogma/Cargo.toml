@@ -26,6 +26,7 @@ default = ["all", "std"]
 all = ["enums", "path", "serde", "structs", "traits", "uuid"]
 alloc = ["path", "dogma-traits?/alloc", "dogma-uuid?/alloc"]
 std = ["alloc", "dogma-path?/std", "dogma-traits?/std", "dogma-uri?/std", "dogma-uuid?/std"]
+# Reserved for future APIs exempt from semver guarantees; enables nothing yet.
 unstable = []
 
 # Enums:
