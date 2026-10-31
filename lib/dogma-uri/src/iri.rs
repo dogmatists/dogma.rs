@@ -201,13 +201,8 @@ impl Iri<'_> {
     /// the original spelling.
     #[must_use]
     pub fn scheme(&self) -> IriScheme {
-        let scheme = self.scheme_str();
-        // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
-        IriScheme::ALL
-            .iter()
-            .find(|known| known.as_str().eq_ignore_ascii_case(scheme))
-            .cloned()
-            .unwrap_or_else(|| IriScheme::Other(scheme.to_ascii_lowercase()))
+        let Ok(scheme) = self.scheme_str().parse();
+        scheme
     }
 
     /// Returns the scheme name with its original spelling.
@@ -368,7 +363,7 @@ impl Iri<'_> {
     /// invalid path data that prevents conversion.
     #[cfg(feature = "std")]
     pub fn try_to_path(&self) -> Result<std::path::PathBuf, IriToPathError> {
-        if self.scheme() != IriScheme::File {
+        if !self.scheme_str().eq_ignore_ascii_case("file") {
             return Err(IriToPathError::UnsupportedScheme);
         }
         if self.has_query() {
@@ -1108,7 +1103,7 @@ mod tests {
 
     #[test]
     fn scheme_normalizes_unknown_names() {
-        let expected = IriScheme::Other(String::from("x-example+v1.2"));
+        let expected: IriScheme = "x-example+v1.2".parse().unwrap();
         for (text, spelling) in [
             ("x-example+v1.2:Payload", "x-example+v1.2"),
             ("X-Example+V1.2:Payload", "X-Example+V1.2"),

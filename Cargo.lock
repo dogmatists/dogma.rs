@@ -456,9 +456,9 @@ dependencies = [
 
 [[package]]
 name = "known-schemes"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c000b5392f942e57f412e6dc49400601f435d283d9019a3da92432057d2f7499"
+checksum = "1b498a07bcbedf1d97627759f3b3ef2b2b66bd7364d3973bd9682966cf924421"
 dependencies = [
  "clap",
  "iri-string",

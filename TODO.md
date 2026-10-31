@@ -51,18 +51,17 @@ Items marked **Breaking** belong in the next minor release, with a
 
 - [ ] **IDN-02: Re-export the upstream types used in public signatures.**
   The `Iri`/`Uri` variants and `From` impls expose `iri_string::types::*`.
-  `dogma-uuid` converts to and from `uuid::Uuid`. Callers must therefore add
-  matching direct dependencies. Re-export these crates or types, and note in
-  rustdoc that bumping them is a breaking change.
+  `dogma-uuid`'s `uuid` feature converts to and from `uuid::Uuid`, and
+  `IriScheme`/`UriScheme` come from `known-schemes` (whose `OtherScheme` is
+  now re-exported). Callers must therefore add matching direct dependencies.
+  Re-export these crates or types, and note in rustdoc that bumping them is a
+  breaking change.
 
-- [ ] **IDN-03: Share the scheme lookup and URI accessors.**
-  `Iri::scheme()` and `Uri::scheme()` duplicate a linear scan of
-  `IriScheme::ALL`, and both allocate for unknown schemes. The scan works
-  around a parsing gap in `known-schemes` 0.2.0/0.2.1. `try_to_path` and
-  `authority()` call it on every use. Share one helper and compare
-  `scheme_str()` directly for `file`. Report the gap upstream, and drop the
-  workaround once a fixed version becomes the floor. Most `Uri` accessors
-  duplicate `Iri` ones; consider having them delegate.
+- [ ] **IDN-03: Have `Uri` accessors delegate to `Iri` ones.**
+  Most `Uri` accessors (`scheme_str`, `path`, `query_str`, and so on)
+  duplicate their `Iri` counterparts. Consider delegating through
+  `as_iri_str()`. Also note that `authority()` parses the scheme on every
+  call, allocating for unknown schemes.
 
 - [ ] **API-06: Resolve the overlap between `Countable` and `Collection`.**
   `countable.rs` has `FIXME: change to len()?`. A type implementing both

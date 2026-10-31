@@ -232,13 +232,8 @@ impl Uri<'_> {
     /// the original spelling.
     #[must_use]
     pub fn scheme(&self) -> UriScheme {
-        let scheme = self.scheme_str();
-        // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
-        UriScheme::ALL
-            .iter()
-            .find(|known| known.as_str().eq_ignore_ascii_case(scheme))
-            .cloned()
-            .unwrap_or_else(|| UriScheme::Other(scheme.to_ascii_lowercase()))
+        let Ok(scheme) = self.scheme_str().parse();
+        scheme
     }
 
     /// Returns the scheme name with its original spelling.
@@ -779,10 +774,8 @@ mod tests {
             }
         }
         for uri in representations("X-Example+V1.2:Payload") {
-            assert_eq!(
-                uri.scheme(),
-                UriScheme::Other(String::from("x-example+v1.2"))
-            );
+            assert_eq!(uri.scheme().as_str(), "x-example+v1.2");
+            assert!(matches!(uri.scheme(), UriScheme::Other(_)));
             assert_eq!(uri.scheme_str(), "X-Example+V1.2");
         }
         for uri in representations("hTtPs://example.com/") {

@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dogma::uri::*`, replacing `dogma::iri_error::*` and `dogma::uri_error::*`.
   `IriError::PathPrefixUnsupported` and every `IriToPathError` variant
   (`dogma::iri::to_path::*`) now have codes, help text, and URLs.
+- **Breaking:** Upgrade `known-schemes` to 0.3. `IriScheme::Other` and
+  `UriScheme::Other` now hold an `OtherScheme` (re-exported by `dogma-uri`),
+  which is only constructed by parsing and is always lowercase; scheme parsing
+  is infallible and case-insensitive upstream, so `Iri::scheme` and
+  `Uri::scheme` delegate to it.
 - **Breaking:** `dogma-uuid` conversions to and from `uuid::Uuid` now require
   its opt-in `uuid` feature, which its `arbitrary`, `atomic`, `borsh`,
   `bytemuck`, `v1`, `v3`, `v5`, `v6`, `v8`, and `zerocopy` features enable.

@@ -50,6 +50,13 @@ fn path_reexports_preserve_type_identity() {
 fn iri_reexports_preserve_type_identity() {
     let iri: dogma::uri::Iri<'_> = dogma::Iri::try_from("https://example.com/café").unwrap();
     let _: &dogma_uri::Iri<'_> = &iri;
+    assert_eq!(iri.scheme(), dogma::IriScheme::Https);
+    let custom = dogma::Iri::try_from("X-Custom:value").unwrap();
+    let dogma::uri::IriScheme::Other(other) = custom.scheme() else {
+        panic!("unknown schemes parse as `Other`");
+    };
+    let other: dogma::OtherScheme = other;
+    assert_eq!(other.as_str(), "x-custom");
     #[cfg(feature = "std")]
     assert!(matches!(
         dogma::Iri::try_from(std::path::Path::new("relative")),

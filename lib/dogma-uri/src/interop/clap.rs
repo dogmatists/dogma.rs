@@ -232,12 +232,12 @@ mod uri {
                     true,
                 ),
                 (
-                    alloc::vec![UriScheme::Other(String::from("x-custom"))],
+                    alloc::vec!["x-custom".parse().unwrap()],
                     "X-Custom:value",
                     true,
                 ),
                 (
-                    alloc::vec![UriScheme::Other(String::from("x-custom"))],
+                    alloc::vec!["x-custom".parse().unwrap()],
                     "x-other:value",
                     false,
                 ),

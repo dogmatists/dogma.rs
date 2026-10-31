@@ -85,10 +85,10 @@ macro_rules! impl_str_eq {
     };
 }
 
-#[cfg(feature = "iri")]
-pub use known_schemes::IriScheme;
 #[cfg(feature = "uri")]
 pub use known_schemes::UriScheme;
+#[cfg(feature = "iri")]
+pub use known_schemes::{IriScheme, OtherScheme};
 
 #[cfg(feature = "iri")]
 mod iri;
