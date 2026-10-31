@@ -439,6 +439,14 @@ impl core::convert::AsRef<str> for Iri<'_> {
     }
 }
 
+/// Borrows the original IRI string, so `str` keys can look up IRIs in maps and
+/// sets. Equality, ordering, and hashing agree with those of the string.
+impl core::borrow::Borrow<str> for Iri<'_> {
+    fn borrow(&self) -> &str {
+        self.as_str()
+    }
+}
+
 impl Hash for Iri<'_> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.as_str().hash(state)
@@ -1128,6 +1136,20 @@ mod tests {
         assert_eq!(values.get(&owned), Some(&1));
         assert_eq!(values.insert(owned, 2), Some(1));
         assert_eq!(values.len(), 1);
+    }
+
+    #[test]
+    fn collections_look_up_iris_by_str() {
+        let text = "https://example.com/café";
+        for iri in representations(text) {
+            let mut map = HashMap::new();
+            map.insert(iri.clone(), 1);
+            assert_eq!(map.get(text), Some(&1));
+            assert_eq!(map.get("https://example.com/"), None);
+            let set = BTreeSet::from([iri]);
+            assert!(set.contains(text));
+            assert!(!set.contains("https://example.com/CAFÉ"));
+        }
     }
 
     #[test]
