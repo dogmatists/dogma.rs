@@ -34,7 +34,7 @@ iref = { version = "4.3", default-features = false }
 iri-string = { version = "0.7.8", default-features = false, features = ["alloc"] }
 known-schemes = { version = "0.2", default-features = false, features = ["iri-string"] }
 miette = { version = "7.6", default-features = false, features = ["derive"] }
-serde = { version = "1.0.221", default-features = false, features = ["alloc"] }
+serde = { version = "1.0.221", default-features = false }
 serde_test = "1.0.177"
 url = { version = "2.5.8", default-features = false }
 uriparse = { version = "0.6.4", default-features = false }

@@ -51,13 +51,6 @@ Items marked **Breaking** belong in the next minor release, with a
   NUL). Return `InvalidInput` for empty hosts. Document that no IDNA mapping
   is applied; the `url` interop provides it.
 
-- [ ] **FEAT-01: Stop the workspace from forcing `serde/alloc` everywhere.**
-  The workspace `serde` dependency enables `alloc`, so `dogma-uuid` and
-  `dogma-traits` (`countable`) pull in `serde/alloc` even when they are built
-  without allocation. Remove that feature at the workspace level. Enable
-  `serde?/alloc` in the crates that need it (`dogma-uri`, `dogma-path`, and
-  traits `named`/`labeled`). Verify on `thumbv7em-none-eabihf`.
-
 ## Packaging, tooling, and CI
 
 - [ ] **DOC-05: Show all features on docs.rs.**

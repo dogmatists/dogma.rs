@@ -44,7 +44,8 @@
   feature flags are compatibility aliases. The umbrella's `alloc` enables `path`.
 - Preserve `#![deny(unsafe_code)]`. Gate filesystem/network APIs on `std`
   and optional interop on the corresponding features.
-- `all` includes `serde` where supported. `dogma-path` owns `camino`;
+- `all` includes `serde` where supported. The workspace `serde` has no
+  features; crates needing `serde/alloc` enable it. `dogma-path` owns `camino`;
   `dogma-uri` owns `clap`/`miette`. `dogma-path` and `dogma-uri` assume allocation;
   `dogma-traits` has an explicit `alloc` feature. `dogma-uuid` forwards UUID
   interop/version features; its `all` enables `alloc` and `serde`.
