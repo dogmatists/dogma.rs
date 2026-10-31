@@ -8,6 +8,7 @@ use email_address::{EmailAddress, Options};
 /// An error converting a single mailbox to or from a `mailto:` identifier.
 /// Available with `email-address` (which requires `std`).
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub enum MailtoError {
     /// The identifier does not use the `mailto` scheme.
     UnsupportedScheme,

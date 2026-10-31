@@ -12,8 +12,11 @@ use core::fmt;
 pub type UriResult<T> = core::result::Result<T, UriError>;
 
 /// An error constructing a validated URI.
+///
+/// Native path variants require `std`, so matches need a wildcard arm.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
+#[non_exhaustive]
 pub enum UriError {
     /// Invalid syntax, retaining the input only for owned creation errors.
     #[cfg_attr(

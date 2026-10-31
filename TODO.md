@@ -22,13 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Correctness and compatibility
 
-- [ ] **API-01: Make feature-dependent error enums `#[non_exhaustive]`.**
-  **Breaking.** `IriError` and `UriError` (`lib/dogma-uri/src/*_error.rs`)
-  add `std`-only path variants. A downstream exhaustive `match` written
-  without `std` stops compiling when feature unification enables `std`, so
-  the features are not additive. Mark both enums `#[non_exhaustive]`. Apply
-  the same to `MailtoError` (`interop/email_address.rs`) so it can grow.
-
 - [ ] **API-02: Unify Miette diagnostics for identifier errors.**
   **Breaking** for code that matches diagnostic codes. `IriError` mixes
   `dogma::iri::invalid` with `dogma::iri_error::path_*`. Its

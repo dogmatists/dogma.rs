@@ -13,14 +13,16 @@ pub type IriResult<T> = core::result::Result<T, IriError>;
 
 /// An error validating an [`Iri`](crate::Iri) or converting a native path to one.
 ///
-/// Available with `iri`; native path variants require `std`. Path conversion
-/// checks syntax and Unicode representation without accessing the filesystem.
+/// Available with `iri`; native path variants require `std`, so matches need
+/// a wildcard arm. Path conversion checks syntax and Unicode representation
+/// without accessing the filesystem.
 /// With `miette`, this type also supplies diagnostic codes and help text.
 ///
 /// Optional payloads retain rejected input when available. Display includes
 /// that input when present. No variant exposes an underlying error source.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "miette", derive(miette::Diagnostic))]
+#[non_exhaustive]
 pub enum IriError {
     /// The input does not satisfy IRI syntax.
     ///
