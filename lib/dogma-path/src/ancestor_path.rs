@@ -6,8 +6,8 @@ use core::num::NonZeroUsize;
 
 /// A relative path consisting of one or more parent-directory components.
 ///
-/// Stores only a nonzero [`depth`](Self::depth), not the original spelling.
-/// The default depth is one. Conversion from `usize` rejects zero with
+/// Stores only a nonzero [`depth`](Self::depth), not the original spelling,
+/// so it is cheap to copy. The default depth is one. Conversion from `usize` rejects zero with
 /// [`core::num::TryFromIntError`]. Display writes `../` once per level, always
 /// including the trailing slash, on every platform.
 ///
@@ -47,7 +47,7 @@ use core::num::NonZeroUsize;
 ///     Err(FromPathError::NotAncestor),
 /// );
 /// ```
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AncestorPath(NonZeroUsize);
 
 impl Default for AncestorPath {
@@ -186,6 +186,20 @@ impl AncestorPath {
 impl From<NonZeroUsize> for AncestorPath {
     fn from(depth: NonZeroUsize) -> Self {
         AncestorPath(depth)
+    }
+}
+
+/// Extracts the depth.
+impl From<AncestorPath> for NonZeroUsize {
+    fn from(path: AncestorPath) -> Self {
+        path.0
+    }
+}
+
+/// Extracts the depth, which is never zero.
+impl From<AncestorPath> for usize {
+    fn from(path: AncestorPath) -> Self {
+        path.depth()
     }
 }
 
@@ -380,6 +394,17 @@ mod tests {
     }
 
     #[test]
+    fn depths_convert_back_to_integers() {
+        for depth in [1usize, 2, usize::MAX] {
+            let path = AncestorPath::try_from(depth).unwrap();
+            let copy = path;
+            assert_eq!(usize::from(path), depth);
+            assert_eq!(NonZeroUsize::from(copy).get(), depth);
+            assert_eq!(AncestorPath::from(&path), path);
+        }
+    }
+
+    #[test]
     fn display_uses_canonical_components() {
         for (input, expected) in [
             ("..", "../"),
@@ -419,8 +444,8 @@ mod tests {
             let ancestor = AncestorPath::from_str(input).unwrap();
             for path in [
                 ancestor.to_std_path_buf(),
-                ancestor.clone().into_std_path_buf(),
-                std::path::PathBuf::from(ancestor.clone()),
+                ancestor.into_std_path_buf(),
+                std::path::PathBuf::from(ancestor),
             ] {
                 // Path equality ignores trailing separators; compare raw text.
                 assert_eq!(path.as_os_str(), std::ffi::OsStr::new(expected));
@@ -443,7 +468,7 @@ mod tests {
             ("..", Ok(AncestorPath::DEPTH_1)),
             ("../..", Ok(AncestorPath::DEPTH_2)),
             ("./..//./../", Ok(AncestorPath::DEPTH_2)),
-            (r"..\..", windows_parents.clone()),
+            (r"..\..", windows_parents),
             (r"..\../", windows_parents),
             ("", Err(FromPathError::Empty)),
             (".", Err(FromPathError::Empty)),
@@ -488,8 +513,8 @@ mod tests {
             let ancestor = AncestorPath::from_str(input).unwrap();
             for path in [
                 ancestor.to_path_buf(),
-                ancestor.clone().into_path_buf(),
-                camino::Utf8PathBuf::from(ancestor.clone()),
+                ancestor.into_path_buf(),
+                camino::Utf8PathBuf::from(ancestor),
             ] {
                 // Path equality ignores trailing separators; compare raw text.
                 assert_eq!(path.as_str(), expected);
@@ -512,7 +537,7 @@ mod tests {
             ("..", Ok(AncestorPath::DEPTH_1)),
             ("../..", Ok(AncestorPath::DEPTH_2)),
             ("./..//./../", Ok(AncestorPath::DEPTH_2)),
-            (r"..\..", windows_parents.clone()),
+            (r"..\..", windows_parents),
             (r"..\../", windows_parents),
             ("", Err(FromPathError::Empty)),
             (".", Err(FromPathError::Empty)),

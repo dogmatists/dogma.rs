@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dogma-uri`: `Iri` and `Uri` compare with each other by spelling.
 - `dogma-uri`: `Iri::into_string`, `Uri::into_string`, and `From` conversions
   to `String`, which move owned storage without copying.
+- `dogma-path`: `AncestorPath` is `Copy` and converts into `NonZeroUsize` and
+  `usize`.
 
 ## 0.3.1 - 2026-10-12
 ### Added
