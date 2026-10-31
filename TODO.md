@@ -68,11 +68,6 @@ Items marked **Breaking** belong in the next minor release, with a
   The thinnest docs are the `dogma-traits` trait and method docs and the
   Serde impls on trait objects.
 
-- [ ] **DOC-08: Retire `doc/uri-migration.md`.**
-  It records a finished migration, still calls `dogma-uuid` a placeholder,
-  and repeats the `Uri` rustdoc and `CHANGES.md`. Shrink it to a short
-  historical note, or delete it once 0.3 callers have migrated.
-
 ## Verification
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
