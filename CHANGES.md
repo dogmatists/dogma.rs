@@ -33,8 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `UuidError`; add `NIL`/`MAX`, `is_nil`/`is_max`, `from_u128`/`as_u128`
   and `u128` conversions, `version`/`version_num`/`variant` (returning the
   new `UuidVersion` and `UuidVariant` enums), and `LowerHex`/`UpperHex`.
-- `dogma`: Forward UUID generation and interop with the `uuid-v4`, `uuid-v7`,
-  `uuid-js`, and `uuid-interop` features.
+- `dogma`: The `uuid` feature includes conversions to and from `uuid::Uuid`;
+  forward UUID generation with the `uuid-v4`, `uuid-v7`, and `uuid-js`
+  features.
 - `dogma-uri`: `Iri` and `Uri` implement `Borrow<str>`, so maps and sets keyed
   by them can be queried with string slices.
 - `dogma-uri`: `Iri` and `Uri` compare with `str` and `&str` in both

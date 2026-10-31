@@ -6,12 +6,11 @@ Enabled component crates are re-exported as namespaces:
 - `dogma::path` is `dogma-path`: ancestor paths and conversion errors.
 - `dogma::uri` is `dogma-uri`: validated URIs, IRIs, and authority components.
 - `dogma::uuid` is `dogma-uuid`: 128-bit UUID values, lossless byte conversions,
-  formatting, Serde support, and opt-in interoperability with `uuid::Uuid`.
+  formatting, Serde support, and conversions with `uuid::Uuid`.
 
 Top-level type exports, such as `dogma::Named`, `dogma::Iri`, and `dogma::Uuid`,
 are also available. Component crates can be used directly without depending on
-the umbrella. UUID generation and conversions to the upstream `uuid::Uuid` type
-are enabled through `dogma-uuid` features.
+the umbrella; depend on `dogma-uuid` directly for finer UUID feature control.
 
 ## Features
 
@@ -32,12 +31,11 @@ are selected separately from `all`:
   `email-address` uses `email_address::EmailAddress` for single-mailbox `mailto:`
   conversions.
 
-UUID features use a `uuid-` prefix and enable `uuid`:
-
-- `uuid-v4` adds `Uuid::new_v4()`; `uuid-v7` adds `Uuid::now_v7()` and enables
-  `std`. On `wasm32-unknown-unknown`, also enable `uuid-js`.
-- `uuid-interop` adds conversions to and from `uuid::Uuid`. Other upstream UUID
-  features are available through `dogma-uuid`.
+`uuid` includes conversions to and from `uuid::Uuid`, which costs no extra
+dependency. UUID generation features use a `uuid-` prefix and enable `uuid`:
+`uuid-v4` adds `Uuid::new_v4()`, and `uuid-v7` adds `Uuid::now_v7()` and enables
+`std`. On `wasm32-unknown-unknown`, also enable `uuid-js`. Other upstream UUID
+features are available through `dogma-uuid`.
 
 `camino`, `clap`, `miette`, `email-address`, `uriparse`, and `iref` enable `std`.
 `url`, `iri-string`, and `fluent-uri` work with `no_std` and allocation. See the

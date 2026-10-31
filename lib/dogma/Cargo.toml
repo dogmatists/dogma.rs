@@ -45,8 +45,7 @@ named = ["alloc", "dep:dogma-traits", "dogma-traits/named"]
 
 # Other component crates:
 path = ["dep:dogma-path"]
-uuid = ["dep:dogma-uuid"]
-uuid-interop = ["uuid", "dogma-uuid/uuid"]
+uuid = ["dep:dogma-uuid", "dogma-uuid/uuid"]
 uuid-js = ["uuid", "dogma-uuid/js"]
 uuid-v4 = ["uuid", "dogma-uuid/v4"]
 uuid-v7 = ["std", "uuid", "dogma-uuid/v7"]

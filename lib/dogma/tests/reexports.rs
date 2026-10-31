@@ -125,7 +125,7 @@ fn uuid_v7_generation_is_forwarded() {
     assert_eq!(id.version(), Some(dogma::UuidVersion::UnixTimeBased));
 }
 
-#[cfg(feature = "uuid-interop")]
+#[cfg(feature = "uuid")]
 #[test]
 fn uuid_interop_is_forwarded() {
     let id = dogma::Uuid::from_bytes([0xab; 16]);
