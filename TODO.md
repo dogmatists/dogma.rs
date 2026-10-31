@@ -3,6 +3,9 @@
 Recheck the code before starting an item.
 Paths below are relative to the repository root. Implementations live in
 `lib/dogma-{traits,path,uri,uuid}/src/`; `lib/dogma` is the umbrella.
+Sections are ordered by priority, and so are the items within each section.
+Items marked **Breaking** belong in the next minor release, with a
+`CHANGES.md` entry.
 
 ## Working method
 
@@ -17,7 +20,86 @@ Paths below are relative to the repository root. Implementations live in
 - Preserve `no_std`, `deny(unsafe_code)`, and feature gates. Prefer module/type
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
-## Features, compatibility, and release tooling
+## Correctness and compatibility
+
+- [ ] **API-01: Make feature-dependent error enums `#[non_exhaustive]`.**
+  **Breaking.** `IriError` and `UriError` (`lib/dogma-uri/src/*_error.rs`)
+  add `std`-only path variants. A downstream exhaustive `match` written
+  without `std` stops compiling when feature unification enables `std`, so
+  the features are not additive. Mark both enums `#[non_exhaustive]`. Apply
+  the same to `MailtoError` (`interop/email_address.rs`) so it can grow.
+
+- [ ] **PKG-01: Raise dependency floors to versions that resolve.**
+  `cargo +nightly update -Z direct-minimal-versions` fails: `serde = "1"`
+  conflicts with `iri-string` and with `uuid` 1.27, which needs `serde_core`
+  >= 1.0.221. With the root `Cargo.toml` floors raised to `serde` 1.0.221,
+  `iri-string` 0.7.8 (the audited baseline), and `serde_test` 1.0.177 (older
+  versions reject `dyn` values in `assert_ser_tokens`), these pass:
+  `cargo +nightly test --workspace --all-features`. Then add a CI job that
+  runs the minimal-versions check and tests.
+
+- [ ] **API-02: Unify Miette diagnostics for identifier errors.**
+  **Breaking** for code that matches diagnostic codes. `IriError` mixes
+  `dogma::iri::invalid` with `dogma::iri_error::path_*`. Its
+  `PathPrefixUnsupported` has no diagnostic, unlike the `UriError` variant.
+  `IriToPathError` derives `Diagnostic` with no codes or help text. Pick one
+  scheme (e.g. `dogma::iri::path_is_relative`) and apply it to all variants.
+  Test the code and help text of every variant under `miette`.
+
+- [ ] **API-03: Add context to Clap value-parser errors.**
+  `lib/dogma-uri/src/interop/clap.rs` returns bare
+  `ErrorKind::ValueValidation` errors, which lose the argument, the rejected
+  value, and the reason (bad syntax versus a disallowed scheme). Add Clap
+  `ContextKind::InvalidArg` and `ContextKind::InvalidValue`, and list the
+  allowed schemes when filtering. Test the rendered messages.
+
+- [ ] **API-04: Percent-decode registered names before socket resolution.**
+  `IriAuthority`'s `ToSocketAddrs` (`iri_authority.rs`) gives the resolver
+  `host_str()` as written, so `http://%6Cocalhost/` fails to resolve and empty
+  hosts reach the resolver. Decode reg-names once (reject invalid UTF-8 or
+  NUL). Return `InvalidInput` for empty hosts. Document that no IDNA mapping
+  is applied; the `url` interop provides it.
+
+- [ ] **FEAT-01: Stop the workspace from forcing `serde/alloc` everywhere.**
+  The workspace `serde` dependency enables `alloc`, so `dogma-uuid` and
+  `dogma-traits` (`countable`) pull in `serde/alloc` even when they are built
+  without allocation. Remove that feature at the workspace level. Enable
+  `serde?/alloc` in the crates that need it (`dogma-uri`, `dogma-path`, and
+  traits `named`/`labeled`). Verify on `thumbv7em-none-eabihf`.
+
+## Packaging, tooling, and CI
+
+- [ ] **DOC-05: Show all features on docs.rs.**
+  No crate has `[package.metadata.docs.rs]`, so docs.rs builds only the
+  default features. That hides the `url`, `iref`, `clap`, `miette`,
+  `camino`, `email-address`, `v4`, and `v7` APIs. Set `all-features = true`
+  and `rustdoc-args = ["--cfg", "docsrs"]`, and add
+  `#![cfg_attr(docsrs, feature(doc_cfg))]` so gated items show their
+  features. Verify with `RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc`.
+
+- [ ] **CI-01: Close the gaps in CI feature coverage.**
+  `.github/workflows/ci.yaml` has per-feature loops that skip `email-address`,
+  `fluent-uri`, `iref`, `iri-string`, `url`, and `uriparse` (in both the
+  umbrella and `dogma-uri`), and every `dogma-uuid` feature except `std`.
+  The `thumbv7em` job never checks `url`, `iri-string`, `fluent-uri`, or
+  `serde` alone, even though the docs promise `no_std` support for them;
+  they pass locally. There is no `wasm32-unknown-unknown` check of
+  `dogma-uuid --features v4,js`. Consider `cargo hack --each-feature`.
+
+- [ ] **CI-02: Centralize lints in `[workspace.lints]`.**
+  Set `missing_docs`, `rust_2018_idioms`, and `unsafe_code = "deny"` in
+  `[workspace.lints]`, and add `[lints] workspace = true` to every crate.
+  Fix what this surfaces: the undocumented `Uri::Borrowed`/`Uri::Owned`,
+  `IriValueParser`, and `IriValueParser::new`, and an elided lifetime in
+  `fmt::Formatter` at `iri_error.rs:82`. Clippy `must_use_candidate` (65
+  hits) can be a separate pass.
+
+- [ ] **PKG-02: Give each crate its own crates.io metadata.**
+  `keywords = []` in every crate. `readme = true` makes every component
+  crate ship the umbrella README (`cargo add dogma`). `UNLICENSE` is not
+  packaged. The umbrella ships `examples/.gitkeep`, and `tests/.gitkeep` is
+  now redundant. Add keywords per crate, short per-crate READMEs, and the
+  license file.
 
 - [ ] **REL-01: Make version bumping target explicit fields.**
   `Rakefile` globally replaces the old version in all matching tracked files,
@@ -27,7 +109,86 @@ Paths below are relative to the repository root. Implementations live in
   through normal commands. Verify the bump behavior on fixtures before using it
   for a release.
 
-## Documentation and verification
+- [ ] **CI-03: Add API regression and maintenance tooling.**
+  Run `cargo-semver-checks` for each crate against its last release. Update
+  the pinned action versions, and add a dependency cache. The `Makefile`
+  `check` target runs only `cargo test`: align it with the checks in
+  `AGENTS.md` or remove it.
+
+- [ ] **PKG-03: Decide what the umbrella's `unstable` feature is for.**
+  `lib/dogma/Cargo.toml` defines `unstable = []`, but no code uses it. Either
+  document it as reserved or remove it in the next breaking release.
+
+- [ ] **MNT-01: Consider moving to Rust edition 2024.**
+  The crates use edition 2021 while `.rustfmt.toml` uses `edition = "2024"`,
+  and the MSRV (1.97) supports 2024. Run `cargo fix --edition` one crate at a
+  time, then update the "Rust 2021 crates" wording in `AGENTS.md`.
+
+## API features and ergonomics
+
+- [ ] **UUID-01: Complete the core `Uuid` API.**
+  Text can only become a `Uuid` through Serde: there is no `FromStr`.
+  Also missing are `NIL`/`MAX`, `is_nil`, version and variant accessors,
+  `from_u128`/`as_u128`, `TryFrom<&[u8]>`, and `LowerHex`/`UpperHex`.
+  Delegate each to `uuid::Uuid`. Start with `FromStr` and its error type.
+
+- [ ] **UUID-02: Forward UUID generation features through `dogma`.**
+  The umbrella cannot enable `dogma-uuid/v4`, `v7`, or `js`, so calling
+  `Uuid::new_v4()` needs a second dependency. Add prefixed features (e.g.
+  `uuid-v4`, `uuid-v7`, `uuid-js`) with re-export tests. Consider forwarding
+  `rng-getrandom` and `rng-rand` from upstream as well.
+
+- [ ] **IDN-01: Add string ergonomics to `Iri` and `Uri`.**
+  Equality, ordering, and hashing already match `str`, so implement
+  `Borrow<str>` (allows `HashMap<Iri, _>::get("...")`). Also add
+  `PartialEq<str>`/`PartialEq<&str>`, cross-type `PartialEq` between `Iri`
+  and `Uri`, and `into_string()` with `From<_> for String`. Add one trait
+  family per commit.
+
+- [ ] **IDN-02: Re-export the upstream types used in public signatures.**
+  The `Iri`/`Uri` variants and `From` impls expose `iri_string::types::*`.
+  `dogma-uuid` converts to and from `uuid::Uuid`. Callers must therefore add
+  matching direct dependencies. Re-export these crates or types, and note in
+  rustdoc that bumping them is a breaking change.
+
+- [ ] **IDN-03: Share the scheme lookup and URI accessors.**
+  `Iri::scheme()` and `Uri::scheme()` duplicate a linear scan of
+  `IriScheme::ALL`, and both allocate for unknown schemes. The scan works
+  around a parsing gap in `known-schemes` 0.2.0/0.2.1. `try_to_path` and
+  `authority()` call it on every use. Share one helper and compare
+  `scheme_str()` directly for `file`. Report the gap upstream, and drop the
+  workaround once a fixed version becomes the floor. Most `Uri` accessors
+  duplicate `Iri` ones; consider having them delegate.
+
+- [ ] **API-05: Serialize `Send`/`Sync` trait objects.**
+  `dogma-traits` implements `Serialize` only for `dyn Trait + '_`, so
+  `&(dyn Named + Send + Sync)` cannot serialize. Use a small macro to add
+  impls for `+ Send`, `+ Sync`, and `+ Send + Sync`.
+
+- [ ] **API-06: Resolve the overlap between `Countable` and `Collection`.**
+  `countable.rs` has `FIXME: change to len()?`. A type implementing both
+  traits has an ambiguous `is_empty`/`is_nonempty`, the same problem the
+  `maybe_` prefixes solved. Decide whether to rename, deprecate, or document
+  the split, record the decision in rustdoc, and remove the FIXME.
+
+- [ ] **PATH-01: Make `AncestorPath` `Copy`.**
+  It wraps a `NonZeroUsize`. Also add `From<AncestorPath>` for
+  `NonZeroUsize` and `usize`. Keep the blanket `From<&T>` impl for
+  compatibility.
+
+- [ ] **API-07: Replace the `()` error of the authority `TryFrom` impls.**
+  **Breaking.** `TryFrom<&Iri>` for `IriAuthority` and `TryFrom<&Uri>` for
+  `UriAuthority` fail with `()`, which does not implement `Error` and does
+  not work well with `?`. Use a named zero-sized error, or point callers to
+  `authority()`.
+
+## Documentation
+
+- [ ] **DOC-06: Fix the README example and compile it.**
+  "Naming an Entity" uses `Cow` without importing it, and no build compiles
+  it. Add the import. Run README code blocks as doctests (e.g.
+  `#[cfg(doctest)]` with `include_str!`), and make sure the path also
+  resolves in the extracted packages used by CI's `check-package` job.
 
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
@@ -35,6 +196,20 @@ Paths below are relative to the repository root. Implementations live in
   errors. Extend rustdoc in `lib/dogma-uri/src/`,
   `lib/dogma-path/src/`, and `lib/dogma-traits/src/` in small patches. Keep
   examples usable directly from each component crate and through the umbrella.
+  The thinnest docs are the `dogma-traits` trait and method docs and the
+  Serde impls on trait objects.
+
+- [ ] **DOC-07: Repair the links in `CHANGES.md`.**
+  Reference links point to the removed `dogma/enums/...` pages. `IriAuthority`
+  and `IriError` (0.1.5) have no link definitions. Link historical entries
+  to versioned docs.rs pages, and add an `Unreleased` section.
+
+- [ ] **DOC-08: Retire `doc/uri-migration.md`.**
+  It records a finished migration, still calls `dogma-uuid` a placeholder,
+  and repeats the `Uri` rustdoc and `CHANGES.md`. Shrink it to a short
+  historical note, or delete it once 0.3 callers have migrated.
+
+## Verification
 
 - [ ] **QA-01: Expand behavior coverage as APIs are improved.**
   Add focused tests for file conversions, Serde, and CLI parsing.
@@ -42,7 +217,18 @@ Paths below are relative to the repository root. Implementations live in
   Useful property tests include identifier/path encoding round trips.
   Put behavior tests in the owning crate; keep umbrella tests focused on
   re-exports and feature forwarding. Test real examples when adding them;
-  `lib/dogma/examples/` currently contains only `.gitkeep`.
+  `lib/dogma/examples/` currently contains only `.gitkeep`. Specific gaps:
+  - `IriValueParser` has no tests. Also turn its `include!` in `iri.rs`
+    into a `#[path]` module, like the other interop files.
+  - In `lib/dogma-path/src/ancestor_path.rs`, raw strings such as
+    `r"..\\.."` and `r"\\\\server\\share"` contain doubled backslashes, so
+    they test repeated separators rather than the intended input.
+    `from_str_errors` also repeats the `../file` case.
+  - `Collection` impls for arrays, slices, and `VecDeque`/`LinkedList` are
+    only covered indirectly.
+  - The umbrella re-exports components with glob imports, so a future name
+    clash between components would go unnoticed. Add a test that names every
+    top-level export.
 
 ## Validation for implementation work
 
@@ -75,4 +261,12 @@ tasks, use:
 ```sh
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps
+```
+
+For dependency-floor changes (PKG-01), also run:
+
+```sh
+cargo +nightly update -Z direct-minimal-versions
+cargo +nightly test --workspace --all-features
+git checkout Cargo.lock
 ```
