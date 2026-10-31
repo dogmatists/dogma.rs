@@ -171,6 +171,7 @@ dependencies = [
  "dogma-uuid",
  "miette",
  "serde_test",
+ "uuid",
 ]
 
 [[package]]

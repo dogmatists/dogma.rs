@@ -32,6 +32,13 @@ are selected separately from `all`:
   `email-address` uses `email_address::EmailAddress` for single-mailbox `mailto:`
   conversions.
 
+UUID features use a `uuid-` prefix and enable `uuid`:
+
+- `uuid-v4` adds `Uuid::new_v4()`; `uuid-v7` adds `Uuid::now_v7()` and enables
+  `std`. On `wasm32-unknown-unknown`, also enable `uuid-js`.
+- `uuid-interop` adds conversions to and from `uuid::Uuid`. Other upstream UUID
+  features are available through `dogma-uuid`.
+
 `camino`, `clap`, `miette`, `email-address`, `uriparse`, and `iref` enable `std`.
 `url`, `iri-string`, and `fluent-uri` work with `no_std` and allocation. See the
 `dogma-uri` crate docs for conversion, normalization, and ownership rules.

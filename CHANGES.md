@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `UuidError`; add `NIL`/`MAX`, `is_nil`/`is_max`, `from_u128`/`as_u128`
   and `u128` conversions, `version`/`version_num`/`variant` (returning the
   new `UuidVersion` and `UuidVariant` enums), and `LowerHex`/`UpperHex`.
+- `dogma`: Forward UUID generation and interop with the `uuid-v4`, `uuid-v7`,
+  `uuid-js`, and `uuid-interop` features.
 
 ## 0.3.1 - 2026-10-12
 ### Added

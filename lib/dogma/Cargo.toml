@@ -46,6 +46,10 @@ named = ["alloc", "dep:dogma-traits", "dogma-traits/named"]
 # Other component crates:
 path = ["dep:dogma-path"]
 uuid = ["dep:dogma-uuid"]
+uuid-interop = ["uuid", "dogma-uuid/uuid"]
+uuid-js = ["uuid", "dogma-uuid/js"]
+uuid-v4 = ["uuid", "dogma-uuid/v4"]
+uuid-v7 = ["std", "uuid", "dogma-uuid/v7"]
 
 # Interop:
 camino = ["std", "dogma-path/camino"]
@@ -69,3 +73,4 @@ dogma-uuid = { workspace = true, optional = true }
 serde_test.workspace = true
 clap.workspace = true
 miette.workspace = true
+uuid.workspace = true

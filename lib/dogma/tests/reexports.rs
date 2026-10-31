@@ -109,3 +109,27 @@ fn uuid_reexports_preserve_type_identity() {
         );
     }
 }
+
+#[cfg(feature = "uuid-v4")]
+#[test]
+fn uuid_v4_generation_is_forwarded() {
+    let id = dogma::Uuid::new_v4();
+    assert_eq!(id.version(), Some(dogma::UuidVersion::Random));
+    assert_ne!(id, dogma::Uuid::new_v4());
+}
+
+#[cfg(feature = "uuid-v7")]
+#[test]
+fn uuid_v7_generation_is_forwarded() {
+    let id = dogma::Uuid::now_v7();
+    assert_eq!(id.version(), Some(dogma::UuidVersion::UnixTimeBased));
+}
+
+#[cfg(feature = "uuid-interop")]
+#[test]
+fn uuid_interop_is_forwarded() {
+    let id = dogma::Uuid::from_bytes([0xab; 16]);
+    let upstream: uuid::Uuid = id.into();
+    assert_eq!(upstream.as_bytes(), &[0xab; 16]);
+    assert_eq!(dogma::Uuid::from(upstream), id);
+}

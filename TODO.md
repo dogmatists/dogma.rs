@@ -49,12 +49,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## API features and ergonomics
 
-- [ ] **UUID-02: Forward UUID generation features through `dogma`.**
-  The umbrella cannot enable `dogma-uuid/v4`, `v7`, or `js`, so calling
-  `Uuid::new_v4()` needs a second dependency. Add prefixed features (e.g.
-  `uuid-v4`, `uuid-v7`, `uuid-js`) with re-export tests. Consider forwarding
-  `rng-getrandom` and `rng-rand` from upstream as well.
-
 - [ ] **IDN-01: Add string ergonomics to `Iri` and `Uri`.**
   Equality, ordering, and hashing already match `str`, so implement
   `Borrow<str>` (allows `HashMap<Iri, _>::get("...")`). Also add
