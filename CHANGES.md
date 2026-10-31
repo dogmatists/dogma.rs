@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by them can be queried with string slices.
 - `dogma-uri`: `Iri` and `Uri` compare with `str` and `&str` in both
   directions, by original spelling.
+- `dogma-uri`: `Iri` and `Uri` compare with each other by spelling.
 
 ## 0.3.1 - 2026-10-12
 ### Added

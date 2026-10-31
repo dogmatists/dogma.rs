@@ -313,6 +313,22 @@ impl Eq for Uri<'_> {}
 
 impl_str_eq!(Uri);
 
+/// Compares spellings, so a URI equals the IRI with the same text. An IRI
+/// with Unicode never equals a URI; compare [`Iri::to_uri`] to match encoded
+/// forms.
+impl PartialEq<Iri<'_>> for Uri<'_> {
+    fn eq(&self, other: &Iri<'_>) -> bool {
+        self.as_str() == other.as_str()
+    }
+}
+
+/// Compares spellings, so an IRI equals the URI with the same text.
+impl PartialEq<Uri<'_>> for Iri<'_> {
+    fn eq(&self, other: &Uri<'_>) -> bool {
+        self.as_str() == other.as_str()
+    }
+}
+
 impl PartialOrd for Uri<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -841,6 +857,20 @@ mod tests {
             assert!(uri == text && text == uri);
             assert!(uri != "https://example.com/caf%c3%a9");
             assert!("https://EXAMPLE.com/caf%C3%A9" != uri);
+        }
+    }
+
+    #[test]
+    fn uris_and_iris_compare_by_spelling() {
+        let text = "https://example.com/caf%C3%A9";
+        for uri in representations(text) {
+            let iri = Iri::try_from(text).unwrap();
+            assert!(uri == iri && iri == uri);
+            let borrowed = Iri::from(&uri);
+            assert!(uri == borrowed && borrowed == uri);
+            let unicode = Iri::try_from("https://example.com/café").unwrap();
+            assert!(uri != unicode && unicode != uri);
+            assert!(uri == unicode.to_uri());
         }
     }
 
