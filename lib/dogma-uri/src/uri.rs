@@ -182,6 +182,16 @@ impl Uri<'_> {
         }
     }
 
+    /// Converts this URI into its original spelling as a string.
+    ///
+    /// Borrowed strings are copied; owned strings are moved without allocating.
+    pub fn into_string(self) -> String {
+        match self {
+            Self::Borrowed(uri) => uri.as_str().into(),
+            Self::Owned(uri) => uri.into(),
+        }
+    }
+
     /// Clones this URI, preserving its spelling and ownership form.
     ///
     /// Borrowed strings remain borrowed; owned strings are copied.
@@ -280,6 +290,13 @@ impl Uri<'_> {
     /// Returns the encoded fragment without `#`, distinguishing empty/absent.
     pub fn fragment_str(&self) -> Option<&str> {
         self.as_uri_str().fragment_str()
+    }
+}
+
+/// Converts to the original spelling; see [`Uri::into_string`].
+impl From<Uri<'_>> for String {
+    fn from(uri: Uri<'_>) -> Self {
+        uri.into_string()
     }
 }
 
@@ -872,6 +889,19 @@ mod tests {
             assert!(uri != unicode && unicode != uri);
             assert!(uri == unicode.to_uri());
         }
+    }
+
+    #[test]
+    fn into_string_moves_owned_storage() {
+        let text = "https://example.com/caf%C3%A9";
+        for uri in representations(text) {
+            assert_eq!(uri.clone().into_string(), text);
+            assert_eq!(String::from(uri), text);
+        }
+        let owned = Uri::try_from(String::from(text)).unwrap();
+        let pointer = owned.as_str().as_ptr();
+        let string = owned.into_string();
+        assert_eq!(string.as_ptr(), pointer);
     }
 
     #[test]

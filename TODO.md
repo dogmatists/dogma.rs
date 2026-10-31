@@ -49,13 +49,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## API features and ergonomics
 
-- [ ] **IDN-01: Add string ergonomics to `Iri` and `Uri`.**
-  Equality, ordering, and hashing already match `str`, so implement
-  `Borrow<str>` (allows `HashMap<Iri, _>::get("...")`). Also add
-  `PartialEq<str>`/`PartialEq<&str>`, cross-type `PartialEq` between `Iri`
-  and `Uri`, and `into_string()` with `From<_> for String`. Add one trait
-  family per commit.
-
 - [ ] **IDN-02: Re-export the upstream types used in public signatures.**
   The `Iri`/`Uri` variants and `From` impls expose `iri_string::types::*`.
   `dogma-uuid` converts to and from `uuid::Uuid`. Callers must therefore add

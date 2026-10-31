@@ -181,6 +181,16 @@ impl Iri<'_> {
         }
     }
 
+    /// Converts this IRI into its original spelling as a string.
+    ///
+    /// Borrowed strings are copied; owned strings are moved without allocating.
+    pub fn into_string(self) -> String {
+        match self {
+            Iri::Borrowed(iri) => iri.as_str().into(),
+            Iri::Owned(iri) => iri.into(),
+        }
+    }
+
     /// Returns the scheme, matching names case-insensitively.
     ///
     /// Unrecognized schemes have lowercase names. Use [`Self::scheme_str`] for
@@ -430,6 +440,13 @@ fn decode_file_path_data(text: &str) -> Result<String, IriToPathError> {
         decoded.push(byte);
     }
     String::from_utf8(decoded).map_err(|_| IriToPathError::InvalidEncoding)
+}
+
+/// Converts to the original spelling; see [`Iri::into_string`].
+impl From<Iri<'_>> for String {
+    fn from(iri: Iri<'_>) -> Self {
+        iri.into_string()
+    }
 }
 
 /// Borrows the original IRI string without allocating or normalizing it.
@@ -1149,6 +1166,19 @@ mod tests {
             assert!(iri != "https://example.com/caf%C3%A9");
             assert!("HTTPS://example.com/café" != iri);
         }
+    }
+
+    #[test]
+    fn into_string_moves_owned_storage() {
+        let text = "https://example.com/café";
+        for iri in representations(text) {
+            assert_eq!(iri.clone().into_string(), text);
+            assert_eq!(String::from(iri), text);
+        }
+        let owned = Iri::try_from(String::from(text)).unwrap();
+        let pointer = owned.as_str().as_ptr();
+        let string = owned.into_string();
+        assert_eq!(string.as_ptr(), pointer);
     }
 
     #[test]
