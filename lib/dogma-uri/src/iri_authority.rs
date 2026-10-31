@@ -144,10 +144,14 @@ impl<'a> IriAuthority<'a> {
 
 /// Resolves the host, using the scheme's default for an absent or empty port.
 ///
-/// Bracketed IPv6 literals are parsed directly.
+/// Bracketed IPv6 literals are parsed directly. Other hosts are percent-decoded
+/// once and passed to the system resolver; no IDNA mapping is applied, so
+/// Unicode hosts are resolved as written. Convert to `url::Url` with the `url`
+/// feature for IDNA processing.
 ///
-/// Returns [`InvalidInput`](std::io::ErrorKind::InvalidInput) if a nonempty port
-/// is outside `0..=65535`, if a default is needed but unavailable, or if a
+/// Returns [`InvalidInput`](std::io::ErrorKind::InvalidInput) if the host is
+/// empty or decodes to invalid UTF-8 or a NUL byte, if a nonempty port is
+/// outside `0..=65535`, if a default is needed but unavailable, or if a
 /// bracketed IP literal is unsupported.
 #[cfg(feature = "std")]
 impl std::net::ToSocketAddrs for IriAuthority<'_> {
@@ -158,6 +162,9 @@ impl std::net::ToSocketAddrs for IriAuthority<'_> {
         use std::io::{Error, ErrorKind::InvalidInput};
 
         let host = self.host_str();
+        if host.is_empty() {
+            return Err(Error::new(InvalidInput, "empty host"));
+        }
         let port = match self.port_str() {
             None | Some("") => self
                 .scheme
@@ -178,8 +185,42 @@ impl std::net::ToSocketAddrs for IriAuthority<'_> {
             return Ok(alloc::vec![SocketAddr::from((address, port))].into_iter());
         }
 
-        (host, port).to_socket_addrs()
+        (decode_reg_name(host)?.as_ref(), port).to_socket_addrs()
     }
+}
+
+/// Percent-decodes a registered name once, borrowing it when unescaped.
+#[cfg(feature = "std")]
+fn decode_reg_name(host: &str) -> std::io::Result<alloc::borrow::Cow<'_, str>> {
+    use alloc::{borrow::Cow, string::String, vec::Vec};
+    use std::io::{Error, ErrorKind::InvalidInput};
+
+    if !host.contains('%') {
+        return Ok(Cow::Borrowed(host));
+    }
+    let invalid = || Error::new(InvalidInput, "invalid percent-encoded host");
+    let mut decoded = Vec::with_capacity(host.len());
+    let mut bytes = host.bytes();
+    while let Some(mut byte) = bytes.next() {
+        if byte == b'%' {
+            let mut digit = || {
+                bytes
+                    .next()
+                    .and_then(|digit| char::from(digit).to_digit(16))
+                    .ok_or_else(invalid)
+            };
+            let high = digit()?;
+            let low = digit()?;
+            byte = ((high << 4) | low) as u8;
+            if byte == 0 {
+                return Err(invalid());
+            }
+        }
+        decoded.push(byte);
+    }
+    String::from_utf8(decoded)
+        .map(Cow::Owned)
+        .map_err(|_| invalid())
 }
 
 #[cfg(all(test, feature = "std"))]
@@ -270,6 +311,41 @@ mod tests {
         assert_eq!(addresses.next(), Some(SocketAddr::from((address, 8080))));
         assert_eq!(addresses.next(), None);
         assert_eq!(authority.host_str(), "[2001:DB8:0:0:0:0:0:1]");
+    }
+
+    #[test]
+    fn socket_addrs_decode_registered_names_once() {
+        for text in ["http://%6Cocalhost/", "http://LOCAL%68ost:80/"] {
+            let iri = Iri::try_from(text).unwrap();
+            let authority = iri.authority().unwrap();
+            let addresses = authority.to_socket_addrs().unwrap();
+            assert!(addresses.into_iter().all(|address| address.port() == 80));
+            assert!(authority.host_str().contains('%'), "{text}");
+        }
+        // `%25` decodes to a literal `%`, not a second escape.
+        assert_eq!(
+            super::decode_reg_name("%256Cocalhost").unwrap(),
+            "%6Cocalhost"
+        );
+        assert!(matches!(
+            super::decode_reg_name("localhost").unwrap(),
+            alloc::borrow::Cow::Borrowed("localhost")
+        ));
+    }
+
+    #[test]
+    fn socket_addrs_reject_empty_and_undecodable_hosts() {
+        for text in [
+            "http:///",
+            "http://:80/",
+            "http://user@/",
+            "http://local%00host/",
+            "http://local%FFhost/",
+        ] {
+            let iri = Iri::try_from(text).unwrap();
+            let error = iri.authority().unwrap().to_socket_addrs().unwrap_err();
+            assert_eq!(error.kind(), ErrorKind::InvalidInput, "{text}");
+        }
     }
 
     #[test]

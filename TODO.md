@@ -20,15 +20,6 @@ Items marked **Breaking** belong in the next minor release, with a
 - Preserve `no_std`, `deny(unsafe_code)`, and feature gates. Prefer module/type
   rustdoc over expanding the README. The target MSRV is Rust 1.97.
 
-## Correctness and compatibility
-
-- [ ] **API-04: Percent-decode registered names before socket resolution.**
-  `IriAuthority`'s `ToSocketAddrs` (`iri_authority.rs`) gives the resolver
-  `host_str()` as written, so `http://%6Cocalhost/` fails to resolve and empty
-  hosts reach the resolver. Decode reg-names once (reject invalid UTF-8 or
-  NUL). Return `InvalidInput` for empty hosts. Document that no IDNA mapping
-  is applied; the `url` interop provides it.
-
 ## Packaging, tooling, and CI
 
 - [ ] **DOC-05: Show all features on docs.rs.**

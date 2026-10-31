@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IriValueParser` and `UriValueParser` errors now name the argument and the
   rejected value, and explain the rejection, listing allowed schemes when
   filtering. The `clap` feature now enables Clap's `error-context`.
+- `IriAuthority` and `UriAuthority` socket resolution now percent-decodes
+  registered names once and rejects empty or undecodable hosts with
+  `InvalidInput`.
 
 ## 0.3.1 - 2026-10-12
 ### Added

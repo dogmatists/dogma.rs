@@ -59,7 +59,8 @@ impl UriAuthority<'_> {
     }
 }
 
-/// Resolves the host with the same port and IP-literal rules as IRI authority.
+/// Resolves the host with the same port, IP-literal, and decoding rules as
+/// [`IriAuthority`].
 #[cfg(feature = "std")]
 impl std::net::ToSocketAddrs for UriAuthority<'_> {
     type Iter = <IriAuthority<'static> as std::net::ToSocketAddrs>::Iter;
