@@ -16,6 +16,10 @@
 //! let id = Uuid::from_bytes(bytes);
 //! assert_eq!(id.as_bytes(), &bytes);
 //! assert_eq!(<[u8; 16]>::from(id), bytes);
+//!
+//! let parsed: Uuid = "67e55044-10b1-426f-9247-bb680e5fe0c8".parse().unwrap();
+//! assert_eq!(parsed, id);
+//! assert_eq!(parsed.version_num(), 4);
 //! ```
 //!
 //! # Features
@@ -48,5 +52,8 @@
 extern crate alloc;
 
 mod uuid;
+mod uuid_error;
 
+pub use ::uuid::{Variant as UuidVariant, Version as UuidVersion};
 pub use uuid::Uuid;
+pub use uuid_error::UuidError;

@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dogma-traits`: Serialize `Send`, `Sync`, and `Send + Sync` trait objects
   of every trait that already serializes as `dyn Trait`.
 - docs.rs builds every crate with all features and labels feature-gated items.
+- `dogma-uuid`: Parse `Uuid` with `FromStr` and `TryFrom<&[u8]>`, failing
+  with `UuidError`; add `NIL`/`MAX`, `is_nil`/`is_max`, `from_u128`/`as_u128`
+  and `u128` conversions, `version`/`version_num`/`variant` (with the
+  `UuidVersion` and `UuidVariant` re-exports), and `LowerHex`/`UpperHex`.
 
 ## 0.3.1 - 2026-10-12
 ### Added

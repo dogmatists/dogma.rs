@@ -88,6 +88,10 @@ fn uuid_reexports_preserve_type_identity() {
     let id: dogma::uuid::Uuid = dogma::Uuid::from_bytes([0; 16]);
     let _: &dogma_uuid::Uuid = &id;
     assert_eq!(id.into_bytes(), [0; 16]);
+    let error: dogma::UuidError = "nil".parse::<dogma::Uuid>().unwrap_err();
+    let _: dogma::uuid::UuidError = error;
+    let _: Option<dogma::UuidVersion> = id.version();
+    let _: dogma::uuid::UuidVariant = id.variant();
     #[cfg(feature = "alloc")]
     {
         extern crate alloc;

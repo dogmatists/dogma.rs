@@ -49,12 +49,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## API features and ergonomics
 
-- [ ] **UUID-01: Complete the core `Uuid` API.**
-  Text can only become a `Uuid` through Serde: there is no `FromStr`.
-  Also missing are `NIL`/`MAX`, `is_nil`, version and variant accessors,
-  `from_u128`/`as_u128`, `TryFrom<&[u8]>`, and `LowerHex`/`UpperHex`.
-  Delegate each to `uuid::Uuid`. Start with `FromStr` and its error type.
-
 - [ ] **UUID-02: Forward UUID generation features through `dogma`.**
   The umbrella cannot enable `dogma-uuid/v4`, `v7`, or `js`, so calling
   `Uuid::new_v4()` needs a second dependency. Add prefixed features (e.g.

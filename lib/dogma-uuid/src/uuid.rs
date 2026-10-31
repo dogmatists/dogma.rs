@@ -1,6 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
-use core::fmt;
+use crate::{UuidError, UuidVariant, UuidVersion};
+use core::{fmt, str::FromStr};
 
 /// A 128-bit universally unique identifier.
 ///
@@ -13,7 +14,10 @@ use core::fmt;
 /// of hexadecimal pairs in the canonical `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 /// representation. They do not use the mixed-endian layout of some GUID APIs.
 /// Equality, ordering, and hashing use the identifier's value; ordering is
-/// lexicographic over those bytes. Display produces lowercase, hyphenated text.
+/// lexicographic over those bytes. Display and [`fmt::LowerHex`] produce
+/// lowercase hyphenated text; [`fmt::UpperHex`] produces uppercase. Parsing
+/// with [`FromStr`] accepts the simple, hyphenated, braced, and `urn:uuid:`
+/// forms in either case.
 ///
 /// With `serde`, human-readable formats use the canonical string. Binary
 /// formats use a 16-byte byte string, without a wrapper tag. Deserialization
@@ -23,6 +27,11 @@ use core::fmt;
 pub struct Uuid(::uuid::Uuid);
 
 impl Uuid {
+    /// The nil UUID, with all 128 bits set to zero. Also the default value.
+    pub const NIL: Self = Self(::uuid::Uuid::nil());
+
+    /// The max UUID, with all 128 bits set to one.
+    pub const MAX: Self = Self(::uuid::Uuid::max());
     /// Generates a random version 4 UUID.
     ///
     /// Requires `v4` and a supported random source. Enable `js` when targeting
@@ -65,6 +74,47 @@ impl Uuid {
     /// Returns the identifier's 16 bytes in network byte order.
     pub const fn into_bytes(self) -> [u8; 16] {
         self.0.into_bytes()
+    }
+
+    /// Constructs an identifier from a 128-bit integer, most significant byte
+    /// first, preserving every bit.
+    pub const fn from_u128(value: u128) -> Self {
+        Self(::uuid::Uuid::from_u128(value))
+    }
+
+    /// Returns the identifier as a 128-bit integer, most significant byte first.
+    pub const fn as_u128(&self) -> u128 {
+        self.0.as_u128()
+    }
+
+    /// Checks whether all 128 bits are zero.
+    pub const fn is_nil(&self) -> bool {
+        self.0.is_nil()
+    }
+
+    /// Checks whether all 128 bits are one.
+    pub const fn is_max(&self) -> bool {
+        self.0.is_max()
+    }
+
+    /// Returns the recognized version, or `None` for unassigned version numbers.
+    ///
+    /// The nil and max UUIDs report [`UuidVersion::Nil`] and
+    /// [`UuidVersion::Max`]. Use [`Self::version_num`] for the raw field.
+    pub const fn version(&self) -> Option<UuidVersion> {
+        self.0.get_version()
+    }
+
+    /// Returns the 4-bit version field as a number in `0..=15`.
+    ///
+    /// The field is read as is, regardless of the variant.
+    pub const fn version_num(&self) -> u8 {
+        self.0.get_version_num() as u8
+    }
+
+    /// Returns the variant, which determines the layout of the other fields.
+    pub const fn variant(&self) -> UuidVariant {
+        self.0.get_variant()
     }
 }
 
@@ -121,6 +171,46 @@ impl From<Uuid> for ::uuid::Uuid {
     }
 }
 
+/// Constructs an identifier from a 128-bit integer without altering any bits.
+impl From<u128> for Uuid {
+    fn from(value: u128) -> Self {
+        Self::from_u128(value)
+    }
+}
+
+/// Extracts the identifier as a 128-bit integer.
+impl From<Uuid> for u128 {
+    fn from(uuid: Uuid) -> Self {
+        uuid.as_u128()
+    }
+}
+
+/// Copies exactly 16 bytes in network byte order, failing for other lengths.
+impl TryFrom<&[u8]> for Uuid {
+    type Error = UuidError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        Ok(Self(::uuid::Uuid::from_slice(bytes)?))
+    }
+}
+
+/// Parses the simple, hyphenated, braced, or `urn:uuid:` form in either case.
+///
+/// ```
+/// use dogma_uuid::Uuid;
+///
+/// let id: Uuid = "{67E55044-10B1-426F-9247-BB680E5FE0C8}".parse().unwrap();
+/// assert_eq!(id.to_string(), "67e55044-10b1-426f-9247-bb680e5fe0c8");
+/// assert!("67e55044".parse::<Uuid>().is_err());
+/// ```
+impl FromStr for Uuid {
+    type Err = UuidError;
+
+    fn from_str(text: &str) -> Result<Self, Self::Err> {
+        Ok(Self(::uuid::Uuid::try_parse(text)?))
+    }
+}
+
 impl AsRef<[u8; 16]> for Uuid {
     fn as_ref(&self) -> &[u8; 16] {
         self.as_bytes()
@@ -136,6 +226,18 @@ impl AsRef<[u8]> for Uuid {
 impl fmt::Display for Uuid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Display::fmt(&self.0, f)
+    }
+}
+
+impl fmt::LowerHex for Uuid {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::LowerHex::fmt(&self.0, f)
+    }
+}
+
+impl fmt::UpperHex for Uuid {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::UpperHex::fmt(&self.0, f)
     }
 }
 

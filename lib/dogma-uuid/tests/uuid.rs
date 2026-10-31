@@ -1,8 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 
-//! Public `Uuid` conversions, ordering, generation, and serialization.
+//! Public `Uuid` conversions, parsing, formatting, ordering, generation, and
+//! serialization.
 
-use dogma_uuid::Uuid;
+use dogma_uuid::{Uuid, UuidError, UuidVariant, UuidVersion};
 
 const BYTES: [u8; 16] = [
     0x67, 0xe5, 0x50, 0x44, 0x10, 0xb1, 0x42, 0x6f, 0x92, 0x47, 0xbb, 0x68, 0x0e, 0x5f, 0xe0, 0xc8,
@@ -49,6 +50,89 @@ fn conversions_preserve_every_bit_without_validation() {
         assert_eq!(restored, id);
         assert_eq!(<[u8; 16]>::from(restored), bytes);
     }
+}
+
+#[test]
+fn parsing_accepts_every_upstream_form_in_either_case() {
+    for text in [
+        TEXT,
+        "67E55044-10B1-426F-9247-BB680E5FE0C8",
+        "67e5504410b1426f9247bb680e5fe0c8",
+        "{67e55044-10b1-426f-9247-bb680e5fe0c8}",
+        "urn:uuid:67e55044-10b1-426f-9247-bb680e5fe0c8",
+    ] {
+        assert_eq!(text.parse::<Uuid>(), Ok(ID), "{text}");
+    }
+}
+
+#[test]
+fn parsing_reports_invalid_text() {
+    for text in [
+        "",
+        "67e55044",
+        "67e55044-10b1-426f-9247-bb680e5fe0c",
+        "67e55044-10b1-426f-9247-bb680e5fe0c8a",
+        "g7e55044-10b1-426f-9247-bb680e5fe0c8",
+        " 67e55044-10b1-426f-9247-bb680e5fe0c8",
+    ] {
+        let error: UuidError = text.parse::<Uuid>().unwrap_err();
+        assert!(!error.to_string().is_empty(), "{text}");
+        let _: &dyn core::error::Error = &error;
+    }
+}
+
+#[test]
+fn slices_must_contain_exactly_16_bytes() {
+    assert_eq!(Uuid::try_from(BYTES.as_slice()), Ok(ID));
+    for len in [0, 15, 17] {
+        let bytes = [0xab; 17];
+        assert!(Uuid::try_from(&bytes[..len]).is_err(), "{len}");
+    }
+}
+
+#[test]
+fn integers_follow_network_byte_order() {
+    const VALUE: u128 = 0x67e5_5044_10b1_426f_9247_bb68_0e5f_e0c8;
+    const FROM_VALUE: Uuid = Uuid::from_u128(VALUE);
+    assert_eq!(FROM_VALUE, ID);
+    assert_eq!(ID.as_u128(), VALUE);
+    assert_eq!(Uuid::from(VALUE), ID);
+    assert_eq!(u128::from(ID), VALUE);
+    assert_eq!(Uuid::from_u128(u128::MAX), Uuid::MAX);
+}
+
+#[test]
+fn nil_and_max_cover_all_bits() {
+    assert_eq!(Uuid::NIL, Uuid::default());
+    assert_eq!(Uuid::NIL.into_bytes(), [0; 16]);
+    assert_eq!(Uuid::MAX.into_bytes(), [0xff; 16]);
+    assert!(Uuid::NIL.is_nil() && !Uuid::NIL.is_max());
+    assert!(Uuid::MAX.is_max() && !Uuid::MAX.is_nil());
+    assert!(!ID.is_nil() && !ID.is_max());
+    assert_eq!(Uuid::NIL.version(), Some(UuidVersion::Nil));
+    assert_eq!(Uuid::MAX.version(), Some(UuidVersion::Max));
+}
+
+#[test]
+fn version_and_variant_read_their_fields() {
+    assert_eq!(ID.version(), Some(UuidVersion::Random));
+    assert_eq!(ID.version_num(), 4);
+    assert_eq!(ID.variant(), UuidVariant::RFC4122);
+    // Version 9 is unassigned: no recognized version, but the raw field.
+    let mut bytes = BYTES;
+    bytes[6] = 0x90 | (bytes[6] & 0x0f);
+    let unassigned = Uuid::from(bytes);
+    assert_eq!(unassigned.version(), None);
+    assert_eq!(unassigned.version_num(), 9);
+    bytes[8] = 0xc0 | (bytes[8] & 0x1f);
+    assert_eq!(Uuid::from(bytes).variant(), UuidVariant::Microsoft);
+}
+
+#[test]
+fn hex_formatting_follows_case() {
+    assert_eq!(format!("{ID:x}"), TEXT);
+    assert_eq!(format!("{ID:X}"), TEXT.to_ascii_uppercase());
+    assert_eq!(format!("{ID}"), format!("{ID:x}"));
 }
 
 #[test]
