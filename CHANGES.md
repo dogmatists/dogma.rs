@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registered names once and rejects empty or undecodable hosts with
   `InvalidInput`.
 
+### Added
+- `dogma-traits`: Serialize `Send`, `Sync`, and `Send + Sync` trait objects
+  of every trait that already serializes as `dyn Trait`.
+
 ## 0.3.1 - 2026-10-12
 ### Added
 - `dogma-uuid`: Generate UUIDs with `Uuid::new_v4()` and `Uuid::now_v7()`;

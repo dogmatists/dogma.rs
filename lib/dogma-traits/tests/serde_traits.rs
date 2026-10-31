@@ -47,6 +47,20 @@ mod named {
         );
         check(&MaybeBorrowed(None), &[Token::None]);
     }
+
+    #[test]
+    fn serialize_send_and_sync_named_objects() {
+        let value = Borrowed("café");
+        let tokens = [Token::Str("café")];
+        assert_ser_tokens(&value as &(dyn Named + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn Named + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn Named + Send + Sync), &tokens);
+        let value = MaybeBorrowed(None);
+        let tokens = [Token::None];
+        assert_ser_tokens(&value as &(dyn MaybeNamed + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeNamed + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeNamed + Send + Sync), &tokens);
+    }
 }
 
 #[cfg(feature = "labeled")]
@@ -91,6 +105,20 @@ mod labeled {
             &[Token::Some, Token::Str("東京")],
         );
         check(&MaybeBorrowed(None), &[Token::None]);
+    }
+
+    #[test]
+    fn serialize_send_and_sync_labeled_objects() {
+        let value = Borrowed("東京");
+        let tokens = [Token::Str("東京")];
+        assert_ser_tokens(&value as &(dyn Labeled + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn Labeled + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn Labeled + Send + Sync), &tokens);
+        let value = MaybeBorrowed(None);
+        let tokens = [Token::None];
+        assert_ser_tokens(&value as &(dyn MaybeLabeled + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeLabeled + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeLabeled + Send + Sync), &tokens);
     }
 }
 
@@ -137,5 +165,19 @@ mod countable {
             &[Token::Some, Token::U64(0)],
         );
         check(&MaybeBorrowed(None), &[Token::None]);
+    }
+
+    #[test]
+    fn serialize_send_and_sync_countable_objects() {
+        let value = Borrowed(&[1, 2]);
+        let tokens = [Token::U64(2)];
+        assert_ser_tokens(&value as &(dyn Countable + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn Countable + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn Countable + Send + Sync), &tokens);
+        let value = MaybeBorrowed(None);
+        let tokens = [Token::None];
+        assert_ser_tokens(&value as &(dyn MaybeCountable + Send), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeCountable + Sync), &tokens);
+        assert_ser_tokens(&value as &(dyn MaybeCountable + Send + Sync), &tokens);
     }
 }

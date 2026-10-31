@@ -15,6 +15,30 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+/// Implements `Serialize` for `dyn $trait` with `Send` and/or `Sync` bounds by
+/// delegating to the existing `dyn $trait` implementation.
+#[cfg(all(
+    feature = "serde",
+    any(feature = "countable", feature = "labeled", feature = "named")
+))]
+macro_rules! impl_serialize_for_auto_trait_objects {
+    ($trait:ident) => {
+        impl_serialize_for_auto_trait_objects!($trait, Send);
+        impl_serialize_for_auto_trait_objects!($trait, Sync);
+        impl_serialize_for_auto_trait_objects!($trait, Send + Sync);
+    };
+    ($trait:ident, $($auto:tt)+) => {
+        impl serde::Serialize for dyn $trait + $($auto)+ + '_ {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                <dyn $trait as serde::Serialize>::serialize(self, serializer)
+            }
+        }
+    };
+}
+
 #[cfg(feature = "collection")]
 mod collection;
 #[cfg(feature = "collection")]

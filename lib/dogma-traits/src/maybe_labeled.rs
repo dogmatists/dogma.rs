@@ -27,3 +27,6 @@ impl serde::Serialize for dyn MaybeLabeled + '_ {
         }
     }
 }
+
+#[cfg(feature = "serde")]
+impl_serialize_for_auto_trait_objects!(MaybeLabeled);

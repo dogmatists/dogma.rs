@@ -17,3 +17,6 @@ impl serde::Serialize for dyn Labeled + '_ {
         self.label().serialize(serializer)
     }
 }
+
+#[cfg(feature = "serde")]
+impl_serialize_for_auto_trait_objects!(Labeled);

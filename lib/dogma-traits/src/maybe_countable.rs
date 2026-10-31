@@ -32,3 +32,6 @@ impl serde::Serialize for dyn MaybeCountable + '_ {
         self.maybe_count().serialize(serializer)
     }
 }
+
+#[cfg(feature = "serde")]
+impl_serialize_for_auto_trait_objects!(MaybeCountable);

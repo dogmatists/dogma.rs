@@ -25,3 +25,6 @@ impl serde::Serialize for dyn Countable + '_ {
         self.count().serialize(serializer)
     }
 }
+
+#[cfg(feature = "serde")]
+impl_serialize_for_auto_trait_objects!(Countable);

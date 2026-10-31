@@ -112,11 +112,6 @@ Items marked **Breaking** belong in the next minor release, with a
   workaround once a fixed version becomes the floor. Most `Uri` accessors
   duplicate `Iri` ones; consider having them delegate.
 
-- [ ] **API-05: Serialize `Send`/`Sync` trait objects.**
-  `dogma-traits` implements `Serialize` only for `dyn Trait + '_`, so
-  `&(dyn Named + Send + Sync)` cannot serialize. Use a small macro to add
-  impls for `+ Send`, `+ Sync`, and `+ Send + Sync`.
-
 - [ ] **API-06: Resolve the overlap between `Countable` and `Collection`.**
   `countable.rs` has `FIXME: change to len()?`. A type implementing both
   traits has an ambiguous `is_empty`/`is_nonempty`, the same problem the
