@@ -47,11 +47,6 @@ Items marked **Breaking** belong in the next minor release, with a
   `lib/dogma/Cargo.toml` defines `unstable = []`, but no code uses it. Either
   document it as reserved or remove it in the next breaking release.
 
-- [ ] **MNT-01: Consider moving to Rust edition 2024.**
-  The crates use edition 2021 while `.rustfmt.toml` uses `edition = "2024"`,
-  and the MSRV (1.97) supports 2024. Run `cargo fix --edition` one crate at a
-  time, then update the "Rust 2021 crates" wording in `AGENTS.md`.
-
 ## API features and ergonomics
 
 - [ ] **UUID-01: Complete the core `Uuid` API.**

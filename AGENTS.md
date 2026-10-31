@@ -30,7 +30,7 @@
 - After making changes to a crate, as a last step run `cargo doc` on it.
 
 # Workspace
-- Rust 2021 crates live in `lib/<crate>/`: `dogma` is the umbrella;
+- Rust 2024 crates live in `lib/<crate>/`: `dogma` is the umbrella;
   `dogma-traits` owns collection/count/name/label traits; `dogma-path` owns
   `AncestorPath` and `FromPathError`; `dogma-uri` owns URI/IRI types in flat,
   type-focused source modules; `dogma-uuid` owns `Uuid` and byte conversions.

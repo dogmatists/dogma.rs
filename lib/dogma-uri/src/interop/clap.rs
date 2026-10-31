@@ -133,10 +133,12 @@ mod tests {
             .parse_ref(&clap::Command::new("test"), None, "%".as_ref())
             .unwrap_err();
         assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
-        assert!(error
-            .render()
-            .to_string()
-            .contains("invalid value '%' for '...'"));
+        assert!(
+            error
+                .render()
+                .to_string()
+                .contains("invalid value '%' for '...'")
+        );
     }
 }
 

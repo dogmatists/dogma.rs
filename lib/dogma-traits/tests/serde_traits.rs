@@ -11,7 +11,7 @@ extern crate alloc;
 mod named {
     use alloc::{borrow::Cow, string::String};
     use dogma_traits::{MaybeNamed, Named};
-    use serde_test::{assert_ser_tokens, Token};
+    use serde_test::{Token, assert_ser_tokens};
 
     struct Borrowed<'a>(&'a str);
 
@@ -70,7 +70,7 @@ mod named {
 mod labeled {
     use alloc::{borrow::Cow, string::String};
     use dogma_traits::{Labeled, MaybeLabeled};
-    use serde_test::{assert_ser_tokens, Token};
+    use serde_test::{Token, assert_ser_tokens};
 
     struct Borrowed<'a>(&'a str);
 
@@ -128,7 +128,7 @@ mod labeled {
 #[cfg(feature = "countable")]
 mod countable {
     use dogma_traits::{Countable, MaybeCountable};
-    use serde_test::{assert_ser_tokens, Token};
+    use serde_test::{Token, assert_ser_tokens};
 
     struct Borrowed<'a>(&'a [u8]);
 

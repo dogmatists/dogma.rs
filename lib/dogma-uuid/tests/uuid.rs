@@ -99,7 +99,7 @@ fn time_ordered_generation_uses_current_unix_milliseconds() {
 #[cfg(feature = "serde")]
 #[test]
 fn serde_uses_untagged_text_or_bytes() {
-    use serde_test::{assert_tokens, Configure, Token};
+    use serde_test::{Configure, Token, assert_tokens};
 
     assert_tokens(&ID.readable(), &[Token::Str(TEXT)]);
     assert_tokens(&ID.compact(), &[Token::Bytes(&BYTES)]);

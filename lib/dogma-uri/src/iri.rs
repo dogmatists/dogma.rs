@@ -514,7 +514,7 @@ mod tests {
         cmp::Ordering,
         hash::{BuildHasher, BuildHasherDefault},
     };
-    use std::collections::{hash_map::DefaultHasher, HashMap};
+    use std::collections::{HashMap, hash_map::DefaultHasher};
 
     fn representations(text: &str) -> [Iri<'_>; 2] {
         [Iri::try_from(text).unwrap(), text.parse().unwrap()]

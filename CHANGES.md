@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IriAuthority` and `UriAuthority` socket resolution now percent-decodes
   registered names once and rejects empty or undecodable hosts with
   `InvalidInput`.
+- Move every crate to Rust edition 2024 and the MSRV-aware resolver 3.
 
 ### Added
 - `dogma-traits`: Serialize `Send`, `Sync`, and `Send + Sync` trait objects

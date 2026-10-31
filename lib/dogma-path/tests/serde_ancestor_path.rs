@@ -5,8 +5,8 @@
 #![cfg(feature = "serde")]
 
 use dogma_path::AncestorPath;
-use serde::{de::value, Deserialize};
-use serde_test::{assert_ser_tokens, assert_tokens, Token};
+use serde::{Deserialize, de::value};
+use serde_test::{Token, assert_ser_tokens, assert_tokens};
 
 #[test]
 fn serialize_depth_as_an_unsigned_integer() {

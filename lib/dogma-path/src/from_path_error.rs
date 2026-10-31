@@ -50,8 +50,8 @@ impl FromPathError {
     /// Requires `std` and performs no filesystem access.
     #[cfg(feature = "std")]
     pub fn into_io_error(self) -> std::io::Error {
-        use std::io::{Error, ErrorKind};
         use FromPathError::*;
+        use std::io::{Error, ErrorKind};
         Error::new(
             match self {
                 Empty => ErrorKind::InvalidData,

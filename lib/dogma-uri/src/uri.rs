@@ -353,7 +353,7 @@ mod tests {
     use super::*;
     use alloc::collections::BTreeSet;
     use core::hash::{BuildHasher, BuildHasherDefault};
-    use std::collections::{hash_map::DefaultHasher, HashMap};
+    use std::collections::{HashMap, hash_map::DefaultHasher};
 
     fn representations(text: &str) -> [Uri<'_>; 2] {
         [Uri::try_from(text).unwrap(), text.parse().unwrap()]

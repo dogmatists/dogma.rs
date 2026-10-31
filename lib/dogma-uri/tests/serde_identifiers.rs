@@ -12,7 +12,7 @@ mod uri {
     use alloc::string::String;
     use dogma_uri::{Iri, Uri};
     use serde::Deserialize;
-    use serde_test::{assert_de_tokens, assert_de_tokens_error, assert_ser_tokens, Token};
+    use serde_test::{Token, assert_de_tokens, assert_de_tokens_error, assert_ser_tokens};
 
     #[test]
     fn serialize_uri_as_a_string_independently_of_ownership() {
@@ -115,7 +115,7 @@ mod iri {
     use alloc::string::String;
     use dogma_uri::Iri;
     use serde::Deserialize;
-    use serde_test::{assert_de_tokens, assert_de_tokens_error, assert_ser_tokens, Token};
+    use serde_test::{Token, assert_de_tokens, assert_de_tokens_error, assert_ser_tokens};
 
     #[test]
     fn serialize_iri_as_a_string_independently_of_ownership() {
