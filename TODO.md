@@ -107,12 +107,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Documentation
 
-- [ ] **DOC-06: Fix the README example and compile it.**
-  "Naming an Entity" uses `Cow` without importing it, and no build compiles
-  it. Add the import. Run README code blocks as doctests (e.g.
-  `#[cfg(doctest)]` with `include_str!`), and make sure the path also
-  resolves in the extracted packages used by CI's `check-package` job.
-
 - [ ] **DOC-04: Document public API behavior incrementally.**
   Prioritize identifier ownership, encoded versus decoded components, identifier
   path normalization, platform differences, feature requirements, and conversion

@@ -34,3 +34,9 @@ pub use dogma_path::*;
 pub use dogma_uuid as uuid;
 #[cfg(feature = "uuid")]
 pub use dogma_uuid::*;
+
+// Runs the README's Rust examples as doctests, in the repository and in the
+// published package, which store the README at different relative paths.
+#[cfg(all(doctest, feature = "named"))]
+#[doc = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", env!("CARGO_PKG_README")))]
+struct ReadmeDoctests;

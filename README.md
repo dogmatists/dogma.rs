@@ -74,6 +74,7 @@ dogma-uri = "0.3"
 
 ```rust
 use dogma::Named;
+use std::borrow::Cow;
 
 struct Person<'a>(&'a str);
 
