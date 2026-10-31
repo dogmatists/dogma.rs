@@ -117,15 +117,45 @@ fn nil_and_max_cover_all_bits() {
 fn version_and_variant_read_their_fields() {
     assert_eq!(ID.version(), Some(UuidVersion::Random));
     assert_eq!(ID.version_num(), 4);
-    assert_eq!(ID.variant(), UuidVariant::RFC4122);
+    assert_eq!(ID.variant(), UuidVariant::Rfc9562);
     // Version 9 is unassigned: no recognized version, but the raw field.
     let mut bytes = BYTES;
     bytes[6] = 0x90 | (bytes[6] & 0x0f);
     let unassigned = Uuid::from(bytes);
     assert_eq!(unassigned.version(), None);
     assert_eq!(unassigned.version_num(), 9);
-    bytes[8] = 0xc0 | (bytes[8] & 0x1f);
-    assert_eq!(Uuid::from(bytes).variant(), UuidVariant::Microsoft);
+    for (byte, variant) in [
+        (0x00, UuidVariant::Ncs),
+        (0x7f, UuidVariant::Ncs),
+        (0x80, UuidVariant::Rfc9562),
+        (0xbf, UuidVariant::Rfc9562),
+        (0xc0, UuidVariant::Microsoft),
+        (0xdf, UuidVariant::Microsoft),
+        (0xe0, UuidVariant::Future),
+        (0xff, UuidVariant::Future),
+    ] {
+        bytes[8] = byte;
+        assert_eq!(Uuid::from(bytes).variant(), variant, "{byte:#04x}");
+    }
+}
+
+#[test]
+fn versions_match_upstream_and_their_field_values() {
+    for num in 0..16u8 {
+        for fill in [0x00, 0xff] {
+            let mut bytes = [fill; 16];
+            bytes[6] = (num << 4) | (fill & 0x0f);
+            let id = Uuid::from(bytes);
+            let upstream = uuid::Uuid::from(id);
+            assert_eq!(id.version_num() as usize, upstream.get_version_num());
+            assert_eq!(id.version().is_some(), upstream.get_version().is_some());
+            if let Some(version) = id.version() {
+                assert_eq!(version as u8, num);
+            }
+        }
+    }
+    assert_eq!(Uuid::NIL.variant(), UuidVariant::Ncs);
+    assert_eq!(Uuid::MAX.variant(), UuidVariant::Future);
 }
 
 #[test]

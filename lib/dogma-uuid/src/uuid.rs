@@ -102,19 +102,36 @@ impl Uuid {
     /// The nil and max UUIDs report [`UuidVersion::Nil`] and
     /// [`UuidVersion::Max`]. Use [`Self::version_num`] for the raw field.
     pub const fn version(&self) -> Option<UuidVersion> {
-        self.0.get_version()
+        Some(match self.version_num() {
+            0 if self.is_nil() => UuidVersion::Nil,
+            1 => UuidVersion::TimeBased,
+            2 => UuidVersion::DceSecurity,
+            3 => UuidVersion::Md5,
+            4 => UuidVersion::Random,
+            5 => UuidVersion::Sha1,
+            6 => UuidVersion::ReorderedTimeBased,
+            7 => UuidVersion::UnixTimeBased,
+            8 => UuidVersion::Custom,
+            15 if self.is_max() => UuidVersion::Max,
+            _ => return None,
+        })
     }
 
     /// Returns the 4-bit version field as a number in `0..=15`.
     ///
     /// The field is read as is, regardless of the variant.
     pub const fn version_num(&self) -> u8 {
-        self.0.get_version_num() as u8
+        self.as_bytes()[6] >> 4
     }
 
     /// Returns the variant, which determines the layout of the other fields.
     pub const fn variant(&self) -> UuidVariant {
-        self.0.get_variant()
+        match self.as_bytes()[8] {
+            byte if byte & 0x80 == 0x00 => UuidVariant::Ncs,
+            byte if byte & 0xc0 == 0x80 => UuidVariant::Rfc9562,
+            byte if byte & 0xe0 == 0xc0 => UuidVariant::Microsoft,
+            _ => UuidVariant::Future,
+        }
     }
 }
 
@@ -190,7 +207,9 @@ impl TryFrom<&[u8]> for Uuid {
     type Error = UuidError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        Ok(Self(::uuid::Uuid::from_slice(bytes)?))
+        ::uuid::Uuid::from_slice(bytes)
+            .map(Self)
+            .map_err(UuidError::new)
     }
 }
 
@@ -207,7 +226,9 @@ impl FromStr for Uuid {
     type Err = UuidError;
 
     fn from_str(text: &str) -> Result<Self, Self::Err> {
-        Ok(Self(::uuid::Uuid::try_parse(text)?))
+        ::uuid::Uuid::try_parse(text)
+            .map(Self)
+            .map_err(UuidError::new)
     }
 }
 

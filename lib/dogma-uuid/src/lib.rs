@@ -53,7 +53,10 @@ extern crate alloc;
 
 mod uuid;
 mod uuid_error;
+mod uuid_variant;
+mod uuid_version;
 
-pub use ::uuid::{Variant as UuidVariant, Version as UuidVersion};
 pub use uuid::Uuid;
 pub use uuid_error::UuidError;
+pub use uuid_variant::UuidVariant;
+pub use uuid_version::UuidVersion;

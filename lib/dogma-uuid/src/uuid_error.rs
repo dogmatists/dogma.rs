@@ -9,8 +9,9 @@ use core::fmt;
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct UuidError(::uuid::Error);
 
-impl From<::uuid::Error> for UuidError {
-    fn from(error: ::uuid::Error) -> Self {
+impl UuidError {
+    /// Wraps an upstream error without exposing its type.
+    pub(crate) fn new(error: ::uuid::Error) -> Self {
         Self(error)
     }
 }
