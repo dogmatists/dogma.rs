@@ -68,11 +68,6 @@ Items marked **Breaking** belong in the next minor release, with a
   The thinnest docs are the `dogma-traits` trait and method docs and the
   Serde impls on trait objects.
 
-- [ ] **DOC-07: Repair the links in `CHANGES.md`.**
-  Reference links point to the removed `dogma/enums/...` pages. `IriAuthority`
-  and `IriError` (0.1.5) have no link definitions. Link historical entries
-  to versioned docs.rs pages, and add an `Unreleased` section.
-
 - [ ] **DOC-08: Retire `doc/uri-migration.md`.**
   It records a finished migration, still calls `dogma-uuid` a placeholder,
   and repeats the `Uri` rustdoc and `CHANGES.md`. Shrink it to a short

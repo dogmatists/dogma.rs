@@ -157,21 +157,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`Named`], [`MaybeNamed`] traits
 - [`Labeled`], [`MaybeLabeled`] traits
 
-[`Collection`]: https://docs.rs/dogma/latest/dogma/traits/trait.Collection.html
-[`CollectionMut`]: https://docs.rs/dogma/latest/dogma/traits/trait.CollectionMut.html
-[`Countable`]: https://docs.rs/dogma/latest/dogma/traits/trait.Countable.html
-[`Labeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.Labeled.html
-[`MaybeCountable`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeCountable.html
-[`MaybeLabeled`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeLabeled.html
-[`MaybeNamed`]: https://docs.rs/dogma/latest/dogma/traits/trait.MaybeNamed.html
-[`Named`]: https://docs.rs/dogma/latest/dogma/traits/trait.Named.html
+[`Collection`]: https://docs.rs/dogma/0.1.3/dogma/traits/trait.Collection.html
+[`CollectionMut`]: https://docs.rs/dogma/0.1.3/dogma/traits/trait.CollectionMut.html
+[`Countable`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.Countable.html
+[`Labeled`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.Labeled.html
+[`MaybeCountable`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.MaybeCountable.html
+[`MaybeLabeled`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.MaybeLabeled.html
+[`MaybeNamed`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.MaybeNamed.html
+[`Named`]: https://docs.rs/dogma/0.1.0/dogma/traits/trait.Named.html
 
-[`dogma::path::AncestorPath`]: https://docs.rs/dogma/latest/dogma/path/struct.AncestorPath.html
-[`dogma::path::FromPathError`]: https://docs.rs/dogma/latest/dogma/path/enum.FromPathError.html
-[`Iri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Iri.html
-[`IriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.IriScheme.html
-[`Uri`]: https://docs.rs/dogma/latest/dogma/enums/enum.Uri.html
-[`UriScheme`]: https://docs.rs/dogma/latest/dogma/enums/enum.UriScheme.html
+[`dogma::path::AncestorPath`]: https://docs.rs/dogma/0.2.0/dogma/struct.AncestorPath.html
+[`dogma::path::FromPathError`]: https://docs.rs/dogma/0.2.0/dogma/enum.FromPathError.html
+[`Iri`]: https://docs.rs/dogma/0.1.4/dogma/enums/enum.Iri.html
+[`IriAuthority`]: https://docs.rs/dogma/0.1.5/dogma/structs/struct.IriAuthority.html
+[`IriError`]: https://docs.rs/dogma/0.1.5/dogma/enums/enum.IriError.html
+[`IriScheme`]: https://docs.rs/dogma/0.1.4/dogma/enums/type.IriScheme.html
 
 [camino]: https://crates.io/crates/camino
 [clap]: https://crates.io/crates/clap
