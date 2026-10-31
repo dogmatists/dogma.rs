@@ -32,6 +32,7 @@ must_use_candidate = "warn"
 dogma = { version = "0.3.1", path = "lib/dogma", default-features = false }
 dogma-traits = { version = "0.3.1", path = "lib/dogma-traits", default-features = false }
 dogma-path = { version = "0.3.1", path = "lib/dogma-path", default-features = false }
+dogma-fs = { version = "0.3.1", path = "lib/dogma-fs", default-features = false }
 dogma-uri = { version = "0.3.1", path = "lib/dogma-uri", default-features = false }
 dogma-uuid = { version = "0.3.1", path = "lib/dogma-uuid", default-features = false }
 camino = { version = "1.2", default-features = false }
@@ -52,5 +53,6 @@ uuid = { version = "1.27", default-features = false }
 dogma = { path = "lib/dogma" }
 dogma-traits = { path = "lib/dogma-traits" }
 dogma-path = { path = "lib/dogma-path" }
+dogma-fs = { path = "lib/dogma-fs" }
 dogma-uri = { path = "lib/dogma-uri" }
 dogma-uuid = { path = "lib/dogma-uuid" }

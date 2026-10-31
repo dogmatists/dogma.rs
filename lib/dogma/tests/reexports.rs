@@ -143,3 +143,12 @@ fn uuid_interop_is_forwarded() {
     assert_eq!(upstream.as_bytes(), &[0xab; 16]);
     assert_eq!(dogma::Uuid::from(upstream), id);
 }
+
+#[cfg(feature = "fs")]
+#[test]
+fn fs_feature_exposes_the_component_and_paths() {
+    #[allow(unused_imports)]
+    use dogma::fs as _;
+    // `fs` enables `path`, whose types the component operates on.
+    let _: dogma::path::AncestorPath = dogma::AncestorPath::DEPTH_1;
+}

@@ -23,9 +23,9 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = ["all", "std"]
-all = ["enums", "path", "serde", "structs", "traits", "uuid"]
+all = ["enums", "fs", "path", "serde", "structs", "traits", "uuid"]
 alloc = ["path", "dogma-traits?/alloc", "dogma-uuid?/alloc"]
-std = ["alloc", "dogma-path?/std", "dogma-traits?/std", "dogma-uri?/std", "dogma-uuid?/std"]
+std = ["alloc", "dogma-fs?/std", "dogma-path?/std", "dogma-traits?/std", "dogma-uri?/std", "dogma-uuid?/std"]
 # Reserved for future APIs exempt from semver guarantees; enables nothing yet.
 unstable = []
 
@@ -45,6 +45,7 @@ labeled = ["alloc", "dep:dogma-traits", "dogma-traits/labeled"]
 named = ["alloc", "dep:dogma-traits", "dogma-traits/named"]
 
 # Other component crates:
+fs = ["path", "dep:dogma-fs"]
 path = ["dep:dogma-path"]
 uuid = ["dep:dogma-uuid", "dogma-uuid/uuid"]
 uuid-js = ["uuid", "dogma-uuid/js"]
@@ -66,6 +67,7 @@ uriparse = ["std", "uri", "dogma-uri/uriparse"]
 [dependencies]
 dogma-traits = { workspace = true, optional = true }
 dogma-path = { workspace = true, optional = true }
+dogma-fs = { workspace = true, optional = true }
 dogma-uri = { workspace = true, optional = true }
 dogma-uuid = { workspace = true, optional = true }
 

@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move every crate to Rust edition 2024 and the MSRV-aware resolver 3.
 
 ### Added
+- `dogma-fs`: New crate for filesystem operations on `dogma-path` types, with
+  no items yet; `dogma` re-exports it as `dogma::fs` with the `fs` feature,
+  which `all` includes.
 - `dogma-traits`: Serialize `Send`, `Sync`, and `Send + Sync` trait objects
   of every trait that already serializes as `dyn Trait`.
 - docs.rs builds every crate with all features and labels feature-gated items.

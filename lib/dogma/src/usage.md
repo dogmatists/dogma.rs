@@ -4,6 +4,7 @@ Enabled component crates are re-exported as namespaces:
 
 - `dogma::traits` is `dogma-traits`: naming, labeling, counting, and collections.
 - `dogma::path` is `dogma-path`: ancestor paths and conversion errors.
+- `dogma::fs` is `dogma-fs`: filesystem operations for paths (no items yet).
 - `dogma::uri` is `dogma-uri`: validated URIs, IRIs, and authority components.
 - `dogma::uuid` is `dogma-uuid`: 128-bit UUID values, lossless byte conversions,
   formatting, Serde support, and conversions with `uuid::Uuid`.
@@ -16,12 +17,12 @@ the umbrella; depend on `dogma-uuid` directly for finer UUID feature control.
 
 Default features enable all components, Serde support, and `std`. Disable
 defaults for `no_std`, then select `all` or individual features (`traits`,
-`named`, `labeled`, `countable`, `collection`, `path`, `iri`, `uri`, `uuid`).
-The `alloc` feature enables `path` and forwards allocation support to enabled
-trait and UUID components. The compatibility `enums` and `structs` features both
-enable `iri` and `uri`; they do not introduce additional namespaces. The
-`unstable` feature is reserved for future APIs exempt from semver guarantees
-and currently enables nothing.
+`named`, `labeled`, `countable`, `collection`, `path`, `fs`, `iri`, `uri`,
+`uuid`). `fs` also enables `path`. The `alloc` feature enables `path` and
+forwards allocation support to enabled trait and UUID components. The
+compatibility `enums` and `structs` features both enable `iri` and `uri`; they
+do not introduce additional namespaces. The `unstable` feature is reserved for
+future APIs exempt from semver guarantees and currently enables nothing.
 
 `std` and `serde` are forwarded to enabled components. Optional interop features
 are selected separately from `all`:

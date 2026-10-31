@@ -25,6 +25,10 @@ pub use dogma_traits as traits;
 ))]
 pub use dogma_traits::*;
 
+// `dogma-fs` has no items yet; also glob-export it once it does.
+#[cfg(feature = "fs")]
+pub use dogma_fs as fs;
+
 #[cfg(feature = "path")]
 pub use dogma_path as path;
 #[cfg(feature = "path")]

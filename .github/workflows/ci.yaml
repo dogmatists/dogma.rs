@@ -73,7 +73,7 @@ jobs:
       - name: Test packaged documentation
         run: |
           version=$(< VERSION)
-          components=(dogma-traits dogma-path dogma-uri dogma-uuid)
+          components=(dogma-traits dogma-path dogma-fs dogma-uri dogma-uuid)
           patches=()
           # Resolve unpublished siblings from the extracted packages, not checkout.
           for package in "${components[@]}"; do
@@ -83,7 +83,7 @@ jobs:
           for package in "${components[@]}" dogma; do
             manifest="target/package/$package-$version/Cargo.toml"
             args=(--manifest-path "$manifest" --doc)
-            if [[ "$package" == dogma ]]; then
+            if [[ "$package" == dogma || "$package" == dogma-fs ]]; then
               args+=("${patches[@]}")
             fi
             cargo test "${args[@]}"
@@ -104,14 +104,14 @@ jobs:
       - name: Check without default features
         run: |
           cargo check --workspace --no-default-features
-          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+          for package in dogma dogma-traits dogma-path dogma-fs dogma-uri dogma-uuid; do
             cargo check -p "$package" --no-default-features
             cargo check -p "$package" --no-default-features --features all
           done
       - name: Check each feature alone
         run: |
           metadata=$(cargo metadata --no-deps --format-version 1)
-          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+          for package in dogma dogma-traits dogma-path dogma-fs dogma-uri dogma-uuid; do
             features=$(jq -r --arg package "$package" '.packages[]
               | select(.name == $package) | .features | keys[]
               | select(. != "default")' <<< "$metadata")
@@ -131,7 +131,7 @@ jobs:
           done
       - name: Check no_std target
         run: |
-          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+          for package in dogma dogma-traits dogma-path dogma-fs dogma-uri dogma-uuid; do
             cargo check -p "$package" --no-default-features --features all \
               --target thumbv7em-none-eabihf
           done
@@ -139,7 +139,7 @@ jobs:
             cargo check -p dogma-uri --no-default-features --features "$feature" \
               --target thumbv7em-none-eabihf
           done
-          for package in dogma dogma-traits dogma-path dogma-uuid; do
+          for package in dogma dogma-traits dogma-path dogma-fs dogma-uuid; do
             cargo check -p "$package" --no-default-features --features serde \
               --target thumbv7em-none-eabihf
           done
