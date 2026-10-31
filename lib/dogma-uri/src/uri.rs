@@ -36,7 +36,9 @@ use iri_string::{
 /// are [`UriError`]. Authorities and Clap values use the distinct URI types.
 #[derive(Clone)]
 pub enum Uri<'a> {
+    /// A validated string borrowed for `'a`.
     Borrowed(&'a UriStr),
+    /// A validated string owned by this value.
     Owned(UriString),
 }
 

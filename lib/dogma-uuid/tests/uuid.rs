@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Public `Uuid` conversions, ordering, generation, and serialization.
+
 use dogma_uuid::Uuid;
 
 const BYTES: [u8; 16] = [

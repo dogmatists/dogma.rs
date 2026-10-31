@@ -1,3 +1,5 @@
+//! Conversions between identifiers and `uriparse` types.
+
 #![cfg(feature = "uriparse")]
 
 use dogma_uri::{Iri, Uri};

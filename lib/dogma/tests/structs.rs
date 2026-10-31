@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Compatibility of the `structs` feature alias.
+
 #![cfg(feature = "structs")]
 
 #[test]

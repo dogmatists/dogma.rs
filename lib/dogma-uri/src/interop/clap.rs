@@ -8,11 +8,13 @@ use core::str::FromStr;
 #[cfg(feature = "uri")]
 pub use uri::UriValueParser;
 
+/// Parses IRIs into owned values, optionally filtering schemes.
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct IriValueParser(alloc::vec::Vec<IriScheme>);
 
 impl IriValueParser {
+    /// Allows the given schemes; an empty slice allows any valid scheme.
     pub fn new(schemes: &[IriScheme]) -> Self {
         Self(schemes.to_vec())
     }

@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Re-exports and feature forwarding of the umbrella crate.
+
 #[cfg(feature = "named")]
 #[test]
 fn naming_trait_and_serde_are_forwarded() {

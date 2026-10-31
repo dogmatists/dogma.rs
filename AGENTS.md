@@ -42,8 +42,10 @@
   `dogma::{traits,path,uri,uuid}` re-export crates alongside top-level types.
   Neither the umbrella nor `dogma-uri` has `enums`/`structs` namespaces; those
   feature flags are compatibility aliases. The umbrella's `alloc` enables `path`.
-- Preserve `#![deny(unsafe_code)]`. Gate filesystem/network APIs on `std`
-  and optional interop on the corresponding features.
+- Root `[workspace.lints]` holds shared lints; each crate sets
+  `[lints] workspace = true`. Preserve `#![deny(unsafe_code)]`. Gate
+  filesystem/network APIs on `std` and optional interop on the corresponding
+  features.
 - `all` includes `serde` where supported. The workspace `serde` has no
   features; crates needing `serde/alloc` enable it. `dogma-path` owns `camino`;
   `dogma-uri` owns `clap`/`miette`. `dogma-path` and `dogma-uri` assume allocation;

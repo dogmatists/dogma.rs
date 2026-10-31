@@ -22,13 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Packaging, tooling, and CI
 
-- [ ] **CI-02: Centralize lints in `[workspace.lints]`.**
-  Set `missing_docs`, `rust_2018_idioms`, and `unsafe_code = "deny"` in
-  `[workspace.lints]`, and add `[lints] workspace = true` to every crate.
-  Fix what this surfaces: the undocumented `Uri::Borrowed`/`Uri::Owned`,
-  `IriValueParser`, and `IriValueParser::new`. Clippy `must_use_candidate`
-  (65 hits) can be a separate pass.
-
 - [ ] **PKG-02: Give each crate its own crates.io metadata.**
   `keywords = []` in every crate. `readme = true` makes every component
   crate ship the umbrella README (`cargo add dogma`). `UNLICENSE` is not
@@ -111,6 +104,11 @@ Items marked **Breaking** belong in the next minor release, with a
   `UriAuthority` fail with `()`, which does not implement `Error` and does
   not work well with `?`. Use a named zero-sized error, or point callers to
   `authority()`.
+
+- [ ] **API-08: Mark pure accessors `#[must_use]`.**
+  Clippy's `must_use_candidate` reports 65 public functions whose results are
+  easy to discard by mistake. Review them, add `#[must_use]` where ignoring
+  the result is a bug, and consider enabling the lint in `[workspace.lints]`.
 
 ## Documentation
 

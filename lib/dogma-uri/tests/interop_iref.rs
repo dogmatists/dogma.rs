@@ -1,3 +1,5 @@
+//! Conversions between identifiers and `iref` types.
+
 #![cfg(feature = "iref")]
 
 use dogma_uri::{Iri, Uri};

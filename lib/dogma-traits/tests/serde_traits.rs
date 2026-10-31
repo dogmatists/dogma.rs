@@ -1,7 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Serde serialization of trait objects.
+
 #![cfg(feature = "serde")]
 
+#[cfg(any(feature = "labeled", feature = "named"))]
 extern crate alloc;
 
 #[cfg(feature = "named")]

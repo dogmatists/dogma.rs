@@ -1,3 +1,5 @@
+//! Conversions between identifiers and `url::Url`.
+
 #![cfg(feature = "url")]
 
 use dogma_uri::{Iri, IriError, Uri, UriError};

@@ -1,7 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Serde round trips for IRIs and URIs.
+
 #![cfg(feature = "serde")]
 
+#[cfg(feature = "iri")]
 extern crate alloc;
 
 #[cfg(feature = "uri")]

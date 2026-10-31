@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Using each `Maybe*` trait alongside its required counterpart.
+
 #[cfg(feature = "named")]
 #[test]
 fn naming_methods_can_be_used_together() {

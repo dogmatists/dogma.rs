@@ -1,3 +1,5 @@
+//! Conversions between `mailto:` identifiers and `email_address`.
+
 #![cfg(feature = "email-address")]
 
 use dogma_uri::{Iri, MailtoError, Uri};

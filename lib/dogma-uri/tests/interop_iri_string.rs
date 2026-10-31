@@ -1,3 +1,5 @@
+//! Conversions between identifiers and `iri-string` types.
+
 #![cfg(feature = "iri-string")]
 
 use dogma_uri::{Iri, Uri};

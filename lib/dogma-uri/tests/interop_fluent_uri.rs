@@ -1,3 +1,5 @@
+//! Conversions between identifiers and `fluent-uri` types.
+
 #![cfg(feature = "fluent-uri")]
 
 use dogma_uri::{Iri, Uri};

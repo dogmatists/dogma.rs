@@ -11,7 +11,7 @@
 #![deny(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(feature = "alloc")]
+#[cfg(any(feature = "collection", feature = "labeled", feature = "named"))]
 extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;

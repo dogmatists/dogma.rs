@@ -49,6 +49,7 @@
 #![deny(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+#[cfg(feature = "iri")]
 extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;

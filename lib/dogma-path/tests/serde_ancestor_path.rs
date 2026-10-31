@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Serde round trips for `AncestorPath`.
+
 #![cfg(feature = "serde")]
 
 use dogma_path::AncestorPath;

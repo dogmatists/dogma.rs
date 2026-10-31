@@ -1,5 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
+//! Public URI behavior and conversions from IRIs.
+
 #![cfg(feature = "uri")]
 
 extern crate alloc;
