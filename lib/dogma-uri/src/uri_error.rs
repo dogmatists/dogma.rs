@@ -34,7 +34,7 @@ pub enum UriError {
     #[cfg_attr(
         feature = "miette",
         diagnostic(
-            code(dogma::uri_error::path_is_relative),
+            code(dogma::uri::path_is_relative),
             help("relative paths are not supported"),
             url(docsrs),
         )
@@ -46,7 +46,7 @@ pub enum UriError {
     #[cfg_attr(
         feature = "miette",
         diagnostic(
-            code(dogma::uri_error::path_not_unicode),
+            code(dogma::uri::path_not_unicode),
             help("non-Unicode paths are not supported"),
             url(docsrs),
         )
@@ -58,7 +58,7 @@ pub enum UriError {
     #[cfg_attr(
         feature = "miette",
         diagnostic(
-            code(dogma::uri_error::path_prefix_unsupported),
+            code(dogma::uri::path_prefix_unsupported),
             help("verbatim and device namespace prefixes are not supported"),
             url(docsrs),
         )
@@ -210,19 +210,20 @@ mod tests {
             (UriError::Invalid(None), "dogma::uri::invalid"),
             (
                 UriError::PathIsRelative(None),
-                "dogma::uri_error::path_is_relative",
+                "dogma::uri::path_is_relative",
             ),
             (
                 UriError::PathNotUnicode(None),
-                "dogma::uri_error::path_not_unicode",
+                "dogma::uri::path_not_unicode",
             ),
             (
                 UriError::PathPrefixUnsupported("prefix".into()),
-                "dogma::uri_error::path_prefix_unsupported",
+                "dogma::uri::path_prefix_unsupported",
             ),
         ] {
             assert_eq!(error.code().unwrap().to_string(), code);
             assert!(error.help().is_some());
+            assert!(error.url().is_some());
         }
     }
 }

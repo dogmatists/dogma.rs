@@ -47,7 +47,7 @@ pub enum IriError {
     #[cfg_attr(
         feature = "miette",
         diagnostic(
-            code(dogma::iri_error::path_is_relative),
+            code(dogma::iri::path_is_relative),
             help("relative paths are not supported"),
             url(docsrs),
         )
@@ -63,7 +63,7 @@ pub enum IriError {
     #[cfg_attr(
         feature = "miette",
         diagnostic(
-            code(dogma::iri_error::path_not_unicode),
+            code(dogma::iri::path_not_unicode),
             help("non-Unicode paths are not supported"),
             url(docsrs),
         )
@@ -75,13 +75,21 @@ pub enum IriError {
     /// Retains the rejected path. Requires `std`; emitted by Windows path
     /// conversion after checking that the path is absolute and Unicode.
     #[cfg(feature = "std")]
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::path_prefix_unsupported),
+            help("verbatim and device namespace prefixes are not supported"),
+            url(docsrs),
+        )
+    )]
     PathPrefixUnsupported(std::path::PathBuf),
 }
 
 impl core::error::Error for IriError {}
 
 impl fmt::Display for IriError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             #[cfg(feature = "std")]
             IriError::PathPrefixUnsupported(path) => {
@@ -129,6 +137,14 @@ impl From<iri_string::types::CreationError<String>> for IriError {
 #[non_exhaustive]
 pub enum IriToPathError {
     /// The IRI scheme is not `file`.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::unsupported_scheme),
+            help("only file IRIs can be converted to native paths"),
+            url(docsrs),
+        )
+    )]
     UnsupportedScheme,
 
     /// The authority is unsupported on this platform.
@@ -136,29 +152,93 @@ pub enum IriToPathError {
     /// and server names that select a device namespace or a dot segment.
     /// Elsewhere, only absent, empty, or bare `localhost` authorities are
     /// allowed.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::unsupported_authority),
+            help("use an empty or `localhost` authority, or a valid UNC server on Windows"),
+            url(docsrs),
+        )
+    )]
     UnsupportedAuthority,
 
     /// A query component is present, even if empty.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::unsupported_query),
+            help("remove the query component"),
+            url(docsrs),
+        )
+    )]
     UnsupportedQuery,
 
     /// A fragment component is present, even if empty.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::unsupported_fragment),
+            help("remove the fragment component"),
+            url(docsrs),
+        )
+    )]
     UnsupportedFragment,
 
     /// The IRI path is empty or does not start with a literal `/`.
     /// On Windows, also returned if a local path lacks a drive root.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::path_not_absolute),
+            help("file IRIs must contain an absolute path"),
+            url(docsrs),
+        )
+    )]
     PathNotAbsolute,
 
     /// The path or UNC hostname cannot be percent-decoded as UTF-8.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::invalid_encoding),
+            help("percent-encoded bytes must form valid UTF-8"),
+            url(docsrs),
+        )
+    )]
     InvalidEncoding,
 
     /// The decoded path or UNC hostname contains a NUL byte.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::nul_byte),
+            help("native paths cannot contain NUL bytes"),
+            url(docsrs),
+        )
+    )]
     NulByte,
 
     /// The path or UNC hostname contains an encoded native separator
     /// (`/`, or `\` on Windows).
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::encoded_separator),
+            help("percent-encoded path separators are not supported"),
+            url(docsrs),
+        )
+    )]
     EncodedSeparator,
 
     /// The UNC share is empty, is `.` or `..`, or contains `:`.
+    #[cfg_attr(
+        feature = "miette",
+        diagnostic(
+            code(dogma::iri::to_path::invalid_unc_share),
+            help("UNC shares must be non-empty, not `.` or `..`, and contain no `:`"),
+            url(docsrs),
+        )
+    )]
     InvalidUncShare,
 }
 
@@ -181,5 +261,55 @@ impl fmt::Display for IriToPathError {
             },
             Self::InvalidUncShare => "file-IRI path does not identify a valid UNC share",
         })
+    }
+}
+
+#[cfg(all(test, feature = "miette"))]
+mod tests {
+    use super::*;
+    use alloc::string::ToString;
+    use miette::Diagnostic;
+
+    fn assert_diagnostic(error: &dyn Diagnostic, code: &str) {
+        assert_eq!(error.code().unwrap().to_string(), code);
+        assert!(error.help().is_some(), "{code} lacks help");
+        assert!(error.url().is_some(), "{code} lacks a URL");
+    }
+
+    #[test]
+    fn diagnostics_use_iri_codes() {
+        assert_diagnostic(&IriError::Invalid(None), "dogma::iri::invalid");
+        assert_diagnostic(
+            &IriError::PathIsRelative(None),
+            "dogma::iri::path_is_relative",
+        );
+        assert_diagnostic(
+            &IriError::PathNotUnicode(None),
+            "dogma::iri::path_not_unicode",
+        );
+        assert_diagnostic(
+            &IriError::PathPrefixUnsupported("prefix".into()),
+            "dogma::iri::path_prefix_unsupported",
+        );
+    }
+
+    #[test]
+    fn to_path_diagnostics_use_iri_codes() {
+        for (error, code) in [
+            (IriToPathError::UnsupportedScheme, "unsupported_scheme"),
+            (
+                IriToPathError::UnsupportedAuthority,
+                "unsupported_authority",
+            ),
+            (IriToPathError::UnsupportedQuery, "unsupported_query"),
+            (IriToPathError::UnsupportedFragment, "unsupported_fragment"),
+            (IriToPathError::PathNotAbsolute, "path_not_absolute"),
+            (IriToPathError::InvalidEncoding, "invalid_encoding"),
+            (IriToPathError::NulByte, "nul_byte"),
+            (IriToPathError::EncodedSeparator, "encoded_separator"),
+            (IriToPathError::InvalidUncShare, "invalid_unc_share"),
+        ] {
+            assert_diagnostic(&error, &format!("dogma::iri::to_path::{code}"));
+        }
     }
 }

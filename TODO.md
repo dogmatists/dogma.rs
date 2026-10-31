@@ -22,14 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Correctness and compatibility
 
-- [ ] **API-02: Unify Miette diagnostics for identifier errors.**
-  **Breaking** for code that matches diagnostic codes. `IriError` mixes
-  `dogma::iri::invalid` with `dogma::iri_error::path_*`. Its
-  `PathPrefixUnsupported` has no diagnostic, unlike the `UriError` variant.
-  `IriToPathError` derives `Diagnostic` with no codes or help text. Pick one
-  scheme (e.g. `dogma::iri::path_is_relative`) and apply it to all variants.
-  Test the code and help text of every variant under `miette`.
-
 - [ ] **API-03: Add context to Clap value-parser errors.**
   `lib/dogma-uri/src/interop/clap.rs` returns bare
   `ErrorKind::ValueValidation` errors, which lose the argument, the rejected
@@ -67,9 +59,8 @@ Items marked **Breaking** belong in the next minor release, with a
   Set `missing_docs`, `rust_2018_idioms`, and `unsafe_code = "deny"` in
   `[workspace.lints]`, and add `[lints] workspace = true` to every crate.
   Fix what this surfaces: the undocumented `Uri::Borrowed`/`Uri::Owned`,
-  `IriValueParser`, and `IriValueParser::new`, and an elided lifetime in
-  `fmt::Formatter` at `iri_error.rs:82`. Clippy `must_use_candidate` (65
-  hits) can be a separate pass.
+  `IriValueParser`, and `IriValueParser::new`. Clippy `must_use_candidate`
+  (65 hits) can be a separate pass.
 
 - [ ] **PKG-02: Give each crate its own crates.io metadata.**
   `keywords = []` in every crate. `readme = true` makes every component

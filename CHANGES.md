@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** mark `IriError`, `UriError`, and `MailtoError`
   `#[non_exhaustive]`, so that enabling `std` (which adds path variants) no
   longer breaks exhaustive matches elsewhere in a build.
+- **Breaking:** unify Miette diagnostic codes as `dogma::iri::*` and
+  `dogma::uri::*`, replacing `dogma::iri_error::*` and `dogma::uri_error::*`.
+  `IriError::PathPrefixUnsupported` and every `IriToPathError` variant
+  (`dogma::iri::to_path::*`) now have codes, help text, and URLs.
 
 ## 0.3.1 - 2026-10-12
 ### Added
