@@ -47,6 +47,7 @@
 
 #![no_std]
 #![deny(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 extern crate alloc;
 #[cfg(feature = "std")]
@@ -86,6 +87,12 @@ pub use uri_error::*;
 mod uri_authority;
 #[cfg(feature = "uri")]
 pub use uri_authority::*;
+
+#[cfg(all(feature = "iri", feature = "clap"))]
+#[path = "interop/clap.rs"]
+mod interop_clap;
+#[cfg(all(feature = "iri", feature = "clap"))]
+pub use interop_clap::*;
 
 #[cfg(feature = "url")]
 #[path = "interop/url.rs"]

@@ -3,6 +3,7 @@
 #![doc = include_str!("usage.md")]
 #![no_std]
 #![deny(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "iri")]
 pub use dogma_uri as uri;

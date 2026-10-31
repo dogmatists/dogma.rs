@@ -48,6 +48,18 @@ jobs:
         env:
           RUSTDOCFLAGS: "-D warnings"
         run: cargo doc --workspace --all-features --no-deps
+  check-docsrs:
+    name: Check docs.rs documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Check documentation with docs.rs settings
+        env:
+          RUSTDOCFLAGS: "--cfg docsrs -D warnings"
+        run: cargo doc --workspace --all-features --no-deps
   check-package:
     name: Check packaged doctests
     runs-on: ubuntu-latest

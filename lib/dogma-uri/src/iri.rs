@@ -496,9 +496,6 @@ impl serde::Serialize for Iri<'_> {
     }
 }
 
-#[cfg(feature = "clap")]
-include!("interop/clap.rs");
-
 #[cfg(feature = "serde")]
 impl<'de> serde::Deserialize<'de> for Iri<'_> {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {

@@ -1,6 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 
-extern crate alloc;
+extern crate std;
+
+use crate::{Iri, IriScheme};
+use core::str::FromStr;
 
 #[cfg(feature = "uri")]
 pub use uri::UriValueParser;
@@ -84,7 +87,7 @@ fn clap_check_scheme<'a>(
 }
 
 #[cfg(test)]
-mod clap_tests {
+mod tests {
     use super::*;
     use alloc::string::{String, ToString};
 
@@ -104,7 +107,10 @@ mod clap_tests {
             message.contains("invalid value 'relative/path' for '[iri]'"),
             "{message}"
         );
-        assert!(message.contains("tip: expected an absolute IRI"), "{message}");
+        assert!(
+            message.contains("tip: expected an absolute IRI"),
+            "{message}"
+        );
 
         let schemes = [IriScheme::Https, IriScheme::Ftp];
         let message = render(IriValueParser::new(&schemes), "http://例.example/");
@@ -125,7 +131,10 @@ mod clap_tests {
             .parse_ref(&clap::Command::new("test"), None, "%".as_ref())
             .unwrap_err();
         assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
-        assert!(error.render().to_string().contains("invalid value '%' for '...'"));
+        assert!(error
+            .render()
+            .to_string()
+            .contains("invalid value '%' for '...'"));
     }
 }
 
@@ -264,7 +273,11 @@ mod uri {
         fn parser_errors_name_argument_value_and_reason() {
             let render = |schemes: &[UriScheme], value: &str| {
                 clap::Command::new("test")
-                    .arg(clap::Arg::new("uri").long("uri").value_parser(UriValueParser::new(schemes)))
+                    .arg(
+                        clap::Arg::new("uri")
+                            .long("uri")
+                            .value_parser(UriValueParser::new(schemes)),
+                    )
                     .try_get_matches_from(["test", "--uri", value])
                     .unwrap_err()
                     .render()

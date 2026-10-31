@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `dogma-traits`: Serialize `Send`, `Sync`, and `Send + Sync` trait objects
   of every trait that already serializes as `dyn Trait`.
+- docs.rs builds every crate with all features and labels feature-gated items.
 
 ## 0.3.1 - 2026-10-12
 ### Added

@@ -13,6 +13,10 @@ keywords.workspace = true
 categories.workspace = true
 publish.workspace = true
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = ["all", "std"]
 all = ["enums", "serde", "structs"]

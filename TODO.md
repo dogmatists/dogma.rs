@@ -22,14 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Packaging, tooling, and CI
 
-- [ ] **DOC-05: Show all features on docs.rs.**
-  No crate has `[package.metadata.docs.rs]`, so docs.rs builds only the
-  default features. That hides the `url`, `iref`, `clap`, `miette`,
-  `camino`, `email-address`, `v4`, and `v7` APIs. Set `all-features = true`
-  and `rustdoc-args = ["--cfg", "docsrs"]`, and add
-  `#![cfg_attr(docsrs, feature(doc_cfg))]` so gated items show their
-  features. Verify with `RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc`.
-
 - [ ] **CI-01: Close the gaps in CI feature coverage.**
   `.github/workflows/ci.yaml` has per-feature loops that skip `email-address`,
   `fluent-uri`, `iref`, `iri-string`, `url`, and `uriparse` (in both the
@@ -166,9 +158,7 @@ Items marked **Breaking** belong in the next minor release, with a
   re-exports and feature forwarding. Test real examples when adding them;
   `lib/dogma/examples/` currently contains only `.gitkeep`. Specific gaps:
   - `IriValueParser` tests cover only error messages; mirror the
-    `UriValueParser` success, filtering, and UTF-8 tests. Also turn its
-    `include!` in `iri.rs` into a `#[path]` module, like the other interop
-    files.
+    `UriValueParser` success, filtering, and UTF-8 tests.
   - In `lib/dogma-path/src/ancestor_path.rs`, raw strings such as
     `r"..\\.."` and `r"\\\\server\\share"` contain doubled backslashes, so
     they test repeated separators rather than the intended input.
