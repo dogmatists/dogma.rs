@@ -22,7 +22,7 @@ fn bytes_follow_canonical_text_order() {
     let slice: &[u8] = ID.as_ref();
     assert_eq!(array, &BYTES);
     assert_eq!(slice, BYTES.as_slice());
-    assert_eq!(uuid::Uuid::from(ID), uuid::Uuid::parse_str(TEXT).unwrap());
+    assert_eq!(&BYTES, uuid::Uuid::parse_str(TEXT).unwrap().as_bytes());
     #[cfg(feature = "alloc")]
     {
         extern crate alloc;
@@ -44,11 +44,14 @@ fn conversions_preserve_every_bit_without_validation() {
         }))
     {
         let id = Uuid::from(bytes);
-        let compatible: uuid::Uuid = id.into();
-        assert_eq!(compatible.as_bytes(), &bytes);
-        let restored = Uuid::from(compatible);
-        assert_eq!(restored, id);
-        assert_eq!(<[u8; 16]>::from(restored), bytes);
+        assert_eq!(<[u8; 16]>::from(id), bytes);
+        assert_eq!(Uuid::from_u128(id.as_u128()), id);
+        #[cfg(feature = "uuid")]
+        {
+            let compatible: uuid::Uuid = id.into();
+            assert_eq!(compatible.as_bytes(), &bytes);
+            assert_eq!(Uuid::from(compatible), id);
+        }
     }
 }
 
@@ -146,7 +149,7 @@ fn versions_match_upstream_and_their_field_values() {
             let mut bytes = [fill; 16];
             bytes[6] = (num << 4) | (fill & 0x0f);
             let id = Uuid::from(bytes);
-            let upstream = uuid::Uuid::from(id);
+            let upstream = uuid::Uuid::from_bytes(bytes);
             assert_eq!(id.version_num() as usize, upstream.get_version_num());
             assert_eq!(id.version().is_some(), upstream.get_version().is_some());
             if let Some(version) = id.version() {

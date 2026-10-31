@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dogma::uri::*`, replacing `dogma::iri_error::*` and `dogma::uri_error::*`.
   `IriError::PathPrefixUnsupported` and every `IriToPathError` variant
   (`dogma::iri::to_path::*`) now have codes, help text, and URLs.
+- **Breaking:** `dogma-uuid` conversions to and from `uuid::Uuid` now require
+  its opt-in `uuid` feature, which its `arbitrary`, `atomic`, `borsh`,
+  `bytemuck`, `v1`, `v3`, `v5`, `v6`, `v8`, and `zerocopy` features enable.
 - `IriValueParser` and `UriValueParser` errors now name the argument and the
   rejected value, and explain the rejection, listing allowed schemes when
   filtering. The `clap` feature now enables Clap's `error-context`.

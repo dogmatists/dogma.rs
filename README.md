@@ -151,9 +151,9 @@ Features are available through `dogma` and the owning component crate.
 - `clap`, `miette`, and `serde` extend enabled components; with defaults disabled,
   select the desired types too (e.g. `features = ["uri", "clap"]`).
 - URI/IRI scheme enums come from [`known-schemes`] 0.2.
-- [`uuid`] 1.27 conversions are built into `dogma-uuid`. Its `v1`, `v3`–`v8`,
-  `arbitrary`, `atomic`, `borsh`, `bytemuck`, and `zerocopy` features forward to
-  upstream; generation and these extra integrations use `uuid::Uuid`.
+- [`uuid`] 1.27 conversions are opt-in through `dogma-uuid`'s `uuid` feature.
+  Its `v1`, `v3`, `v5`, `v6`, `v8`, `arbitrary`, `atomic`, `borsh`, `bytemuck`,
+  and `zerocopy` features enable it and forward to upstream's `uuid::Uuid`.
 
 ## 👨‍💻 Development
 

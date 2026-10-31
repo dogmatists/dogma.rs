@@ -167,27 +167,6 @@ impl From<Uuid> for alloc::vec::Vec<u8> {
     }
 }
 
-/// Converts a compatible UUID value without altering any bits.
-///
-/// ```
-/// let original = uuid::Uuid::from_bytes([0xab; 16]);
-/// let id = dogma_uuid::Uuid::from(original);
-/// let round_trip: uuid::Uuid = id.into();
-/// assert_eq!(round_trip, original);
-/// ```
-impl From<::uuid::Uuid> for Uuid {
-    fn from(uuid: ::uuid::Uuid) -> Self {
-        Self(uuid)
-    }
-}
-
-/// Converts to a compatible UUID value without altering any bits.
-impl From<Uuid> for ::uuid::Uuid {
-    fn from(uuid: Uuid) -> Self {
-        uuid.0
-    }
-}
-
 /// Constructs an identifier from a 128-bit integer without altering any bits.
 impl From<u128> for Uuid {
     fn from(value: u128) -> Self {

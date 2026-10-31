@@ -6,12 +6,12 @@ Enabled component crates are re-exported as namespaces:
 - `dogma::path` is `dogma-path`: ancestor paths and conversion errors.
 - `dogma::uri` is `dogma-uri`: validated URIs, IRIs, and authority components.
 - `dogma::uuid` is `dogma-uuid`: 128-bit UUID values, lossless byte conversions,
-  formatting, Serde support, and interoperability with `uuid::Uuid`.
+  formatting, Serde support, and opt-in interoperability with `uuid::Uuid`.
 
 Top-level type exports, such as `dogma::Named`, `dogma::Iri`, and `dogma::Uuid`,
 are also available. Component crates can be used directly without depending on
-the umbrella. UUID generation and additional UUID interop features are configured
-through `dogma-uuid` and accessed through the upstream `uuid::Uuid` type.
+the umbrella. UUID generation and conversions to the upstream `uuid::Uuid` type
+are enabled through `dogma-uuid` features.
 
 ## Features
 

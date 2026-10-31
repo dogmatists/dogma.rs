@@ -36,12 +36,14 @@
 //!
 //! # Compatibility
 //!
-//! Lossless [`From`] conversions support interoperability with [`::uuid::Uuid`].
-//! The `std`, `arbitrary`, `atomic`, `borsh`, `bytemuck`, `js`, `serde`, `v1`, `v3`,
-//! `v4`, `v5`, `v6`, `v7`, `v8`, and `zerocopy` features are forwarded to the
-//! `uuid` crate. Other generation APIs and integrations apart from `serde` are
-//! currently accessed through that type. Random generation features require a
-//! target supported by its random source; upstream configuration
+//! The public API does not expose the `uuid` crate unless the opt-in `uuid`
+//! feature is enabled, which adds lossless [`From`] conversions to and from
+//! `uuid::Uuid`. The `std`, `js`, `serde`, `v4`, and `v7` features configure
+//! the `uuid` crate for this crate's own API. The `arbitrary`, `atomic`,
+//! `borsh`, `bytemuck`, `v1`, `v3`, `v5`, `v6`, `v8`, and `zerocopy` features
+//! enable the matching upstream features, and also `uuid`, because their APIs
+//! are reached by converting to `uuid::Uuid`. Random generation features
+//! require a target supported by the random source; upstream configuration
 //! requirements also apply to experimental integrations such as `zerocopy`.
 
 #![no_std]
@@ -51,6 +53,9 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+#[cfg(feature = "uuid")]
+#[path = "interop/uuid.rs"]
+mod interop_uuid;
 mod uuid;
 mod uuid_error;
 mod uuid_variant;
