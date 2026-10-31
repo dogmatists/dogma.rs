@@ -134,6 +134,18 @@ jobs:
             cargo check -p dogma-uri --no-default-features --features "$feature" \
               --target thumbv7em-none-eabihf
           done
+  check-minimal-versions:
+    name: Check minimal dependency versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Resolve minimal direct dependency versions
+        run: cargo update -Z direct-minimal-versions
+      - name: Run all-feature tests
+        run: cargo test --workspace --all-features
   build-ubuntu:
     name: Build on Ubuntu (${{ matrix.toolchain }})
     runs-on: ubuntu-latest

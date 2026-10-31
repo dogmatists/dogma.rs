@@ -29,15 +29,6 @@ Items marked **Breaking** belong in the next minor release, with a
   the features are not additive. Mark both enums `#[non_exhaustive]`. Apply
   the same to `MailtoError` (`interop/email_address.rs`) so it can grow.
 
-- [ ] **PKG-01: Raise dependency floors to versions that resolve.**
-  `cargo +nightly update -Z direct-minimal-versions` fails: `serde = "1"`
-  conflicts with `iri-string` and with `uuid` 1.27, which needs `serde_core`
-  >= 1.0.221. With the root `Cargo.toml` floors raised to `serde` 1.0.221,
-  `iri-string` 0.7.8 (the audited baseline), and `serde_test` 1.0.177 (older
-  versions reject `dyn` values in `assert_ser_tokens`), these pass:
-  `cargo +nightly test --workspace --all-features`. Then add a CI job that
-  runs the minimal-versions check and tests.
-
 - [ ] **API-02: Unify Miette diagnostics for identifier errors.**
   **Breaking** for code that matches diagnostic codes. `IriError` mixes
   `dogma::iri::invalid` with `dogma::iri_error::path_*`. Its
@@ -263,7 +254,7 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps
 ```
 
-For dependency-floor changes (PKG-01), also run:
+For dependency changes, also run:
 
 ```sh
 cargo +nightly update -Z direct-minimal-versions
