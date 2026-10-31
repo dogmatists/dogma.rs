@@ -15,6 +15,7 @@ pub struct IriValueParser(alloc::vec::Vec<IriScheme>);
 
 impl IriValueParser {
     /// Allows the given schemes; an empty slice allows any valid scheme.
+    #[must_use]
     pub fn new(schemes: &[IriScheme]) -> Self {
         Self(schemes.to_vec())
     }
@@ -155,6 +156,7 @@ mod uri {
 
     impl UriValueParser {
         /// Allows the given schemes; an empty slice allows any valid scheme.
+        #[must_use]
         pub fn new(schemes: &[UriScheme]) -> Self {
             Self(schemes.to_vec())
         }

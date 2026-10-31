@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `String`, which move owned storage without copying.
 - `dogma-path`: `AncestorPath` is `Copy` and converts into `NonZeroUsize` and
   `usize`.
+- Mark pure accessors, constructors, and conversions `#[must_use]`, so that
+  discarding their results warns.
 
 ## 0.3.1 - 2026-10-12
 ### Added

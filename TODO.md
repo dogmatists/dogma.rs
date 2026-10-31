@@ -76,11 +76,6 @@ Items marked **Breaking** belong in the next minor release, with a
   not work well with `?`. Use a named zero-sized error, or point callers to
   `authority()`.
 
-- [ ] **API-08: Mark pure accessors `#[must_use]`.**
-  Clippy's `must_use_candidate` reports 65 public functions whose results are
-  easy to discard by mistake. Review them, add `#[must_use]` where ignoring
-  the result is a bug, and consider enabling the lint in `[workspace.lints]`.
-
 ## Documentation
 
 - [ ] **DOC-04: Document public API behavior incrementally.**

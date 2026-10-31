@@ -157,6 +157,7 @@ impl TryFrom<&std::path::Path> for Iri<'static> {
 
 impl Iri<'_> {
     /// Borrows the underlying validated IRI without allocating or normalizing it.
+    #[must_use]
     pub fn as_iri_str(&self) -> &IriStr {
         match self {
             Iri::Borrowed(iri) => iri,
@@ -167,6 +168,7 @@ impl Iri<'_> {
     /// Borrows the original spelling, including Unicode and percent escapes.
     ///
     /// Does not allocate, decode, or normalize the identifier.
+    #[must_use]
     pub fn as_str(&self) -> &str {
         self.as_iri_str().as_str()
     }
@@ -174,6 +176,7 @@ impl Iri<'_> {
     /// Converts this IRI into an owned value with a `'static` lifetime.
     ///
     /// Borrowed strings are copied; owned strings are moved without allocating.
+    #[must_use]
     pub fn into_owned(self) -> Iri<'static> {
         match self {
             Iri::Borrowed(iri) => Iri::Owned(iri.into()),
@@ -184,6 +187,7 @@ impl Iri<'_> {
     /// Converts this IRI into its original spelling as a string.
     ///
     /// Borrowed strings are copied; owned strings are moved without allocating.
+    #[must_use]
     pub fn into_string(self) -> String {
         match self {
             Iri::Borrowed(iri) => iri.as_str().into(),
@@ -195,6 +199,7 @@ impl Iri<'_> {
     ///
     /// Unrecognized schemes have lowercase names. Use [`Self::scheme_str`] for
     /// the original spelling.
+    #[must_use]
     pub fn scheme(&self) -> IriScheme {
         let scheme = self.scheme_str();
         // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
@@ -206,11 +211,13 @@ impl Iri<'_> {
     }
 
     /// Returns the scheme name with its original spelling.
+    #[must_use]
     pub fn scheme_str(&self) -> &str {
         self.as_iri_str().scheme_str()
     }
 
     /// Returns whether an authority is present, including an empty one.
+    #[must_use]
     pub fn has_authority(&self) -> bool {
         self.authority_str().is_some()
     }
@@ -219,6 +226,7 @@ impl Iri<'_> {
     ///
     /// An empty authority still produces `Some`. Component spelling is
     /// preserved; the view also stores the scheme returned by [`Self::scheme`].
+    #[must_use]
     pub fn authority(&self) -> Option<IriAuthority<'_>> {
         IriAuthority::try_from(self).ok()
     }
@@ -230,6 +238,7 @@ impl Iri<'_> {
     /// Borrows the authority without its leading `//`, without percent decoding.
     ///
     /// Returns `None` if absent and `Some("")` if present but empty.
+    #[must_use]
     pub fn authority_str(&self) -> Option<&str> {
         self.as_iri_str().authority_str()
     }
@@ -238,6 +247,7 @@ impl Iri<'_> {
     ///
     /// The path may be empty or rootless. This does not convert to a filesystem
     /// path, percent-decode, or normalize separators.
+    #[must_use]
     pub fn path(&self) -> &str {
         self.as_iri_str().path_str()
     }
@@ -260,12 +270,14 @@ impl Iri<'_> {
     /// assert!(Iri::try_from("urn:example:item").unwrap()
     ///     .path_segments().is_none());
     /// ```
+    #[must_use]
     pub fn path_segments(&self) -> Option<Split<'_, char>> {
         let path = self.path();
         path.strip_prefix('/').map(|remainder| remainder.split('/'))
     }
 
     /// Returns whether a query delimiter is present, even with no query text.
+    #[must_use]
     pub fn has_query(&self) -> bool {
         self.query_str().is_some()
     }
@@ -274,11 +286,13 @@ impl Iri<'_> {
     ///
     /// Returns `None` if absent and `Some("")` if empty. Does not parse query
     /// parameters or apply form decoding.
+    #[must_use]
     pub fn query_str(&self) -> Option<&str> {
         self.as_iri_str().query_str()
     }
 
     /// Returns whether a fragment delimiter is present, even with no text.
+    #[must_use]
     pub fn has_fragment(&self) -> bool {
         self.fragment_str().is_some()
     }
@@ -286,6 +300,7 @@ impl Iri<'_> {
     /// Borrows the fragment without `#`, without percent decoding.
     ///
     /// Returns `None` if absent and `Some("")` if present but empty.
+    #[must_use]
     pub fn fragment_str(&self) -> Option<&str> {
         self.as_iri_str().fragment_str()
     }
@@ -308,6 +323,7 @@ impl Iri<'_> {
     /// # }
     /// ```
     #[cfg(feature = "uri")]
+    #[must_use]
     pub fn to_uri(&self) -> Uri<'_> {
         super::uri::encode_iri(self)
     }
@@ -339,6 +355,7 @@ impl Iri<'_> {
     ///
     /// See [`Self::try_to_path`] for error details.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
         self.try_to_path().ok()
     }

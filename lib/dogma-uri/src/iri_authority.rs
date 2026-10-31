@@ -43,6 +43,7 @@ impl<'a> IriAuthority<'a> {
     /// Returns `None` if absent and `Some("")` for an empty user-info component.
     /// No percent decoding or authentication is performed.
     /// See <https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.1>.
+    #[must_use]
     pub fn userinfo(&self) -> Option<&str> {
         self.components.userinfo()
     }
@@ -53,6 +54,7 @@ impl<'a> IriAuthority<'a> {
     /// returns the whole user-info string and an empty password; unlike
     /// [`Self::password`], this does not distinguish a missing password from an
     /// empty one. Later colons belong to the password; `%3A` is not a delimiter.
+    #[must_use]
     pub fn username_and_password(&self) -> Option<(&str, &str)> {
         match self.userinfo() {
             None => None,
@@ -65,6 +67,7 @@ impl<'a> IriAuthority<'a> {
     ///
     /// Returns `None` only when user information is absent. An empty username
     /// is returned as `Some("")`; percent escapes remain encoded.
+    #[must_use]
     pub fn username(&self) -> Option<&str> {
         match self.userinfo() {
             None => None,
@@ -92,6 +95,7 @@ impl<'a> IriAuthority<'a> {
     /// assert_eq!(authority.password(), None);
     /// assert_eq!(authority.username_and_password(), Some(("alice", "")));
     /// ```
+    #[must_use]
     pub fn password(&self) -> Option<&str> {
         match self.userinfo() {
             None => None,
@@ -104,6 +108,7 @@ impl<'a> IriAuthority<'a> {
     ///
     /// May be empty. Preserves case, Unicode, and percent escapes; does not
     /// perform DNS resolution, percent decoding, or IDNA conversion.
+    #[must_use]
     pub fn host_str(&self) -> &str {
         self.components.host()
     }
@@ -128,6 +133,7 @@ impl<'a> IriAuthority<'a> {
     ///     assert_eq!(authority.port(), port);
     /// }
     /// ```
+    #[must_use]
     pub fn port(&self) -> Option<u16> {
         self.port_str()
             .and_then(|port_str| port_str.parse::<u16>().ok())
@@ -137,6 +143,7 @@ impl<'a> IriAuthority<'a> {
     ///
     /// Returns `None` if absent and `Some("")` if empty. IRI syntax permits
     /// digit strings outside the `u16` range; this accessor preserves them.
+    #[must_use]
     pub fn port_str(&self) -> Option<&str> {
         self.components.port()
     }

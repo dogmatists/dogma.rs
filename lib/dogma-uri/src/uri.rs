@@ -155,6 +155,7 @@ pub(crate) fn encode_iri<'a>(iri: &'a Iri<'_>) -> Uri<'a> {
 
 impl Uri<'_> {
     /// Borrows the validated URI without allocating.
+    #[must_use]
     pub fn as_uri_str(&self) -> &UriStr {
         match self {
             Self::Borrowed(uri) => uri,
@@ -163,11 +164,13 @@ impl Uri<'_> {
     }
 
     /// Borrows the URI as an IRI; every URI is also a valid IRI.
+    #[must_use]
     pub fn as_iri_str(&self) -> &IriStr {
         self.as_uri_str().as_ref()
     }
 
     /// Returns the original string without normalization or decoding.
+    #[must_use]
     pub fn as_str(&self) -> &str {
         self.as_uri_str().as_str()
     }
@@ -175,6 +178,7 @@ impl Uri<'_> {
     /// Converts this URI into an owned value with a `'static` lifetime.
     ///
     /// Borrowed strings are copied; owned strings move without allocating.
+    #[must_use]
     pub fn into_owned(self) -> Uri<'static> {
         match self {
             Self::Borrowed(uri) => Uri::Owned(uri.into()),
@@ -185,6 +189,7 @@ impl Uri<'_> {
     /// Converts this URI into its original spelling as a string.
     ///
     /// Borrowed strings are copied; owned strings are moved without allocating.
+    #[must_use]
     pub fn into_string(self) -> String {
         match self {
             Self::Borrowed(uri) => uri.as_str().into(),
@@ -195,6 +200,7 @@ impl Uri<'_> {
     /// Clones this URI, preserving its spelling and ownership form.
     ///
     /// Borrowed strings remain borrowed; owned strings are copied.
+    #[must_use]
     pub fn to_uri(&self) -> Uri<'_> {
         self.clone()
     }
@@ -206,6 +212,7 @@ impl Uri<'_> {
     /// Unsupported schemes, authorities, queries, fragments, invalid UTF-8,
     /// NUL bytes, and encoded native separators return `None`.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn to_path(&self) -> Option<std::path::PathBuf> {
         self.try_to_path().ok()
     }
@@ -223,6 +230,7 @@ impl Uri<'_> {
     ///
     /// Unknown scheme names are lowercased. See [`Self::scheme_str`] for
     /// the original spelling.
+    #[must_use]
     pub fn scheme(&self) -> UriScheme {
         let scheme = self.scheme_str();
         // `known-schemes` 0.2.0/0.2.1 parsing omits some listed variants.
@@ -234,16 +242,19 @@ impl Uri<'_> {
     }
 
     /// Returns the scheme name with its original spelling.
+    #[must_use]
     pub fn scheme_str(&self) -> &str {
         self.as_uri_str().scheme_str()
     }
 
     /// Reports whether an authority is present, even if empty.
+    #[must_use]
     pub fn has_authority(&self) -> bool {
         self.authority_str().is_some()
     }
 
     /// Borrows the encoded authority, if present, directly from this URI.
+    #[must_use]
     pub fn authority(&self) -> Option<UriAuthority<'_>> {
         UriAuthority::try_from(self).ok()
     }
@@ -255,11 +266,13 @@ impl Uri<'_> {
     /// Returns the encoded authority, excluding its leading `//`.
     ///
     /// An empty authority is `Some("")`; an absent authority is `None`.
+    #[must_use]
     pub fn authority_str(&self) -> Option<&str> {
         self.as_uri_str().authority_str()
     }
 
     /// Returns the encoded path without normalizing dot segments.
+    #[must_use]
     pub fn path(&self) -> &str {
         self.as_uri_str().path_str()
     }
@@ -268,26 +281,31 @@ impl Uri<'_> {
     ///
     /// Preserves empty segments and escapes. Empty and rootless paths
     /// return `None`; the root path `/` yields one empty segment.
+    #[must_use]
     pub fn path_segments(&self) -> Option<Split<'_, char>> {
         self.path().strip_prefix('/').map(|path| path.split('/'))
     }
 
     /// Reports whether a query is present, even if empty.
+    #[must_use]
     pub fn has_query(&self) -> bool {
         self.query_str().is_some()
     }
 
     /// Returns the encoded query without `?`, distinguishing empty/absent.
+    #[must_use]
     pub fn query_str(&self) -> Option<&str> {
         self.as_uri_str().query_str()
     }
 
     /// Reports whether a fragment is present, even if empty.
+    #[must_use]
     pub fn has_fragment(&self) -> bool {
         self.fragment_str().is_some()
     }
 
     /// Returns the encoded fragment without `#`, distinguishing empty/absent.
+    #[must_use]
     pub fn fragment_str(&self) -> Option<&str> {
         self.as_uri_str().fragment_str()
     }

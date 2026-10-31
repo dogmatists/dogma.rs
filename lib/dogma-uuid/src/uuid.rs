@@ -41,6 +41,7 @@ impl Uuid {
     ///
     /// Panics if the random source fails.
     #[cfg(feature = "v4")]
+    #[must_use]
     pub fn new_v4() -> Self {
         Self(::uuid::Uuid::new_v4())
     }
@@ -54,6 +55,7 @@ impl Uuid {
     ///
     /// Panics if the random source fails.
     #[cfg(all(feature = "v7", feature = "std"))]
+    #[must_use]
     pub fn now_v7() -> Self {
         Self(::uuid::Uuid::now_v7())
     }
@@ -62,37 +64,44 @@ impl Uuid {
     ///
     /// Every bit is preserved, without validating or changing the version or
     /// variant fields.
+    #[must_use]
     pub const fn from_bytes(bytes: [u8; 16]) -> Self {
         Self(::uuid::Uuid::from_bytes(bytes))
     }
 
     /// Borrows the identifier's 16 bytes in network byte order.
+    #[must_use]
     pub const fn as_bytes(&self) -> &[u8; 16] {
         self.0.as_bytes()
     }
 
     /// Returns the identifier's 16 bytes in network byte order.
+    #[must_use]
     pub const fn into_bytes(self) -> [u8; 16] {
         self.0.into_bytes()
     }
 
     /// Constructs an identifier from a 128-bit integer, most significant byte
     /// first, preserving every bit.
+    #[must_use]
     pub const fn from_u128(value: u128) -> Self {
         Self(::uuid::Uuid::from_u128(value))
     }
 
     /// Returns the identifier as a 128-bit integer, most significant byte first.
+    #[must_use]
     pub const fn as_u128(&self) -> u128 {
         self.0.as_u128()
     }
 
     /// Checks whether all 128 bits are zero.
+    #[must_use]
     pub const fn is_nil(&self) -> bool {
         self.0.is_nil()
     }
 
     /// Checks whether all 128 bits are one.
+    #[must_use]
     pub const fn is_max(&self) -> bool {
         self.0.is_max()
     }
@@ -101,6 +110,7 @@ impl Uuid {
     ///
     /// The nil and max UUIDs report [`UuidVersion::Nil`] and
     /// [`UuidVersion::Max`]. Use [`Self::version_num`] for the raw field.
+    #[must_use]
     pub const fn version(&self) -> Option<UuidVersion> {
         Some(match self.version_num() {
             0 if self.is_nil() => UuidVersion::Nil,
@@ -120,11 +130,13 @@ impl Uuid {
     /// Returns the 4-bit version field as a number in `0..=15`.
     ///
     /// The field is read as is, regardless of the variant.
+    #[must_use]
     pub const fn version_num(&self) -> u8 {
         self.as_bytes()[6] >> 4
     }
 
     /// Returns the variant, which determines the layout of the other fields.
+    #[must_use]
     pub const fn variant(&self) -> UuidVariant {
         match self.as_bytes()[8] {
             byte if byte & 0x80 == 0x00 => UuidVariant::Ncs,

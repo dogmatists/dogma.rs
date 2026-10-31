@@ -24,36 +24,43 @@ impl<'a> TryFrom<&'a Uri<'_>> for UriAuthority<'a> {
 
 impl UriAuthority<'_> {
     /// Returns encoded user information, distinguishing absent and empty.
+    #[must_use]
     pub fn userinfo(&self) -> Option<&str> {
         self.0.userinfo()
     }
 
     /// Splits on the first literal `:`, using `""` for a missing password.
+    #[must_use]
     pub fn username_and_password(&self) -> Option<(&str, &str)> {
         self.0.username_and_password()
     }
 
     /// Returns the encoded username, if user information is present.
+    #[must_use]
     pub fn username(&self) -> Option<&str> {
         self.0.username()
     }
 
     /// Returns the encoded password following the first literal `:`.
+    #[must_use]
     pub fn password(&self) -> Option<&str> {
         self.0.password()
     }
 
     /// Returns the host as written, including brackets around IP literals.
+    #[must_use]
     pub fn host_str(&self) -> &str {
         self.0.host_str()
     }
 
     /// Parses an explicit port in `0..=65535`, without scheme defaults.
+    #[must_use]
     pub fn port(&self) -> Option<u16> {
         self.0.port()
     }
 
     /// Returns the explicit port string, distinguishing absent and empty.
+    #[must_use]
     pub fn port_str(&self) -> Option<&str> {
         self.0.port_str()
     }

@@ -94,16 +94,19 @@ impl AncestorPath {
     ///
     /// This is the stored lexical depth, independent of the filesystem or the
     /// number of ancestors available from a particular working directory.
+    #[must_use]
     pub const fn depth(&self) -> usize {
         self.0.get()
     }
 
     /// Always returns `false`: an ancestor path has no root or drive prefix.
+    #[must_use]
     pub const fn is_absolute(&self) -> bool {
         false
     }
 
     /// Always returns `true`: parent-directory components form a relative path.
+    #[must_use]
     pub const fn is_relative(&self) -> bool {
         true
     }
@@ -113,6 +116,7 @@ impl AncestorPath {
     /// The path is relative to the process's current working directory.
     /// Returns `false` if metadata cannot be read.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn is_dir(&self) -> bool {
         self.to_std_path_buf().is_dir()
     }
@@ -123,6 +127,7 @@ impl AncestorPath {
     /// Returns `false` if its existence cannot be determined. Use
     /// [`Self::try_exists`] to distinguish errors from a missing path.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn exists(&self) -> bool {
         self.to_std_path_buf().exists()
     }
@@ -141,6 +146,7 @@ impl AncestorPath {
     /// Uses forward slashes and a trailing slash even on Windows. The path stays
     /// relative; this conversion does not access the filesystem. Requires `std`.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn to_std_path_buf(&self) -> std::path::PathBuf {
         std::path::PathBuf::from(self.to_string())
     }
@@ -150,6 +156,7 @@ impl AncestorPath {
     /// Uses forward slashes and a trailing slash on every platform. The path
     /// stays relative; no filesystem access is performed. Requires `camino`.
     #[cfg(feature = "camino")]
+    #[must_use]
     pub fn to_path_buf(&self) -> camino::Utf8PathBuf {
         camino::Utf8PathBuf::from(self.to_string())
     }
@@ -160,6 +167,7 @@ impl AncestorPath {
     /// the value does not avoid allocation: it stores only a depth. Requires
     /// `std`.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn into_std_path_buf(self) -> std::path::PathBuf {
         std::path::PathBuf::from(self.into_string())
     }
@@ -169,6 +177,7 @@ impl AncestorPath {
     /// Produces the same relative path as [`Self::to_path_buf`]. Consuming the
     /// value does not avoid allocation: it stores only a depth. Requires `camino`.
     #[cfg(feature = "camino")]
+    #[must_use]
     pub fn into_path_buf(self) -> camino::Utf8PathBuf {
         camino::Utf8PathBuf::from(self.into_string())
     }
@@ -178,6 +187,7 @@ impl AncestorPath {
     /// The result contains `../` once per depth level, including the trailing
     /// slash. Its length is three bytes per level, so storage grows with depth.
     /// This formats the stored depth rather than recovering the original input.
+    #[must_use]
     pub fn into_string(self) -> String {
         self.to_string()
     }

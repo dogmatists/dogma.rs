@@ -49,6 +49,7 @@ impl FromPathError {
     /// [`InvalidFilename`](std::io::ErrorKind::InvalidFilename).
     /// Requires `std` and performs no filesystem access.
     #[cfg(feature = "std")]
+    #[must_use]
     pub fn into_io_error(self) -> std::io::Error {
         use FromPathError::*;
         use std::io::{Error, ErrorKind};
