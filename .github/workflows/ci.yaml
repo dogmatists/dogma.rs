@@ -100,7 +100,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@1.97.0
         with:
-          targets: thumbv7em-none-eabihf
+          targets: thumbv7em-none-eabihf, wasm32-unknown-unknown
       - name: Check without default features
         run: |
           cargo check --workspace --no-default-features
@@ -108,24 +108,17 @@ jobs:
             cargo check -p "$package" --no-default-features
             cargo check -p "$package" --no-default-features --features all
           done
-      - name: Check umbrella features
+      - name: Check each feature alone
         run: |
-          for feature in all alloc std unstable enums iri uri structs traits \
-            collection countable labeled named path uuid camino clap miette serde; do
-            cargo check -p dogma --no-default-features --features "$feature"
+          metadata=$(cargo metadata --no-deps --format-version 1)
+          for package in dogma dogma-traits dogma-path dogma-uri dogma-uuid; do
+            features=$(jq -r --arg package "$package" '.packages[]
+              | select(.name == $package) | .features | keys[]
+              | select(. != "default")' <<< "$metadata")
+            for feature in $features; do
+              cargo check -p "$package" --no-default-features --features "$feature"
+            done
           done
-      - name: Check component features
-        run: |
-          for feature in alloc std collection countable labeled named serde; do
-            cargo check -p dogma-traits --no-default-features --features "$feature"
-          done
-          for feature in std camino serde; do
-            cargo check -p dogma-path --no-default-features --features "$feature"
-          done
-          for feature in std enums structs iri uri clap miette serde; do
-            cargo check -p dogma-uri --no-default-features --features "$feature"
-          done
-          cargo check -p dogma-uuid --no-default-features --features std
       - name: Check identifier feature combinations
         run: |
           for package in dogma dogma-uri; do
@@ -142,10 +135,19 @@ jobs:
             cargo check -p "$package" --no-default-features --features all \
               --target thumbv7em-none-eabihf
           done
-          for feature in iri uri all; do
+          for feature in iri uri all fluent-uri iri-string url serde; do
             cargo check -p dogma-uri --no-default-features --features "$feature" \
               --target thumbv7em-none-eabihf
           done
+          for package in dogma dogma-traits dogma-path dogma-uuid; do
+            cargo check -p "$package" --no-default-features --features serde \
+              --target thumbv7em-none-eabihf
+          done
+      - name: Check WebAssembly target
+        run: |
+          cargo check --workspace --all-features --target wasm32-unknown-unknown
+          cargo check -p dogma-uuid --no-default-features --features v4,js \
+            --target wasm32-unknown-unknown
   check-minimal-versions:
     name: Check minimal dependency versions
     runs-on: ubuntu-latest

@@ -22,15 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Packaging, tooling, and CI
 
-- [ ] **CI-01: Close the gaps in CI feature coverage.**
-  `.github/workflows/ci.yaml` has per-feature loops that skip `email-address`,
-  `fluent-uri`, `iref`, `iri-string`, `url`, and `uriparse` (in both the
-  umbrella and `dogma-uri`), and every `dogma-uuid` feature except `std`.
-  The `thumbv7em` job never checks `url`, `iri-string`, `fluent-uri`, or
-  `serde` alone, even though the docs promise `no_std` support for them;
-  they pass locally. There is no `wasm32-unknown-unknown` check of
-  `dogma-uuid --features v4,js`. Consider `cargo hack --each-feature`.
-
 - [ ] **CI-02: Centralize lints in `[workspace.lints]`.**
   Set `missing_docs`, `rust_2018_idioms`, and `unsafe_code = "deny"` in
   `[workspace.lints]`, and add `[lints] workspace = true` to every crate.
