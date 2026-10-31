@@ -22,6 +22,8 @@
 //! into an owned string allocates. Existing inbound conversions and typed
 //! accessors are always available with the corresponding identifier feature,
 //! since `iri-string` also supplies the underlying storage and validation.
+//! The [`iri_string`] and [`known_schemes`] crates are re-exported, so their
+//! types can be named without adding matching dependencies.
 //!
 //! The `fluent-uri` feature provides checked, spelling-preserving conversions
 //! between matching URI/IRI types, for both borrowed and owned strings. Each
@@ -89,6 +91,21 @@ macro_rules! impl_str_eq {
 pub use known_schemes::UriScheme;
 #[cfg(feature = "iri")]
 pub use known_schemes::{IriScheme, OtherScheme};
+
+/// The `iri-string` crate, whose string types appear in the `Iri` and `Uri`
+/// variants and conversions.
+///
+/// Its version is part of this crate's API: upgrading it to an incompatible
+/// release is a breaking change. Available with `iri`.
+#[cfg(feature = "iri")]
+pub use iri_string;
+
+/// The `known-schemes` crate, which defines [`IriScheme`] and [`OtherScheme`].
+///
+/// Its version is part of this crate's API: upgrading it to an incompatible
+/// release is a breaking change. Available with `iri`.
+#[cfg(feature = "iri")]
+pub use known_schemes;
 
 #[cfg(feature = "iri")]
 mod iri;

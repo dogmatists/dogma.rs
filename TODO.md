@@ -49,14 +49,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## API features and ergonomics
 
-- [ ] **IDN-02: Re-export the upstream types used in public signatures.**
-  The `Iri`/`Uri` variants and `From` impls expose `iri_string::types::*`.
-  `dogma-uuid`'s `uuid` feature converts to and from `uuid::Uuid`, and
-  `IriScheme`/`UriScheme` come from `known-schemes` (whose `OtherScheme` is
-  now re-exported). Callers must therefore add matching direct dependencies.
-  Re-export these crates or types, and note in rustdoc that bumping them is a
-  breaking change.
-
 - [ ] **IDN-03: Have `Uri` accessors delegate to `Iri` ones.**
   Most `Uri` accessors (`scheme_str`, `path`, `query_str`, and so on)
   duplicate their `Iri` counterparts. Consider delegating through

@@ -52,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `String`, which move owned storage without copying.
 - `dogma-path`: `AncestorPath` is `Copy` and converts into `NonZeroUsize` and
   `usize`.
+- Re-export the upstream crates used in public signatures: `dogma-uri`
+  re-exports `iri_string` and `known_schemes`, and `dogma-uuid` re-exports
+  `uuid` with its `uuid` feature.
 - Mark pure accessors, constructors, and conversions `#[must_use]`, so that
   discarding their results warns.
 

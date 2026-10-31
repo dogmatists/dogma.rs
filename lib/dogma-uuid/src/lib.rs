@@ -45,6 +45,8 @@
 //! are reached by converting to `uuid::Uuid`. Random generation features
 //! require a target supported by the random source; upstream configuration
 //! requirements also apply to experimental integrations such as `zerocopy`.
+//! The `uuid` feature also re-exports the upstream crate as `dogma_uuid::uuid`,
+//! so its APIs can be used without a matching direct dependency.
 
 #![no_std]
 #![deny(unsafe_code)]
@@ -56,12 +58,20 @@ extern crate alloc;
 #[cfg(feature = "uuid")]
 #[path = "interop/uuid.rs"]
 mod interop_uuid;
-mod uuid;
+// Named apart from the `uuid` crate, which the `uuid` feature re-exports.
 mod uuid_error;
+#[path = "uuid.rs"]
+mod uuid_type;
 mod uuid_variant;
 mod uuid_version;
 
-pub use uuid::Uuid;
+/// The upstream `uuid` crate, for its generators and integrations.
+///
+/// Its version is part of this crate's API: upgrading it to an incompatible
+/// release is a breaking change. Requires the `uuid` feature.
+#[cfg(feature = "uuid")]
+pub use ::uuid;
 pub use uuid_error::UuidError;
+pub use uuid_type::Uuid;
 pub use uuid_variant::UuidVariant;
 pub use uuid_version::UuidVersion;

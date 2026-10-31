@@ -57,6 +57,8 @@ fn iri_reexports_preserve_type_identity() {
     };
     let other: dogma::OtherScheme = other;
     assert_eq!(other.as_str(), "x-custom");
+    let _: &dogma::iri_string::types::IriStr = iri.as_iri_str();
+    let _: dogma::uri::known_schemes::IriScheme = iri.scheme();
     #[cfg(feature = "std")]
     assert!(matches!(
         dogma::Iri::try_from(std::path::Path::new("relative")),
@@ -136,7 +138,8 @@ fn uuid_v7_generation_is_forwarded() {
 #[test]
 fn uuid_interop_is_forwarded() {
     let id = dogma::Uuid::from_bytes([0xab; 16]);
-    let upstream: uuid::Uuid = id.into();
+    let upstream: dogma::uuid::uuid::Uuid = id.into();
+    let _: uuid::Uuid = upstream;
     assert_eq!(upstream.as_bytes(), &[0xab; 16]);
     assert_eq!(dogma::Uuid::from(upstream), id);
 }
