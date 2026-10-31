@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `uuid-js`, and `uuid-interop` features.
 - `dogma-uri`: `Iri` and `Uri` implement `Borrow<str>`, so maps and sets keyed
   by them can be queried with string slices.
+- `dogma-uri`: `Iri` and `Uri` compare with `str` and `&str` in both
+  directions, by original spelling.
 
 ## 0.3.1 - 2026-10-12
 ### Added

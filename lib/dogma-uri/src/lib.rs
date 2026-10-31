@@ -54,6 +54,37 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+/// Compares an identifier's original spelling with string slices, in both
+/// directions, without normalization.
+#[cfg(feature = "iri")]
+macro_rules! impl_str_eq {
+    ($identifier:ident) => {
+        impl PartialEq<str> for $identifier<'_> {
+            fn eq(&self, other: &str) -> bool {
+                self.as_str() == other
+            }
+        }
+
+        impl PartialEq<&str> for $identifier<'_> {
+            fn eq(&self, other: &&str) -> bool {
+                self.as_str() == *other
+            }
+        }
+
+        impl PartialEq<$identifier<'_>> for str {
+            fn eq(&self, other: &$identifier<'_>) -> bool {
+                self == other.as_str()
+            }
+        }
+
+        impl PartialEq<$identifier<'_>> for &str {
+            fn eq(&self, other: &$identifier<'_>) -> bool {
+                *self == other.as_str()
+            }
+        }
+    };
+}
+
 #[cfg(feature = "iri")]
 pub use known_schemes::IriScheme;
 #[cfg(feature = "uri")]

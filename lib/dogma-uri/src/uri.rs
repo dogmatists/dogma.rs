@@ -311,6 +311,8 @@ impl PartialEq for Uri<'_> {
 
 impl Eq for Uri<'_> {}
 
+impl_str_eq!(Uri);
+
 impl PartialOrd for Uri<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -828,6 +830,17 @@ mod tests {
             assert_eq!(values.get(&owned), Some(&1));
             assert_eq!(values.insert(owned, 2), Some(1));
             assert_eq!(values.len(), 1);
+        }
+    }
+
+    #[test]
+    fn uris_compare_with_strs_without_normalization() {
+        let text = "https://example.com/caf%C3%A9";
+        for uri in representations(text) {
+            assert!(uri == *text && *text == uri);
+            assert!(uri == text && text == uri);
+            assert!(uri != "https://example.com/caf%c3%a9");
+            assert!("https://EXAMPLE.com/caf%C3%A9" != uri);
         }
     }
 
