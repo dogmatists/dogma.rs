@@ -21,7 +21,7 @@ enums = ["iri", "uri"]
 iri = ["dep:iri-string", "dep:known-schemes"]
 uri = ["iri"]
 structs = ["iri", "uri"]
-clap = ["dep:clap", "known-schemes?/clap", "std"]
+clap = ["dep:clap", "clap/error-context", "known-schemes?/clap", "std"]
 email-address = ["dep:email_address", "uri", "std"]
 fluent-uri = ["dep:fluent-uri", "uri"]
 # iref 4.3 enables thiserror/std even with its defaults disabled.

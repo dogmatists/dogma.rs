@@ -21,19 +21,111 @@ impl clap::builder::TypedValueParser for IriValueParser {
     fn parse_ref(
         &self,
         cmd: &clap::Command,
-        _arg: Option<&clap::Arg>,
+        arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, clap::Error> {
         use clap::error::{Error, ErrorKind};
         let str_value = value
             .to_str()
             .ok_or_else(|| Error::new(ErrorKind::InvalidUtf8).with_cmd(cmd))?;
-        let iri_value = Iri::from_str(str_value)
-            .map_err(|_err| Error::new(ErrorKind::ValueValidation).with_cmd(cmd))?;
-        if !self.0.is_empty() && !self.0.contains(&iri_value.scheme()) {
-            return Err(Error::new(ErrorKind::ValueValidation).with_cmd(cmd));
-        }
+        let iri_value = Iri::from_str(str_value).map_err(|_err| {
+            clap_value_error(
+                cmd,
+                arg,
+                str_value,
+                "expected an absolute IRI, such as 'https://example.com/'",
+            )
+        })?;
+        let schemes = self.0.iter().map(IriScheme::as_str);
+        clap_check_scheme(cmd, arg, str_value, iri_value.scheme().as_str(), schemes)?;
         Ok(iri_value)
+    }
+}
+
+/// Builds a value-validation error that names the argument and the rejected
+/// value, with `tip` explaining the rejection.
+fn clap_value_error(
+    cmd: &clap::Command,
+    arg: Option<&clap::Arg>,
+    value: &str,
+    tip: impl Into<alloc::string::String>,
+) -> clap::Error {
+    use alloc::string::ToString;
+    use clap::error::{ContextKind, ContextValue, Error, ErrorKind};
+    let arg = arg.map_or_else(|| "...".to_string(), ToString::to_string);
+    let mut error = Error::new(ErrorKind::ValueValidation).with_cmd(cmd);
+    error.insert(ContextKind::InvalidArg, ContextValue::String(arg));
+    error.insert(
+        ContextKind::InvalidValue,
+        ContextValue::String(value.to_string()),
+    );
+    error.insert(
+        ContextKind::Suggested,
+        ContextValue::StyledStrs(alloc::vec![tip.into().into()]),
+    );
+    error
+}
+
+/// Rejects `scheme` unless `allowed` is empty or contains it, listing the
+/// allowed schemes in the error.
+fn clap_check_scheme<'a>(
+    cmd: &clap::Command,
+    arg: Option<&clap::Arg>,
+    value: &str,
+    scheme: &str,
+    allowed: impl ExactSizeIterator<Item = &'a str> + Clone,
+) -> Result<(), clap::Error> {
+    if allowed.len() == 0 || allowed.clone().any(|allowed| allowed == scheme) {
+        return Ok(());
+    }
+    let allowed = allowed.collect::<alloc::vec::Vec<_>>().join(", ");
+    let tip = alloc::format!("scheme '{scheme}' is not allowed; use one of: {allowed}");
+    Err(clap_value_error(cmd, arg, value, tip))
+}
+
+#[cfg(test)]
+mod clap_tests {
+    use super::*;
+    use alloc::string::{String, ToString};
+
+    fn render(parser: IriValueParser, value: &str) -> String {
+        clap::Command::new("test")
+            .arg(clap::Arg::new("iri").value_parser(parser))
+            .try_get_matches_from(["test", value])
+            .unwrap_err()
+            .render()
+            .to_string()
+    }
+
+    #[test]
+    fn parser_errors_name_argument_value_and_reason() {
+        let message = render(IriValueParser::new(&[]), "relative/path");
+        assert!(
+            message.contains("invalid value 'relative/path' for '[iri]'"),
+            "{message}"
+        );
+        assert!(message.contains("tip: expected an absolute IRI"), "{message}");
+
+        let schemes = [IriScheme::Https, IriScheme::Ftp];
+        let message = render(IriValueParser::new(&schemes), "http://例.example/");
+        assert!(
+            message.contains("invalid value 'http://例.example/' for '[iri]'"),
+            "{message}"
+        );
+        assert!(
+            message.contains("tip: scheme 'http' is not allowed; use one of: https, ftp"),
+            "{message}"
+        );
+    }
+
+    #[test]
+    fn parser_errors_without_argument_use_placeholder() {
+        use clap::builder::TypedValueParser;
+        let error = IriValueParser::new(&[])
+            .parse_ref(&clap::Command::new("test"), None, "%".as_ref())
+            .unwrap_err();
+        assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
+        assert!(error.render().to_string().contains("invalid value '%' for '...'"));
     }
 }
 
@@ -61,7 +153,7 @@ mod uri {
         fn parse_ref(
             &self,
             cmd: &clap::Command,
-            _arg: Option<&clap::Arg>,
+            arg: Option<&clap::Arg>,
             value: &std::ffi::OsStr,
         ) -> Result<Self::Value, clap::Error> {
             use clap::error::{Error, ErrorKind};
@@ -69,12 +161,17 @@ mod uri {
             let text = value
                 .to_str()
                 .ok_or_else(|| Error::new(ErrorKind::InvalidUtf8).with_cmd(cmd))?;
-            let uri: Uri<'static> = text
-                .parse()
-                .map_err(|_| Error::new(ErrorKind::ValueValidation).with_cmd(cmd))?;
-            if !self.0.is_empty() && !self.0.contains(&uri.scheme()) {
-                return Err(Error::new(ErrorKind::ValueValidation).with_cmd(cmd));
-            }
+            let uri: Uri<'static> = text.parse().map_err(|_| {
+                super::clap_value_error(
+                    cmd,
+                    arg,
+                    text,
+                    "expected an absolute ASCII URI, such as 'https://example.com/'; \
+                     percent-encode any Unicode",
+                )
+            })?;
+            let schemes = self.0.iter().map(UriScheme::as_str);
+            super::clap_check_scheme(cmd, arg, text, uri.scheme().as_str(), schemes)?;
             Ok(uri)
         }
     }
@@ -82,7 +179,7 @@ mod uri {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use alloc::string::String;
+        use alloc::string::{String, ToString};
         use clap::{builder::TypedValueParser, error::ErrorKind};
         use std::ffi::OsStr;
 
@@ -161,6 +258,30 @@ mod uri {
                     "{text}"
                 );
             }
+        }
+
+        #[test]
+        fn parser_errors_name_argument_value_and_reason() {
+            let render = |schemes: &[UriScheme], value: &str| {
+                clap::Command::new("test")
+                    .arg(clap::Arg::new("uri").long("uri").value_parser(UriValueParser::new(schemes)))
+                    .try_get_matches_from(["test", "--uri", value])
+                    .unwrap_err()
+                    .render()
+                    .to_string()
+            };
+            let message = render(&[], "https://例.example/");
+            assert!(
+                message.contains("invalid value 'https://例.example/' for '--uri <uri>'"),
+                "{message}"
+            );
+            assert!(message.contains("percent-encode any Unicode"), "{message}");
+
+            let message = render(&[UriScheme::Https], "http://example.com/");
+            assert!(
+                message.contains("tip: scheme 'http' is not allowed; use one of: https"),
+                "{message}"
+            );
         }
 
         #[cfg(any(unix, windows))]

@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `dogma::uri::*`, replacing `dogma::iri_error::*` and `dogma::uri_error::*`.
   `IriError::PathPrefixUnsupported` and every `IriToPathError` variant
   (`dogma::iri::to_path::*`) now have codes, help text, and URLs.
+- `IriValueParser` and `UriValueParser` errors now name the argument and the
+  rejected value, and explain the rejection, listing allowed schemes when
+  filtering. The `clap` feature now enables Clap's `error-context`.
 
 ## 0.3.1 - 2026-10-12
 ### Added

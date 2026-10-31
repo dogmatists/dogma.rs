@@ -22,13 +22,6 @@ Items marked **Breaking** belong in the next minor release, with a
 
 ## Correctness and compatibility
 
-- [ ] **API-03: Add context to Clap value-parser errors.**
-  `lib/dogma-uri/src/interop/clap.rs` returns bare
-  `ErrorKind::ValueValidation` errors, which lose the argument, the rejected
-  value, and the reason (bad syntax versus a disallowed scheme). Add Clap
-  `ContextKind::InvalidArg` and `ContextKind::InvalidValue`, and list the
-  allowed schemes when filtering. Test the rendered messages.
-
 - [ ] **API-04: Percent-decode registered names before socket resolution.**
   `IriAuthority`'s `ToSocketAddrs` (`iri_authority.rs`) gives the resolver
   `host_str()` as written, so `http://%6Cocalhost/` fails to resolve and empty
@@ -186,8 +179,10 @@ Items marked **Breaking** belong in the next minor release, with a
   Put behavior tests in the owning crate; keep umbrella tests focused on
   re-exports and feature forwarding. Test real examples when adding them;
   `lib/dogma/examples/` currently contains only `.gitkeep`. Specific gaps:
-  - `IriValueParser` has no tests. Also turn its `include!` in `iri.rs`
-    into a `#[path]` module, like the other interop files.
+  - `IriValueParser` tests cover only error messages; mirror the
+    `UriValueParser` success, filtering, and UTF-8 tests. Also turn its
+    `include!` in `iri.rs` into a `#[path]` module, like the other interop
+    files.
   - In `lib/dogma-path/src/ancestor_path.rs`, raw strings such as
     `r"..\\.."` and `r"\\\\server\\share"` contain doubled backslashes, so
     they test repeated separators rather than the intended input.
